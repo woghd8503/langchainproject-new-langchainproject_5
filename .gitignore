@@ -158,4 +158,4 @@ nosetests.xml # Test results
 docs/*.md
 
 # Git 추적되도록 예외 처리
-!logs/**/*.log
+!experiments/**/*.log
