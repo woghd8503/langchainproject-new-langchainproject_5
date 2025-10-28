@@ -1,3 +1,11 @@
+---
+name: 🔬 Experiment
+about: 실험 계획 및 결과 기록
+title: '[EXP] 실험명'
+labels: ['type: experiment']
+assignees: ''
+---
+
 ## 제목 : (이슈 제목)
 
 ---

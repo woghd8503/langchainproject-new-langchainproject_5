@@ -1,3 +1,11 @@
+---
+name: 📋 Todo List
+about: 작업 항목 관리 및 체크리스트
+title: '[TODO] 작업 제목'
+labels: ['type: todo']
+assignees: ''
+---
+
 ## 제목 : (이슈 제목)
 
 ---
