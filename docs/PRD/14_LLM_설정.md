@@ -130,6 +130,13 @@ sequenceDiagram
     Client-->>Agent: 최종 답변 반환
 ```
 
+**LLM API 호출 흐름 설명:**
+- AI Agent가 질문에 대한 답변을 생성할 때 LLM Client가 난이도에 따라 적절한 모델을 선택하는 과정을 표현
+- Agent가 질문과 난이도를 LLM Client에 전달하면 Client는 난이도별로 최적의 모델을 선택
+- Easy 모드와 한국어 답변이 필요한 경우 Solar API의 solar-pro 모델을 호출하여 한국어에 특화된 답변을 생성
+- Hard 모드이거나 영어 답변이 필요한 경우 OpenAI API의 GPT-4 모델을 호출하여 상세하고 전문적인 답변을 생성
+- 선택된 API에서 답변을 받아 Agent에 최종 답변을 반환
+
 ### 3.2 에러 처리 흐름
 
 ```mermaid
@@ -175,6 +182,12 @@ graph TB
     style H fill:#ffcc80,stroke:#f57c00,color:#000
     style I fill:#ef9a9a,stroke:#c62828,color:#000
 ```
+
+**에러 처리 흐름 설명:**
+- LLM API 호출 시 발생할 수 있는 에러를 체계적으로 처리하는 전체 프로세스를 3단계로 표현
+- API 요청 단계에서 LLM을 호출하여 에러 없이 성공하면 정상 응답을 반환
+- 재시도 로직 단계에서 에러 발생 시 재시도 횟수를 확인하여 3회 미만이면 Exponential Backoff(2^n초)로 대기 후 재시도하고, 3회 이상이면 최종 실패로 에러 로그를 기록
+- 대체 전략 단계에서 최종 실패 시 대체 API 사용 여부를 확인하여 가능하면 다른 모델로 재시도하고, 불가능하면 사용자에게 에러 메시지를 전달
 
 ### 3.3 재시도 로직 구현
 
