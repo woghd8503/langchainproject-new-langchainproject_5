@@ -80,6 +80,54 @@
 ### 사용하는 DB
 **DB 사용 없음** (LLM 자체 지식 활용)
 
+### 예제 코드
+
+```python
+# src/agent/nodes.py
+
+from typing import TypedDict
+from langchain_openai import ChatOpenAI
+from langchain.schema import SystemMessage, HumanMessage
+
+class AgentState(TypedDict):
+    question: str
+    difficulty: str
+    tool_choice: str
+    final_answer: str
+
+def general_answer_node(state: AgentState):
+    """
+    일반 답변 노드: LLM의 자체 지식으로 직접 답변
+    """
+    question = state["question"]
+    difficulty = state.get("difficulty", "easy")
+
+    # 난이도에 따른 SystemMessage 설정
+    if difficulty == "easy":
+        system_msg = SystemMessage(content="""
+당신은 친절한 AI 어시스턴트입니다.
+초심자도 이해할 수 있도록 쉽고 명확하게 답변해주세요.
+전문 용어는 최소화하고 일상적인 언어를 사용하세요.
+        """)
+    else:  # hard
+        system_msg = SystemMessage(content="""
+당신은 전문적인 AI 어시스턴트입니다.
+기술적인 세부사항을 포함하여 정확하고 전문적으로 답변해주세요.
+        """)
+
+    # LLM 초기화
+    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7)
+
+    # 메시지 구성 및 LLM 호출
+    messages = [system_msg, HumanMessage(content=question)]
+    response = llm.invoke(messages)
+
+    # 최종 답변 저장
+    state["final_answer"] = response.content
+
+    return state
+```
+
 ---
 
 ## 도구 2: 논문 요약 도구
@@ -128,6 +176,92 @@
 - **역할**: 논문 메타데이터 조회 (제목으로 paper_id 찾기)
 - **쿼리**: `SELECT * FROM papers WHERE title ILIKE '%{paper_title}%'`
 
+### 예제 코드
+
+```python
+# src/tools/summarize.py
+
+from langchain.tools import tool
+from langchain_postgres.vectorstores import PGVector
+from langchain_openai import ChatOpenAI
+from langchain.chains.summarize import load_summarize_chain
+from langchain.prompts import PromptTemplate
+import psycopg2
+
+@tool
+def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
+    """
+    특정 논문을 요약합니다. 난이도에 따라 초심자용/전문가용 요약을 제공합니다.
+
+    Args:
+        paper_title: 논문 제목
+        difficulty: 'easy' (초심자) 또는 'hard' (전문가)
+
+    Returns:
+        논문 요약 내용
+    """
+    # 1. PostgreSQL에서 논문 메타데이터 조회
+    conn = psycopg2.connect("postgresql://user:password@localhost/papers")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM papers WHERE title ILIKE %s",
+        (f"%{paper_title}%",)
+    )
+    paper_meta = cursor.fetchone()
+
+    if not paper_meta:
+        return f"'{paper_title}' 논문을 찾을 수 없습니다."
+
+    paper_id = paper_meta[0]
+
+    # 2. Vector DB에서 논문 전체 내용 조회
+    vectorstore = PGVector(
+        collection_name="paper_chunks",
+        connection_string="postgresql://user:password@localhost:5432/papers"
+    )
+
+    paper_chunks = vectorstore.similarity_search(
+        paper_title,
+        k=10,
+        filter={"paper_id": paper_id}
+    )
+
+    # 3. 난이도별 프롬프트
+    if difficulty == "easy":
+        prompt_template = """
+다음 논문을 초심자도 이해할 수 있도록 쉽게 요약해주세요:
+- 전문 용어는 풀어서 설명
+- 핵심 아이디어 3가지
+- 실생활 비유 포함
+
+논문 내용: {text}
+
+쉬운 요약:
+        """
+    else:  # hard
+        prompt_template = """
+다음 논문을 전문가 수준으로 요약해주세요:
+- 기술적 세부사항 포함
+- 수식 및 알고리즘 설명
+- 관련 연구와의 비교
+
+논문 내용: {text}
+
+전문가용 요약:
+        """
+
+    PROMPT = PromptTemplate(template=prompt_template, input_variables=["text"])
+
+    # 4. 요약 체인 실행
+    llm = ChatOpenAI(model="gpt-4", temperature=0)
+    chain = load_summarize_chain(llm, chain_type="stuff", prompt=PROMPT)
+
+    summary = chain.run(paper_chunks)
+
+    return summary
+```
+
 ---
 
 ## LangGraph Agent 그래프 구현
@@ -174,6 +308,95 @@
 - `route_to_tool` 함수: state["tool_choice"] 값을 반환
 - add_conditional_edges에서 이 함수를 사용하여 다음 노드 결정
 
+### 예제 코드
+
+```python
+# src/agent/graph.py
+
+from langgraph.graph import StateGraph, END
+from typing import TypedDict
+from langchain_openai import ChatOpenAI
+
+class AgentState(TypedDict):
+    question: str
+    difficulty: str
+    tool_choice: str
+    tool_result: str
+    final_answer: str
+
+def router_node(state: AgentState):
+    """
+    질문을 분석하여 어떤 도구를 사용할지 결정
+    """
+    question = state["question"]
+
+    # LLM에게 라우팅 결정 요청
+    routing_prompt = f"""
+사용자 질문을 분석하여 적절한 도구를 선택하세요:
+
+도구 목록:
+- search_paper: 논문 데이터베이스에서 검색
+- web_search: 웹에서 최신 논문 검색
+- glossary: 용어 정의 검색
+- summarize: 논문 요약
+- save_file: 파일 저장
+- general: 일반 답변
+
+질문: {question}
+
+하나의 도구 이름만 반환하세요:
+    """
+
+    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    tool_choice = llm.invoke(routing_prompt).content.strip()
+
+    state["tool_choice"] = tool_choice
+    return state
+
+def route_to_tool(state: AgentState):
+    """라우팅 결정에 따라 다음 노드 선택"""
+    return state["tool_choice"]
+
+def create_agent_graph():
+    """LangGraph Agent 그래프 생성"""
+    workflow = StateGraph(AgentState)
+
+    # 노드 추가
+    workflow.add_node("router", router_node)
+    workflow.add_node("search_paper", search_paper_node)
+    workflow.add_node("web_search", web_search_node)
+    workflow.add_node("glossary", glossary_node)
+    workflow.add_node("summarize", summarize_node)
+    workflow.add_node("save_file", save_file_node)
+    workflow.add_node("general", general_answer_node)
+
+    # 시작점 설정
+    workflow.set_entry_point("router")
+
+    # 조건부 엣지 설정
+    workflow.add_conditional_edges(
+        "router",
+        route_to_tool,
+        {
+            "search_paper": "search_paper",
+            "web_search": "web_search",
+            "glossary": "glossary",
+            "summarize": "summarize",
+            "save_file": "save_file",
+            "general": "general"
+        }
+    )
+
+    # 모든 노드에서 종료
+    for node in ["search_paper", "web_search", "glossary", "summarize", "save_file", "general"]:
+        workflow.add_edge(node, END)
+
+    # 그래프 컴파일
+    agent_executor = workflow.compile()
+
+    return agent_executor
+```
+
 ---
 
 ## LLM 클라이언트 구현
@@ -216,6 +439,81 @@
   - summarization: GPT-4 (품질 중요)
   - 기본값: GPT-3.5-turbo (비용 효율)
 
+### 예제 코드
+
+```python
+# src/llm/client.py
+
+import os
+from langchain_openai import ChatOpenAI
+from langchain_upstage import ChatUpstage
+from tenacity import retry, stop_after_attempt, wait_exponential
+from langchain.callbacks import get_openai_callback
+
+class LLMClient:
+    """다중 LLM 클라이언트 클래스"""
+
+    def __init__(self, provider="openai", model="gpt-3.5-turbo", temperature=0.7):
+        """
+        Args:
+            provider: "openai" 또는 "solar"
+            model: 모델 이름
+            temperature: 창의성 수준 (0-1)
+        """
+        self.provider = provider
+
+        if provider == "openai":
+            self.llm = ChatOpenAI(
+                model=model,
+                temperature=temperature,
+                openai_api_key=os.getenv("OPENAI_API_KEY"),
+                streaming=True
+            )
+        elif provider == "solar":
+            self.llm = ChatUpstage(
+                model="solar-1-mini-chat",
+                temperature=temperature,
+                api_key=os.getenv("UPSTAGE_API_KEY"),
+                streaming=True
+            )
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=2, min=2, max=8))
+    def invoke_with_retry(self, messages):
+        """
+        에러 핸들링 및 재시도
+        최대 3회 재시도, 지수 백오프 (2초 → 4초 → 8초)
+        """
+        return self.llm.invoke(messages)
+
+    def invoke_with_tracking(self, messages):
+        """토큰 사용량 추적"""
+        if self.provider == "openai":
+            with get_openai_callback() as cb:
+                response = self.llm.invoke(messages)
+                print(f"Tokens Used: {cb.total_tokens}")
+                print(f"Total Cost: ${cb.total_cost:.4f}")
+                return response
+        else:
+            return self.llm.invoke(messages)
+
+    async def astream(self, messages):
+        """스트리밍 응답 처리"""
+        async for chunk in self.llm.astream(messages):
+            yield chunk
+
+
+def get_llm_for_task(task_type):
+    """작업 유형별 최적 LLM 선택"""
+    if task_type == "routing":
+        return LLMClient(provider="solar", model="solar-1-mini-chat", temperature=0)
+    elif task_type == "generation":
+        return LLMClient(provider="openai", model="gpt-4", temperature=0.7)
+    elif task_type == "summarization":
+        return LLMClient(provider="openai", model="gpt-4", temperature=0)
+    else:
+        return LLMClient(provider="openai", model="gpt-3.5-turbo", temperature=0.7)
+```
+
 ---
 
 ## 대화 메모리 시스템
@@ -244,6 +542,79 @@
 - Agent 실행 시 messages 필드에 메모리 히스토리 전달
 - 응답 생성 후 사용자 메시지와 AI 메시지를 메모리에 추가
 - 이후 질문에서 이전 대화 컨텍스트 활용
+
+### 예제 코드
+
+```python
+# src/memory/chat_history.py
+
+from langchain.memory import ConversationBufferMemory
+from langchain_postgres import PostgresChatMessageHistory
+import os
+
+class ChatMemoryManager:
+    """대화 메모리 관리 클래스"""
+
+    def __init__(self):
+        """ConversationBufferMemory 초기화"""
+        self.memory = ConversationBufferMemory(
+            return_messages=True,
+            memory_key="chat_history"
+        )
+
+    def add_user_message(self, message: str):
+        """사용자 메시지 추가"""
+        self.memory.chat_memory.add_user_message(message)
+
+    def add_ai_message(self, message: str):
+        """AI 메시지 추가"""
+        self.memory.chat_memory.add_ai_message(message)
+
+    def get_history(self):
+        """전체 대화 히스토리 반환"""
+        return self.memory.load_memory_variables({})
+
+    def clear(self):
+        """대화 히스토리 초기화"""
+        self.memory.clear()
+
+
+def get_session_history(session_id: str):
+    """
+    세션 기반 메모리 (PostgreSQL 저장)
+
+    Args:
+        session_id: 세션 ID
+
+    Returns:
+        PostgresChatMessageHistory 인스턴스
+    """
+    connection_string = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/papers")
+
+    return PostgresChatMessageHistory(
+        session_id=session_id,
+        connection_string=connection_string,
+        table_name="chat_history"
+    )
+
+
+# 사용 예시
+if __name__ == "__main__":
+    # 기본 메모리 사용
+    memory_manager = ChatMemoryManager()
+
+    memory_manager.add_user_message("Transformer 논문 설명해줘")
+    memory_manager.add_ai_message("Transformer는 2017년 Google에서 발표한...")
+
+    print(memory_manager.get_history())
+
+    # 세션 기반 메모리 사용
+    session_history = get_session_history("user_123")
+    session_history.add_user_message("BERT 논문은?")
+    session_history.add_ai_message("BERT는 2018년에...")
+
+    print(session_history.messages)
+```
 
 ---
 

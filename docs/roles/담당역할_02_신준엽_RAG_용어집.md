@@ -113,6 +113,181 @@
    - base_compressor와 base_retriever 설정
 4. 긴 문서를 검색 후, 질문과 관련된 부분만 추출하여 컨텍스트 크기 감소
 
+### 예제 코드
+
+```python
+# src/rag/retriever.py
+
+from langchain_postgres.vectorstores import PGVector
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain.retrievers import MultiQueryRetriever
+
+class RAGRetriever:
+    """논문 검색을 위한 RAG Retriever"""
+
+    def __init__(self):
+        # OpenAI Embeddings 초기화
+        self.embeddings = OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            openai_api_key=os.getenv("OPENAI_API_KEY")
+        )
+
+        # PostgreSQL + pgvector VectorStore 초기화
+        self.vectorstore = PGVector(
+            collection_name="paper_chunks",
+            embedding_function=self.embeddings,
+            connection_string="postgresql://user:password@localhost:5432/papers"
+        )
+
+        # 기본 Retriever 설정 (MMR 방식)
+        self.base_retriever = self.vectorstore.as_retriever(
+            search_type="mmr",
+            search_kwargs={
+                "k": 5,  # 최종 반환 문서 수
+                "fetch_k": 20,  # MMR 후보 문서 수
+                "lambda_mult": 0.5  # 관련성 vs 다양성 균형
+            }
+        )
+
+        # MultiQuery Retriever 구현
+        self.llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+        self.multi_query_retriever = MultiQueryRetriever.from_llm(
+            retriever=self.base_retriever,
+            llm=self.llm
+        )
+
+    def retrieve(self, query: str, use_multi_query: bool = True):
+        """
+        문서 검색
+
+        Args:
+            query: 검색 질문
+            use_multi_query: MultiQuery 사용 여부
+
+        Returns:
+            검색된 Document 리스트
+        """
+        if use_multi_query:
+            docs = self.multi_query_retriever.invoke(query)
+        else:
+            docs = self.base_retriever.invoke(query)
+
+        return docs
+
+    def retrieve_with_filter(self, query: str, filter_dict: dict):
+        """
+        메타데이터 필터링을 포함한 검색
+
+        Args:
+            query: 검색 질문
+            filter_dict: 필터 딕셔너리 (예: {"year": {"$gte": 2020}})
+
+        Returns:
+            검색된 Document 리스트
+        """
+        filtered_retriever = self.vectorstore.as_retriever(
+            search_type="similarity",
+            search_kwargs={
+                "k": 5,
+                "filter": filter_dict
+            }
+        )
+
+        docs = filtered_retriever.invoke(query)
+        return docs
+
+    def retrieve_with_scores(self, query: str):
+        """
+        유사도 점수를 포함한 검색
+
+        Args:
+            query: 검색 질문
+
+        Returns:
+            (Document, score) 튜플 리스트
+        """
+        docs_with_scores = self.vectorstore.similarity_search_with_score(query, k=5)
+        return docs_with_scores
+
+
+# src/tools/rag_search.py
+
+from langchain.tools import tool
+import psycopg2
+
+@tool
+def search_paper_database(query: str, year_filter: int = None) -> str:
+    """
+    논문 데이터베이스에서 관련 논문을 검색합니다.
+
+    Args:
+        query: 검색할 질문 또는 키워드
+        year_filter: 선택적 년도 필터 (예: 2020 이상)
+
+    Returns:
+        관련 논문 내용 및 메타데이터
+    """
+    # RAG Retriever 초기화
+    rag_retriever = RAGRetriever()
+
+    # Vector DB에서 유사도 검색
+    if year_filter:
+        docs = rag_retriever.retrieve_with_filter(
+            query,
+            filter_dict={"year": {"$gte": year_filter}}
+        )
+    else:
+        docs = rag_retriever.retrieve(query, use_multi_query=True)
+
+    # PostgreSQL에서 메타데이터 조회
+    conn = psycopg2.connect("postgresql://user:password@localhost/papers")
+    cursor = conn.cursor()
+
+    results = []
+    for doc in docs:
+        paper_id = doc.metadata.get("paper_id")
+
+        cursor.execute(
+            "SELECT title, authors, publish_date, url FROM papers WHERE paper_id = %s",
+            (paper_id,)
+        )
+        meta = cursor.fetchone()
+
+        if meta:
+            results.append({
+                "title": meta[0],
+                "authors": meta[1],
+                "publish_date": meta[2],
+                "url": meta[3],
+                "content": doc.page_content,
+                "section": doc.metadata.get("section", "본문")
+            })
+
+    cursor.close()
+    conn.close()
+
+    return format_search_results(results)
+
+
+def format_search_results(results):
+    """검색 결과를 Markdown 형식으로 포맷팅"""
+    if not results:
+        return "관련 논문을 찾을 수 없습니다."
+
+    formatted = "## 검색된 논문\n\n"
+
+    for i, result in enumerate(results, 1):
+        formatted += f"### {i}. {result['title']}\n"
+        formatted += f"- **저자**: {result['authors']}\n"
+        formatted += f"- **출판일**: {result['publish_date']}\n"
+        formatted += f"- **URL**: {result['url']}\n"
+        formatted += f"- **섹션**: {result['section']}\n\n"
+        formatted += f"{result['content'][:500]}...\n\n"
+        formatted += "---\n\n"
+
+    return formatted
+```
+
 ### 사용하는 DB
 
 #### PostgreSQL + pgvector (Vector DB)
@@ -236,6 +411,146 @@
    - 각 용어에 대해 이름과 설명을 Markdown 형식으로 포맷팅
    - "관련 용어 정의" 섹션으로 구성
 4. 검색된 용어가 없으면 빈 문자열 반환
+
+### 예제 코드
+
+```python
+# src/rag/glossary_retriever.py
+
+from langchain_postgres.vectorstores import PGVector
+from langchain_openai import OpenAIEmbeddings
+
+class GlossaryRetriever:
+    """용어집 검색을 위한 Retriever"""
+
+    def __init__(self):
+        # OpenAI Embeddings 초기화
+        self.embeddings = OpenAIEmbeddings(
+            model="text-embedding-3-small"
+        )
+
+        # 용어집 전용 VectorStore 초기화
+        self.glossary_store = PGVector(
+            collection_name="glossary_embeddings",
+            embedding_function=self.embeddings,
+            connection_string="postgresql://user:password@localhost:5432/papers"
+        )
+
+        # Retriever 설정
+        self.retriever = self.glossary_store.as_retriever(
+            search_type="similarity",
+            search_kwargs={"k": 3}
+        )
+
+    def search(self, term: str):
+        """용어 검색"""
+        docs = self.retriever.invoke(term)
+        return docs
+
+
+# src/tools/glossary.py
+
+from langchain.tools import tool
+import psycopg2
+
+@tool
+def search_glossary(term: str, difficulty: str = "easy") -> str:
+    """
+    논문 용어집에서 전문 용어를 검색하여 설명합니다.
+
+    Args:
+        term: 검색할 용어
+        difficulty: 'easy' (초심자) 또는 'hard' (전문가)
+
+    Returns:
+        용어 정의 및 설명
+    """
+    # 1. PostgreSQL glossary 테이블에서 직접 검색
+    conn = psycopg2.connect("postgresql://user:password@localhost/papers")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """SELECT term, definition, easy_explanation, hard_explanation, category
+           FROM glossary WHERE term ILIKE %s""",
+        (f"%{term}%",)
+    )
+    result = cursor.fetchone()
+
+    if result:
+        term_name, definition, easy_exp, hard_exp, category = result
+
+        # 난이도에 따라 설명 선택
+        explanation = easy_exp if difficulty == "easy" else hard_exp
+
+        formatted = f"## {term_name}\n\n"
+        formatted += f"**카테고리**: {category}\n\n"
+        formatted += f"**정의**: {definition}\n\n"
+        formatted += f"**설명**: {explanation}\n"
+
+        cursor.close()
+        conn.close()
+        return formatted
+
+    # 2. PostgreSQL에 없으면 Vector DB에서 검색
+    glossary_retriever = GlossaryRetriever()
+    docs = glossary_retriever.search(term)
+
+    if docs:
+        cursor.close()
+        conn.close()
+        return f"## {term} (유사 용어)\n\n{docs[0].page_content}"
+
+    # 3. Vector DB에도 없으면 논문 본문에서 검색
+    from src.tools.rag_search import search_paper_database
+    result = search_paper_database(f"{term} 정의")
+
+    cursor.close()
+    conn.close()
+    return result
+
+
+# src/rag/context_enhancer.py
+
+import psycopg2
+
+def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
+    """
+    사용자 질문에서 전문 용어를 추출하여 프롬프트에 추가
+
+    Args:
+        user_query: 사용자 질문
+        difficulty: 난이도
+
+    Returns:
+        용어 정의 컨텍스트 문자열
+    """
+    # PostgreSQL 연결 및 용어 검색
+    conn = psycopg2.connect("postgresql://user:password@localhost/papers")
+    cursor = conn.cursor()
+
+    # 질문에서 용어 찾기
+    cursor.execute(
+        """SELECT term, definition, easy_explanation
+           FROM glossary
+           WHERE %s ILIKE '%' || term || '%'""",
+        (user_query,)
+    )
+
+    terms_found = cursor.fetchall()
+
+    if terms_found:
+        glossary_context = "\n\n## 관련 용어 정의\n\n"
+        for term, definition, easy_exp in terms_found:
+            glossary_context += f"- **{term}**: {easy_exp}\n"
+
+        cursor.close()
+        conn.close()
+        return glossary_context
+
+    cursor.close()
+    conn.close()
+    return ""
+```
 
 ### 사용하는 DB
 
