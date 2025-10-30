@@ -30,7 +30,7 @@ graph TB
 
     subgraph Generate["🔺 답변 생성"]
         direction LR
-        J[컨텍스트 구성] --> K[LLM 생성<br/>GPT-4]
+        J[컨텍스트 구성] --> K[LLM 생성<br/>OpenAI / Solar]
         K --> L[✅ 답변]
     end
 
@@ -43,6 +43,24 @@ graph TB
     style Prepare fill:#e1f5ff,stroke:#01579b,stroke-width:3px,color:#000
     style Search fill:#f3e5f5,stroke:#4a148c,stroke-width:3px,color:#000
     style Generate fill:#e8f5e9,stroke:#1b5e20,stroke-width:3px,color:#000
+
+    %% 노드 스타일 (데이터 준비 - 파랑 계열)
+    style A fill:#90caf9,stroke:#1976d2,color:#000
+    style B fill:#64b5f6,stroke:#1976d2,color:#000
+    style C fill:#42a5f5,stroke:#1565c0,color:#000
+    style D fill:#64b5f6,stroke:#1976d2,color:#000
+    style E fill:#42a5f5,stroke:#1565c0,color:#000
+
+    %% 노드 스타일 (검색 - 보라 계열)
+    style F fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style G fill:#ba68c8,stroke:#7b1fa2,color:#fff
+    style H fill:#ab47bc,stroke:#4a148c,color:#fff
+    style I fill:#9c27b0,stroke:#4a148c,color:#fff
+
+    %% 노드 스타일 (답변 생성 - 녹색 계열)
+    style J fill:#a5d6a7,stroke:#388e3c,color:#000
+    style K fill:#81c784,stroke:#2e7d32,color:#000
+    style L fill:#66bb6a,stroke:#2e7d32,color:#fff
 ```
 
 ---
