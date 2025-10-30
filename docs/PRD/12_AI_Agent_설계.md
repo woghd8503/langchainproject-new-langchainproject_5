@@ -100,6 +100,54 @@ def search_paper_database(query: str) -> str:
 
 ---
 
+## 4.1 상세 데이터 흐름
+
+```mermaid
+sequenceDiagram
+    participant U as 사용자
+    participant UI as Streamlit UI
+    participant A as AI Agent
+    participant R as 라우터
+    participant RAG as RAG 도구
+    participant VDB as Vector DB
+    participant PG as PostgreSQL
+    participant LLM as OpenAI GPT-4
+
+    U->>UI: 질문 입력 + 난이도 선택
+    UI->>A: 질문 전달
+    A->>R: 질문 분석 요청
+
+    alt 논문 검색 질문
+        R->>RAG: search_paper_database(query)
+        RAG->>VDB: 유사도 검색 (Top-K)
+        VDB-->>RAG: 관련 논문 청크
+        RAG->>PG: 논문 메타데이터 조회
+        PG-->>RAG: 제목, 저자, 년도
+        RAG->>LLM: 프롬프트 + 컨텍스트 전달
+        LLM-->>RAG: 답변 생성
+        RAG-->>A: 답변 반환
+    else 용어 질문
+        R->>Glossary: search_glossary(term)
+        Glossary->>PG: 용어 정의 조회
+        PG-->>Glossary: 정의 텍스트
+        Glossary->>LLM: 난이도별 설명 요청
+        LLM-->>Glossary: 설명 생성
+        Glossary-->>A: 답변 반환
+    else 최신 논문 질문
+        R->>Web: web_search(query)
+        Web->>TavilyAPI: 검색 요청
+        TavilyAPI-->>Web: 검색 결과
+        Web->>LLM: 결과 정리 요청
+        LLM-->>Web: 정리된 답변
+        Web-->>A: 답변 반환
+    end
+
+    A->>UI: 최종 답변 전달
+    UI->>U: 답변 표시
+```
+
+---
+
 ## 5. Agent 실행 시퀀스
 
 ```mermaid
