@@ -822,10 +822,11 @@ def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
 
 ## Feature 브랜치
 
-- `feature/rag-system` - RAG 시스템 기초 구현
-- `feature/tool-rag-search` - RAG 검색 도구
-- `feature/tool-glossary` - 용어집 도구
-- `feature/rag-optimization` - 검색 최적화 (MultiQuery, MMR)
+**2단계: RAG 시스템 구현 (신준엽)**
+- `2-1. feature/rag-system` - RAG 시스템 기초 구현
+- `2-2. feature/tool-rag-search` - RAG 검색 도구
+- `2-3. feature/tool-glossary` - 용어집 도구
+- `2-4. feature/rag-optimization` - 검색 최적화 (MultiQuery, MMR)
 
 ---
 

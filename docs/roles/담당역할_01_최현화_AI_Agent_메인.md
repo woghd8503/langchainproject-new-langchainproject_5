@@ -966,11 +966,12 @@ logger.close()
 
 ## Feature 브랜치
 
-- `feature/agent-graph` - LangGraph 그래프 구현
-- `feature/llm-client` - LLM 클라이언트 구현
-- `feature/memory` - 대화 메모리 시스템
-- `feature/tool-summarize` - 논문 요약 도구
-- `feature/integration` - 통합 및 main.py
+**3단계: AI Agent 메인 구현 (최현화)**
+- `3-1. feature/llm-client` - LLM 클라이언트 구현
+- `3-2. feature/memory` - 대화 메모리 시스템
+- `3-3. feature/agent-graph` - LangGraph 그래프 구현
+- `3-4. feature/tool-summarize` - 논문 요약 도구
+- `3-5. feature/integration` - 통합 및 main.py
 
 ---
 
