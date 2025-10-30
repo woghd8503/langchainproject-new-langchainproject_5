@@ -3,7 +3,7 @@
 ## 담당자 정보
 - **이름**: 최현화
 - **역할**: 팀장
-- **참여 기간**: 10/28 ~ 11/6 (전체 기간)
+- **참여 기간**: 전체 기간
 - **핵심 역할**: AI Agent 그래프 설계 및 구현, LLM 클라이언트, 메모리 시스템, 프로젝트 총괄
 
 ---
@@ -55,74 +55,27 @@
 ### 기능 설명
 간단한 인사, 일반 상식 질문에 LLM의 자체 지식을 활용하여 직접 답변하는 도구
 
-### Langchain 구현
+### 구현 방법
 
-#### 1. LLM 직접 호출
-```python
-# src/agent/nodes.py
+**파일 경로**: `src/agent/nodes.py`
 
-from langchain_openai import ChatOpenAI
-from langchain.schema import SystemMessage, HumanMessage
+1. **일반 답변 노드 함수 생성**
+   - AgentState를 파라미터로 받는 `general_answer_node` 함수 정의
+   - state에서 question과 difficulty 추출
+   - 난이도에 따라 다른 SystemMessage 설정
+     - Easy: 친절하고 이해하기 쉬운 언어로 답변하도록 지시
+     - Hard: 전문적이고 기술적인 언어로 답변하도록 지시
 
-def general_answer_node(state: AgentState):
-    """
-    일반 질문에 LLM이 직접 답변
-    """
-    question = state["question"]
-    difficulty = state.get("difficulty", "easy")
+2. **LLM 호출 구성**
+   - langchain_openai.ChatOpenAI 사용
+   - SystemMessage와 HumanMessage를 리스트로 구성
+   - llm.invoke() 메서드로 메시지 전달
+   - 응답 결과를 state["final_answer"]에 저장
 
-    # 난이도별 시스템 메시지
-    if difficulty == "easy":
-        system_msg = SystemMessage(content="""
-        당신은 친절한 AI 어시스턴트입니다.
-        쉽고 이해하기 쉬운 언어로 답변해주세요.
-        """)
-    else:
-        system_msg = SystemMessage(content="""
-        당신은 전문적인 AI 어시스턴트입니다.
-        기술적이고 정확한 언어로 답변해주세요.
-        """)
-
-    # LLM 호출
-    response = llm.invoke([
-        system_msg,
-        HumanMessage(content=question)
-    ])
-
-    state["final_answer"] = response.content
-    return state
-```
-
-#### 2. 라우터 노드에서 일반 답변 판단
-```python
-def router_node(state: AgentState):
-    """
-    질문을 분석하여 어떤 도구를 사용할지 결정
-    """
-    question = state["question"]
-
-    # LLM에게 라우팅 결정 요청
-    routing_prompt = f"""
-    사용자 질문을 분석하여 적절한 도구를 선택하세요:
-
-    질문: {question}
-
-    도구 목록:
-    - general: 일반 인사, 상식 질문 (도구 불필요)
-    - search_paper: 논문 데이터베이스 검색
-    - web_search: 웹 검색
-    - search_glossary: 용어 정의 검색
-    - summarize_paper: 논문 요약
-    - save_file: 파일 저장
-
-    선택할 도구 (하나만):
-    """
-
-    tool_choice = llm.invoke(routing_prompt).content.strip()
-    state["tool_choice"] = tool_choice
-
-    return state
-```
+3. **라우터 노드에서 일반 답변 판단 로직**
+   - 사용자 질문을 LLM에 전달하여 적절한 도구 선택
+   - 질문 유형 분류 프롬프트 작성 (일반 인사, 상식 질문 등)
+   - 선택된 도구를 state["tool_choice"]에 저장
 
 ### 사용하는 DB
 **DB 사용 없음** (LLM 자체 지식 활용)
@@ -134,162 +87,32 @@ def router_node(state: AgentState):
 ### 기능 설명
 특정 논문의 전체 내용을 난이도별(Easy/Hard)로 요약하는 도구
 
-### Langchain 구현
+### 구현 방법
 
-#### 1. 논문 검색 및 전체 내용 조회
-```python
-# src/tools/summarize.py
+**파일 경로**: `src/tools/summarize.py`, `src/llm/chains.py`
 
-from langchain.tools import tool
-from langchain.chains.summarize import load_summarize_chain
-from langchain.prompts import PromptTemplate
-import psycopg2
+1. **논문 검색 및 전체 내용 조회** (`src/tools/summarize.py`)
+   - @tool 데코레이터로 `summarize_paper` 함수 정의
+   - 파라미터: paper_title (str), difficulty (str)
+   - PostgreSQL 연결 (psycopg2 사용)
+   - papers 테이블에서 ILIKE로 논문 제목 검색
+   - paper_id 추출 후 Vector DB에서 해당 논문의 모든 청크 조회
+   - filter 파라미터로 {"paper_id": paper_id} 전달
+   - 난이도에 따라 적절한 요약 체인 선택 후 실행
 
-@tool
-def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
-    """
-    특정 논문을 요약합니다. 난이도에 따라 초심자용/전문가용 요약을 제공합니다.
+2. **요약 체인 구현** (`src/llm/chains.py`)
+   - Easy 모드 프롬프트: PromptTemplate로 초심자용 요약 규칙 정의
+     - 전문 용어 쉽게 풀이, 핵심 아이디어 3가지 이내, 실생활 비유 포함
+   - Hard 모드 프롬프트: 전문가용 요약 규칙 정의
+     - 기술적 세부사항, 수식/알고리즘 설명, 관련 연구 비교
+   - load_summarize_chain으로 체인 생성
+     - chain_type: "stuff" (짧은 논문), "map_reduce" (중간 논문), "refine" (긴 논문)
 
-    Args:
-        paper_title: 논문 제목
-        difficulty: 'easy' (초심자) 또는 'hard' (전문가)
-
-    Returns:
-        논문 요약 내용
-    """
-    # 1. PostgreSQL에서 논문 메타데이터 조회
-    conn = psycopg2.connect("postgresql://user:password@localhost/papers")
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "SELECT * FROM papers WHERE title ILIKE %s",
-        (f"%{paper_title}%",)
-    )
-    paper_meta = cursor.fetchone()
-
-    if not paper_meta:
-        return f"논문 '{paper_title}'을 찾을 수 없습니다."
-
-    paper_id = paper_meta[0]
-
-    # 2. Vector DB에서 논문 전체 내용 조회 (여러 청크)
-    paper_chunks = vectorstore.similarity_search(
-        paper_title,
-        k=10,  # 여러 청크 가져오기
-        filter={"paper_id": paper_id}
-    )
-
-    # 3. 난이도별 요약 체인 실행
-    if difficulty == "easy":
-        summary = easy_summarize_chain.run(paper_chunks)
-    else:
-        summary = hard_summarize_chain.run(paper_chunks)
-
-    return summary
-```
-
-#### 2. Langchain Summarization Chain 구현
-```python
-# src/llm/chains.py
-
-from langchain.chains.summarize import load_summarize_chain
-from langchain.prompts import PromptTemplate
-
-# Easy 모드 요약 프롬프트
-EASY_SUMMARY_PROMPT = PromptTemplate(
-    template="""
-    다음 논문 내용을 초심자도 이해할 수 있도록 쉽게 요약해주세요:
-
-    요약 규칙:
-    1. 전문 용어는 쉬운 말로 풀어서 설명
-    2. 핵심 아이디어 3가지 이내로 요약
-    3. 실생활 비유 포함
-    4. 수식은 최소화
-
-    논문 내용:
-    {text}
-
-    요약:
-    """,
-    input_variables=["text"]
-)
-
-# Hard 모드 요약 프롬프트
-HARD_SUMMARY_PROMPT = PromptTemplate(
-    template="""
-    다음 논문 내용을 전문가 수준으로 요약해주세요:
-
-    요약 규칙:
-    1. 기술적 세부사항 포함
-    2. 수식 및 알고리즘 설명
-    3. 관련 연구와의 비교
-    4. 주요 기여도 명확히
-    5. 한계점 및 향후 연구 방향
-
-    논문 내용:
-    {text}
-
-    요약:
-    """,
-    input_variables=["text"]
-)
-
-# Easy 모드 요약 체인 (짧은 논문용)
-easy_summarize_chain = load_summarize_chain(
-    llm=llm,
-    chain_type="stuff",  # 모든 청크를 한 번에 LLM에 전달
-    prompt=EASY_SUMMARY_PROMPT
-)
-
-# Hard 모드 요약 체인 (긴 논문용)
-hard_summarize_chain = load_summarize_chain(
-    llm=llm,
-    chain_type="map_reduce",  # 각 청크를 요약 후 최종 통합
-    map_prompt=HARD_SUMMARY_PROMPT,
-    combine_prompt=PromptTemplate(
-        template="""
-        다음은 논문의 각 부분을 요약한 내용입니다. 이를 종합하여 전체 논문 요약을 작성해주세요:
-
-        {text}
-
-        종합 요약:
-        """,
-        input_variables=["text"]
-    )
-)
-```
-
-#### 3. 요약 방식 선택
-```python
-def get_summarize_chain(difficulty: str, paper_length: int):
-    """
-    논문 길이와 난이도에 따라 적절한 요약 체인 선택
-
-    Args:
-        difficulty: 'easy' 또는 'hard'
-        paper_length: 논문 청크 수
-
-    Returns:
-        적절한 요약 체인
-    """
-    if paper_length <= 5:
-        # 짧은 논문: stuff 방식
-        chain_type = "stuff"
-    elif paper_length <= 15:
-        # 중간 논문: map_reduce 방식
-        chain_type = "map_reduce"
-    else:
-        # 긴 논문: refine 방식 (순차적 요약)
-        chain_type = "refine"
-
-    prompt = EASY_SUMMARY_PROMPT if difficulty == "easy" else HARD_SUMMARY_PROMPT
-
-    return load_summarize_chain(
-        llm=llm,
-        chain_type=chain_type,
-        prompt=prompt
-    )
-```
+3. **요약 방식 선택 로직**
+   - 논문 청크 수에 따라 적절한 chain_type 선택
+   - 5개 이하: stuff (모든 청크 한 번에 처리)
+   - 5~15개: map_reduce (각 청크 요약 후 통합)
+   - 15개 이상: refine (순차적 요약)
 
 ### 사용하는 DB
 
@@ -309,302 +132,151 @@ def get_summarize_chain(difficulty: str, paper_length: int):
 
 ## LangGraph Agent 그래프 구현
 
-### 1. State 정의
-```python
-# src/agent/state.py
+### 구현 방법
 
-from typing import TypedDict, Annotated, Sequence
-from langchain.schema import BaseMessage
-import operator
+**파일 경로**: `src/agent/state.py`, `src/agent/graph.py`
 
-class AgentState(TypedDict):
-    """Agent 상태 정의"""
-    question: str  # 사용자 질문
-    difficulty: str  # 난이도 (easy/hard)
-    tool_choice: str  # 선택된 도구
-    tool_result: str  # 도구 실행 결과
-    final_answer: str  # 최종 답변
-    messages: Annotated[Sequence[BaseMessage], operator.add]  # 대화 히스토리
-```
+### 1. State 정의 (`src/agent/state.py`)
+- TypedDict를 상속한 AgentState 클래스 정의
+- 필수 필드:
+  - question (str): 사용자 질문
+  - difficulty (str): 난이도 (easy/hard)
+  - tool_choice (str): 선택된 도구
+  - tool_result (str): 도구 실행 결과
+  - final_answer (str): 최종 답변
+  - messages: Annotated[Sequence[BaseMessage], operator.add] - 대화 히스토리
 
-### 2. 그래프 구성
-```python
-# src/agent/graph.py
+### 2. 그래프 구성 (`src/agent/graph.py`)
+- `create_agent_graph` 함수 생성
+- StateGraph(AgentState) 인스턴스 생성
+- 노드 추가:
+  - workflow.add_node("router", router_node)
+  - workflow.add_node("general", general_answer_node)
+  - workflow.add_node("search_paper", search_paper_node)
+  - workflow.add_node("web_search", web_search_node)
+  - workflow.add_node("search_glossary", glossary_node)
+  - workflow.add_node("summarize_paper", summarize_node)
+  - workflow.add_node("save_file", save_file_node)
+- 시작점 설정: workflow.set_entry_point("router")
+- 조건부 엣지 설정: add_conditional_edges로 라우터에서 각 도구로 분기
+- 모든 도구 노드에서 END로 연결
+- workflow.compile()로 그래프 컴파일 후 반환
 
-from langgraph.graph import StateGraph, END
-from langchain_openai import ChatOpenAI
+### 3. 라우터 노드 구현 (`src/agent/nodes.py`)
+- `router_node` 함수 정의
+- 사용자 질문을 분석하여 적절한 도구 선택
+- 도구 목록과 각 도구의 사용 케이스를 포함한 프롬프트 작성
+- LLM에게 프롬프트 전달하여 도구 이름 반환받기
+- 반환된 도구 이름을 state["tool_choice"]에 저장
+- 라우팅 결정 로그 출력
 
-def create_agent_graph():
-    """AI Agent 그래프 생성"""
-    workflow = StateGraph(AgentState)
-
-    # 노드 추가
-    workflow.add_node("router", router_node)
-    workflow.add_node("general", general_answer_node)
-    workflow.add_node("search_paper", search_paper_node)
-    workflow.add_node("web_search", web_search_node)
-    workflow.add_node("search_glossary", glossary_node)
-    workflow.add_node("summarize_paper", summarize_node)
-    workflow.add_node("save_file", save_file_node)
-
-    # 시작점 설정
-    workflow.set_entry_point("router")
-
-    # 조건부 엣지 (라우터에서 도구 선택)
-    workflow.add_conditional_edges(
-        "router",
-        route_to_tool,
-        {
-            "general": "general",
-            "search_paper": "search_paper",
-            "web_search": "web_search",
-            "search_glossary": "search_glossary",
-            "summarize_paper": "summarize_paper",
-            "save_file": "save_file"
-        }
-    )
-
-    # 모든 도구 노드에서 종료
-    workflow.add_edge("general", END)
-    workflow.add_edge("search_paper", END)
-    workflow.add_edge("web_search", END)
-    workflow.add_edge("search_glossary", END)
-    workflow.add_edge("summarize_paper", END)
-    workflow.add_edge("save_file", END)
-
-    # 그래프 컴파일
-    return workflow.compile()
-
-def route_to_tool(state: AgentState) -> str:
-    """라우팅 결정에 따라 다음 노드 선택"""
-    return state["tool_choice"]
-```
-
-### 3. 라우터 노드 (핵심)
-```python
-def router_node(state: AgentState):
-    """
-    질문을 분석하여 어떤 도구를 사용할지 결정
-    LLM의 Function Calling 기능 활용
-    """
-    question = state["question"]
-
-    # LLM에게 라우팅 결정 요청
-    routing_prompt = f"""
-    사용자 질문을 분석하여 가장 적절한 도구를 선택하세요.
-
-    질문: {question}
-
-    도구 목록:
-    1. general - 일반 인사, 상식 질문 (예: "안녕하세요", "고마워")
-    2. search_paper - 논문 데이터베이스 검색 (예: "Transformer 논문 설명해줘")
-    3. web_search - 최신 정보 웹 검색 (예: "2025년 최신 LLM 논문은?")
-    4. search_glossary - 용어 정의 검색 (예: "Attention이 뭐야?")
-    5. summarize_paper - 논문 요약 (예: "BERT 논문 요약해줘")
-    6. save_file - 파일 저장 (예: "이 내용 저장해줘")
-
-    선택할 도구 (하나만, 도구 이름만 출력):
-    """
-
-    response = llm.invoke([
-        SystemMessage(content="당신은 질문 분석 전문가입니다."),
-        HumanMessage(content=routing_prompt)
-    ])
-
-    tool_choice = response.content.strip()
-    state["tool_choice"] = tool_choice
-
-    print(f"[Router] 질문: {question}")
-    print(f"[Router] 선택된 도구: {tool_choice}")
-
-    return state
-```
+### 4. 라우팅 함수 (`src/agent/graph.py`)
+- `route_to_tool` 함수: state["tool_choice"] 값을 반환
+- add_conditional_edges에서 이 함수를 사용하여 다음 노드 결정
 
 ---
 
 ## LLM 클라이언트 구현
 
-### 1. 다중 LLM 클라이언트 (OpenAI + Solar)
-```python
-# src/llm/client.py
+### 구현 방법
 
-from langchain_openai import ChatOpenAI
-from langchain_upstage import ChatUpstage
-from langchain.callbacks import get_openai_callback
-from tenacity import retry, stop_after_attempt, wait_exponential
-import os
+**파일 경로**: `src/llm/client.py`
 
-class LLMClient:
-    """다중 LLM 클라이언트 래퍼 (OpenAI + Solar)"""
+### 1. 다중 LLM 클라이언트 클래스
+- `LLMClient` 클래스 정의
+- __init__ 메서드:
+  - provider 파라미터로 "openai" 또는 "solar" 선택
+  - provider에 따라 ChatOpenAI 또는 ChatUpstage 인스턴스 생성
+  - 환경변수에서 API 키 로드 (OPENAI_API_KEY, UPSTAGE_API_KEY)
+  - streaming=True 설정
 
-    def __init__(self, provider: str = "openai", model: str = "gpt-4", temperature: float = 0.7):
-        """
-        Args:
-            provider: "openai" 또는 "solar"
-            model: 모델 이름
-            temperature: 온도 (0~1)
-        """
-        self.provider = provider
+### 2. 에러 핸들링 및 재시도
+- tenacity 라이브러리의 @retry 데코레이터 사용
+- `invoke_with_retry` 메서드:
+  - stop_after_attempt(3): 최대 3회 재시도
+  - wait_exponential: 지수 백오프 (2초 → 4초 → 8초)
+  - LLM 호출 실패 시 자동 재시도
 
-        if provider == "openai":
-            self.llm = ChatOpenAI(
-                model=model,
-                temperature=temperature,
-                openai_api_key=os.getenv("OPENAI_API_KEY"),
-                streaming=True
-            )
-        elif provider == "solar":
-            self.llm = ChatUpstage(
-                model="solar-1-mini-chat",  # 또는 "solar-pro"
-                temperature=temperature,
-                upstage_api_key=os.getenv("UPSTAGE_API_KEY"),
-                streaming=True
-            )
-        else:
-            raise ValueError(f"Unsupported provider: {provider}")
+### 3. 토큰 사용량 추적
+- `invoke_with_tracking` 메서드 구현
+- OpenAI 사용 시: get_openai_callback으로 토큰 수와 비용 추적
+- Solar 사용 시: 기본 로그만 출력
+- 각 호출마다 토큰 정보 출력
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
-    def invoke_with_retry(self, messages):
-        """재시도 로직을 포함한 LLM 호출"""
-        return self.llm.invoke(messages)
+### 4. 스트리밍 응답 처리
+- `astream` 비동기 메서드 구현
+- async for 루프로 LLM 응답을 청크 단위로 yield
+- Streamlit UI에서 실시간 응답 표시에 사용
 
-    def invoke_with_tracking(self, messages):
-        """토큰 사용량 추적을 포함한 LLM 호출"""
-        if self.provider == "openai":
-            with get_openai_callback() as cb:
-                response = self.llm.invoke(messages)
-                print(f"[OpenAI] Tokens: {cb.total_tokens}, Cost: ${cb.total_cost:.4f}")
-        else:
-            # Solar는 별도 추적
-            response = self.llm.invoke(messages)
-            print(f"[Solar] Response generated")
-
-        return response
-
-    async def astream(self, messages):
-        """스트리밍 응답"""
-        async for chunk in self.llm.astream(messages):
-            yield chunk
-
-
-# LLM 선택 전략
-def get_llm_for_task(task_type: str):
-    """
-    작업 유형에 따라 적절한 LLM 선택
-
-    Args:
-        task_type: "routing", "generation", "summarization" 등
-
-    Returns:
-        LLMClient 인스턴스
-    """
-    if task_type == "routing":
-        # 라우팅은 빠른 Solar 사용
-        return LLMClient(provider="solar", model="solar-1-mini-chat", temperature=0)
-    elif task_type == "generation":
-        # 답변 생성은 정확도 높은 GPT-4 사용
-        return LLMClient(provider="openai", model="gpt-4", temperature=0.7)
-    elif task_type == "summarization":
-        # 요약은 GPT-4 사용
-        return LLMClient(provider="openai", model="gpt-4", temperature=0.5)
-    else:
-        # 기본값: OpenAI GPT-3.5
-        return LLMClient(provider="openai", model="gpt-3.5-turbo", temperature=0.7)
-```
-
-### 2. 스트리밍 응답 처리
-```python
-async def stream_response(agent, question, difficulty):
-    """Agent 실행 결과를 스트리밍으로 반환"""
-    async for event in agent.astream_events(
-        {"question": question, "difficulty": difficulty}
-    ):
-        if event["event"] == "on_chat_model_stream":
-            chunk = event["data"]["chunk"]
-            yield chunk.content
-```
+### 5. LLM 선택 전략
+- `get_llm_for_task` 함수 구현
+- 작업 유형별 최적 LLM 선택:
+  - routing: Solar (빠른 응답)
+  - generation: GPT-4 (높은 정확도)
+  - summarization: GPT-4 (품질 중요)
+  - 기본값: GPT-3.5-turbo (비용 효율)
 
 ---
 
 ## 대화 메모리 시스템
 
-### 1. ConversationBufferMemory 구현
-```python
-# src/memory/chat_history.py
+### 구현 방법
 
-from langchain.memory import ConversationBufferMemory
-from langchain.schema import ChatMessageHistory
+**파일 경로**: `src/memory/chat_history.py`
 
-class ChatMemoryManager:
-    """대화 히스토리 관리"""
+### 1. ChatMemoryManager 클래스
+- ConversationBufferMemory 인스턴스 생성
+  - return_messages=True: 메시지 객체 형태로 반환
+  - memory_key="chat_history": 메모리 키 설정
+- `add_user_message`: 사용자 메시지 추가
+- `add_ai_message`: AI 메시지 추가
+- `get_history`: 전체 대화 히스토리 반환
+- `clear`: 대화 히스토리 초기화
 
-    def __init__(self):
-        self.memory = ConversationBufferMemory(
-            return_messages=True,
-            memory_key="chat_history"
-        )
+### 2. 세션 기반 메모리 (선택사항)
+- PostgresChatMessageHistory 사용
+- `get_session_history` 함수:
+  - session_id로 특정 세션의 대화 히스토리 조회
+  - PostgreSQL에 대화 내용 영구 저장
+  - 여러 사용자 세션 관리 가능
 
-    def add_user_message(self, message: str):
-        """사용자 메시지 추가"""
-        self.memory.chat_memory.add_user_message(message)
-
-    def add_ai_message(self, message: str):
-        """AI 메시지 추가"""
-        self.memory.chat_memory.add_ai_message(message)
-
-    def get_history(self):
-        """대화 히스토리 조회"""
-        return self.memory.chat_memory.messages
-
-    def clear(self):
-        """대화 히스토리 초기화"""
-        self.memory.clear()
-```
-
-### 2. 세션 관리 (PostgreSQL)
-```python
-from langchain.memory.chat_message_histories import PostgresChatMessageHistory
-
-def get_session_history(session_id: str):
-    """세션 ID로 대화 히스토리 조회"""
-    return PostgresChatMessageHistory(
-        connection_string="postgresql://user:password@localhost/papers",
-        session_id=session_id
-    )
-```
+### 3. Agent와 메모리 통합
+- Agent 실행 시 messages 필드에 메모리 히스토리 전달
+- 응답 생성 후 사용자 메시지와 AI 메시지를 메모리에 추가
+- 이후 질문에서 이전 대화 컨텍스트 활용
 
 ---
 
 ## 개발 일정
 
-### Phase 1: LLM 클라이언트 및 공통 인프라 (10/28~10/29)
+### Phase 1: LLM 클라이언트 및 공통 인프라
 - ChatOpenAI 래퍼 구현
 - 에러 핸들링 및 재시도 로직
 - 토큰 사용량 추적
 - 스트리밍 응답 처리
 
-### Phase 2: LangGraph Agent 그래프 (10/30~11/01)
+### Phase 2: LangGraph Agent 그래프
 - State 정의
 - 라우터 노드 구현
 - 조건부 엣지 설정
 - 일반 답변 노드 구현
 
-### Phase 3: 메모리 시스템 (11/01~11/02)
+### Phase 3: 메모리 시스템
 - ConversationBufferMemory 구현
 - 대화 히스토리 관리
 - 세션 관리
 
-### Phase 4: 논문 요약 도구 (11/02~11/03)
+### Phase 4: 논문 요약 도구
 - load_summarize_chain 구현
 - 난이도별 프롬프트 설계
 - 요약 방식 선택 로직
 
-### Phase 5: 통합 작업 (11/04~11/05)
+### Phase 5: 통합 작업
 - main.py 작성
 - 모든 모듈 통합
 - 디버깅 및 테스트
 
-### Phase 6: 발표 준비 (11/05~11/06)
+### Phase 6: 발표 준비
 - 발표 자료 작성
 - README.md 작성
 - 최종 점검
@@ -613,52 +285,31 @@ def get_session_history(session_id: str):
 
 ## main.py 구현
 
-```python
-# main.py
+### 구현 방법
 
-from src.agent.graph import create_agent_graph
-from src.llm.client import LLMClient
-from src.memory.chat_history import ChatMemoryManager
+**파일 경로**: `main.py` (프로젝트 루트)
 
-def main():
-    """메인 실행 함수"""
+1. **필요한 모듈 import**
+   - src.agent.graph에서 create_agent_graph
+   - src.llm.client에서 LLMClient
+   - src.memory.chat_history에서 ChatMemoryManager
 
-    # LLM 클라이언트 초기화
-    llm_client = LLMClient(model="gpt-4", temperature=0.7)
+2. **초기화**
+   - LLMClient 인스턴스 생성 (model="gpt-4", temperature=0.7)
+   - create_agent_graph()로 Agent 생성
+   - ChatMemoryManager 인스턴스 생성
 
-    # Agent 그래프 생성
-    agent = create_agent_graph()
+3. **Agent 실행 루프**
+   - 테스트 질문 리스트 준비 (질문, 난이도 튜플)
+   - 각 질문에 대해:
+     - agent.invoke()로 실행 (question, difficulty, messages 전달)
+     - 결과에서 final_answer 추출
+     - memory_manager에 사용자 메시지와 AI 메시지 추가
+     - 결과 출력
 
-    # 메모리 관리자 초기화
-    memory_manager = ChatMemoryManager()
-
-    # 테스트 질문
-    test_questions = [
-        ("안녕하세요", "easy"),
-        ("Transformer 논문 설명해줘", "easy"),
-        ("Attention Mechanism이 뭐야?", "easy"),
-        ("BERT 논문 요약해줘", "hard")
-    ]
-
-    for question, difficulty in test_questions:
-        print(f"\n[질문] {question} (난이도: {difficulty})")
-
-        # Agent 실행
-        result = agent.invoke({
-            "question": question,
-            "difficulty": difficulty,
-            "messages": memory_manager.get_history()
-        })
-
-        # 메모리에 추가
-        memory_manager.add_user_message(question)
-        memory_manager.add_ai_message(result["final_answer"])
-
-        print(f"[답변] {result['final_answer']}")
-
-if __name__ == "__main__":
-    main()
-```
+4. **실행**
+   - if __name__ == "__main__": main() 추가
+   - 커맨드라인에서 python main.py로 실행
 
 ---
 

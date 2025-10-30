@@ -3,7 +3,7 @@
 ## 담당자 정보
 - **이름**: 신준엽
 - **역할**: RAG 시스템 전문 담당
-- **참여 기간**: 10/28 ~ 11/6 (전체 기간)
+- **참여 기간**: 전체 기간
 - **핵심 역할**: RAG 파이프라인 구현, Vector DB 검색, 용어집 시스템
 
 ---
@@ -42,191 +42,76 @@
 ### Langchain 구현
 
 #### 1. VectorStore 및 Retriever 초기화
-```python
-# src/rag/retriever.py
 
-from langchain_postgres.vectorstores import PGVector
-from langchain_openai import OpenAIEmbeddings
-from langchain.retrievers import MultiQueryRetriever, ContextualCompressionRetriever
-from langchain.retrievers.document_compressors import LLMChainExtractor
-import os
+**파일 경로**: `src/rag/retriever.py`
 
-class RAGRetriever:
-    """논문 검색을 위한 RAG Retriever"""
-
-    def __init__(self, llm):
-        # OpenAI Embeddings 초기화
-        self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            openai_api_key=os.getenv("OPENAI_API_KEY")
-        )
-
-        # PostgreSQL + pgvector VectorStore 초기화
-        self.vectorstore = PGVector(
-            collection_name="paper_chunks",
-            embedding_function=self.embeddings,
-            connection_string="postgresql://user:password@localhost:5432/papers"
-        )
-
-        # 기본 Retriever (MMR 방식)
-        self.base_retriever = self.vectorstore.as_retriever(
-            search_type="mmr",  # Maximal Marginal Relevance
-            search_kwargs={
-                "k": 5,  # 최종 반환 문서 수
-                "fetch_k": 20,  # MMR 후보 문서 수
-                "lambda_mult": 0.5  # 관련성 vs 다양성 균형
-            }
-        )
-
-        # MultiQuery Retriever (쿼리 확장)
-        self.multi_query_retriever = MultiQueryRetriever.from_llm(
-            retriever=self.base_retriever,
-            llm=llm
-        )
-
-    def retrieve(self, query: str, use_multi_query: bool = True):
-        """문서 검색"""
-        if use_multi_query:
-            # 쿼리 확장 사용
-            docs = self.multi_query_retriever.invoke(query)
-        else:
-            # 기본 검색
-            docs = self.base_retriever.invoke(query)
-
-        return docs
-
-    def retrieve_with_filter(self, query: str, filter_dict: dict):
-        """메타데이터 필터링을 포함한 검색"""
-        docs = self.vectorstore.similarity_search(
-            query,
-            k=5,
-            filter=filter_dict  # 예: {"year": {"$gte": 2020}}
-        )
-        return docs
-
-    def retrieve_with_scores(self, query: str):
-        """유사도 점수를 포함한 검색"""
-        docs_with_scores = self.vectorstore.similarity_search_with_relevance_scores(
-            query,
-            k=5
-        )
-        return docs_with_scores
-```
+**구현 방법**:
+1. `RAGRetriever` 클래스 정의 (논문 검색을 위한 RAG Retriever)
+2. OpenAI Embeddings 초기화
+   - 모델: `text-embedding-3-small`
+   - API 키를 환경변수에서 로드
+3. PostgreSQL + pgvector VectorStore 초기화
+   - 컬렉션명: `paper_chunks`
+   - 임베딩 함수 설정
+   - PostgreSQL 연결 문자열 설정
+4. 기본 Retriever 설정 (MMR 방식)
+   - 검색 타입: MMR (Maximal Marginal Relevance)
+   - 최종 반환 문서 수: 5개
+   - MMR 후보 문서 수: 20개
+   - lambda_mult: 0.5 (관련성 vs 다양성 균형)
+5. MultiQuery Retriever 구현 (쿼리 확장)
+   - LLM을 사용하여 기본 Retriever에서 쿼리를 확장
+6. `retrieve` 메서드 구현
+   - 쿼리 확장 사용 여부에 따라 적절한 Retriever 선택
+   - 문서 검색 후 반환
+7. `retrieve_with_filter` 메서드 구현
+   - 메타데이터 필터링을 포함한 검색
+   - 예: 년도 필터 {"year": {"$gte": 2020}}
+8. `retrieve_with_scores` 메서드 구현
+   - 유사도 점수를 포함한 검색 결과 반환
 
 #### 2. RAG 검색 도구 구현
-```python
-# src/tools/rag_search.py
 
-from langchain.tools import tool
-from langchain.schema import Document
-import psycopg2
+**파일 경로**: `src/tools/rag_search.py`
 
-@tool
-def search_paper_database(query: str, year_filter: int = None) -> str:
-    """
-    논문 데이터베이스에서 관련 논문을 검색합니다.
-
-    Args:
-        query: 검색할 질문 또는 키워드
-        year_filter: 년도 필터 (예: 2020 이상)
-
-    Returns:
-        관련 논문 내용 및 메타데이터
-    """
-    # 1. Vector DB에서 유사도 검색
-    if year_filter:
-        docs = rag_retriever.retrieve_with_filter(
-            query,
-            filter_dict={"year": {"$gte": year_filter}}
-        )
-    else:
-        docs = rag_retriever.retrieve(query, use_multi_query=True)
-
-    # 2. PostgreSQL에서 메타데이터 조회
-    conn = psycopg2.connect("postgresql://user:password@localhost/papers")
-    cursor = conn.cursor()
-
-    results = []
-    for doc in docs:
-        paper_id = doc.metadata.get("paper_id")
-
-        # 메타데이터 조회
-        cursor.execute(
-            "SELECT title, authors, publish_date, url FROM papers WHERE paper_id = %s",
-            (paper_id,)
-        )
-        meta = cursor.fetchone()
-
-        if meta:
-            results.append({
-                "title": meta[0],
-                "authors": meta[1],
-                "publish_date": meta[2],
-                "url": meta[3],
-                "content": doc.page_content,
-                "section": doc.metadata.get("section", "본문")
-            })
-
-    cursor.close()
-    conn.close()
-
-    # 3. 결과 포맷팅
-    formatted_results = format_search_results(results)
-    return formatted_results
-
-
-def format_search_results(results: list) -> str:
-    """검색 결과를 LLM에 전달할 수 있는 형식으로 포맷팅"""
-    if not results:
-        return "관련 논문을 찾을 수 없습니다."
-
-    output = "## 검색된 논문\n\n"
-
-    for i, result in enumerate(results, 1):
-        output += f"### {i}. {result['title']}\n"
-        output += f"- **저자**: {result['authors']}\n"
-        output += f"- **출판일**: {result['publish_date']}\n"
-        output += f"- **URL**: {result['url']}\n"
-        output += f"- **섹션**: {result['section']}\n\n"
-        output += f"**내용**:\n{result['content']}\n\n"
-        output += "---\n\n"
-
-    return output
-```
+**구현 방법**:
+1. Langchain `@tool` 데코레이터로 `search_paper_database` 함수 정의
+   - 인자: query (검색 질문), year_filter (선택적 년도 필터)
+   - 반환: 관련 논문 내용 및 메타데이터
+2. Vector DB에서 유사도 검색 수행
+   - year_filter가 있으면 필터링 검색 실행
+   - year_filter가 없으면 MultiQuery 검색 실행
+3. PostgreSQL 연결 및 메타데이터 조회
+   - psycopg2로 PostgreSQL 연결
+   - 각 검색된 문서의 paper_id로 메타데이터 조회
+   - 제목, 저자, 출판일, URL 등을 가져옴
+4. 검색 결과를 딕셔너리 리스트로 구성
+   - title, authors, publish_date, url, content, section 포함
+5. `format_search_results` 함수 구현
+   - 검색 결과를 LLM에 전달할 수 있는 Markdown 형식으로 포맷팅
+   - 논문별로 제목, 저자, 출판일, URL, 섹션, 내용을 포함
+   - 결과가 없으면 "관련 논문을 찾을 수 없습니다." 반환
 
 #### 3. MultiQueryRetriever (쿼리 확장)
-```python
-# MultiQueryRetriever 동작 방식
 
-# 원본 쿼리: "Transformer 논문 설명해줘"
-# → LLM이 자동으로 3-5개 변형 쿼리 생성:
-#   1. "Transformer 아키텍처란?"
-#   2. "Attention Is All You Need 논문 내용"
-#   3. "Transformer 모델의 핵심 메커니즘"
-# → 각 쿼리로 검색 → 결과 통합 → 중복 제거 → 최종 반환
-```
+**동작 방식**:
+- 원본 쿼리를 LLM이 자동으로 3-5개의 변형 쿼리로 확장
+- 예: "Transformer 논문 설명해줘" → "Transformer 아키텍처란?", "Attention Is All You Need 논문 내용", "Transformer 모델의 핵심 메커니즘"
+- 각 쿼리로 검색 수행
+- 결과 통합 및 중복 제거
+- 최종 결과 반환
 
 #### 4. ContextualCompressionRetriever (선택 사항)
-```python
-# src/rag/compression.py
 
-from langchain.retrievers import ContextualCompressionRetriever
-from langchain.retrievers.document_compressors import LLMChainExtractor
+**파일 경로**: `src/rag/compression.py`
 
-def create_compression_retriever(base_retriever, llm):
-    """문맥 압축 Retriever 생성"""
-    compressor = LLMChainExtractor.from_llm(llm)
-
-    compression_retriever = ContextualCompressionRetriever(
-        base_compressor=compressor,
-        base_retriever=base_retriever
-    )
-
-    return compression_retriever
-
-# 사용 예시
-# 긴 문서를 검색 후, 질문과 관련된 부분만 추출하여 컨텍스트 크기 감소
-```
+**구현 방법**:
+1. `create_compression_retriever` 함수 정의
+   - 인자: base_retriever, llm
+2. LLMChainExtractor를 사용하여 compressor 생성
+3. ContextualCompressionRetriever 생성
+   - base_compressor와 base_retriever 설정
+4. 긴 문서를 검색 후, 질문과 관련된 부분만 추출하여 컨텍스트 크기 감소
 
 ### 사용하는 DB
 
@@ -280,177 +165,77 @@ def create_compression_retriever(base_retriever, llm):
 ### Langchain 구현
 
 #### 1. 용어집 VectorStore 초기화
-```python
-# src/rag/glossary_retriever.py
 
-from langchain_postgres.vectorstores import PGVector
-from langchain_openai import OpenAIEmbeddings
+**파일 경로**: `src/rag/glossary_retriever.py`
 
-class GlossaryRetriever:
-    """용어집 검색을 위한 Retriever"""
-
-    def __init__(self):
-        # OpenAI Embeddings 초기화
-        self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small"
-        )
-
-        # 용어집 전용 VectorStore 초기화 (pgvector)
-        self.glossary_vectorstore = PGVector(
-            collection_name="glossary_embeddings",
-            embedding_function=self.embeddings,
-            connection_string="postgresql://user:password@localhost:5432/papers"
-        )
-
-        # Retriever 설정
-        self.retriever = self.glossary_vectorstore.as_retriever(
-            search_type="similarity",
-            search_kwargs={"k": 3}
-        )
-
-    def search(self, term: str):
-        """용어 검색"""
-        docs = self.retriever.invoke(term)
-        return docs
-```
+**구현 방법**:
+1. `GlossaryRetriever` 클래스 정의 (용어집 검색을 위한 Retriever)
+2. OpenAI Embeddings 초기화
+   - 모델: `text-embedding-3-small`
+3. 용어집 전용 VectorStore 초기화 (pgvector)
+   - 컬렉션명: `glossary_embeddings`
+   - 임베딩 함수 설정
+   - PostgreSQL 연결 문자열 설정
+4. Retriever 설정
+   - 검색 타입: similarity
+   - 반환 문서 수: 3개
+5. `search` 메서드 구현
+   - 용어를 받아서 Retriever로 검색
+   - 검색 결과 반환
 
 #### 2. 용어집 검색 도구 구현
-```python
-# src/tools/glossary.py
 
-from langchain.tools import tool
-import psycopg2
+**파일 경로**: `src/tools/glossary.py`
 
-@tool
-def search_glossary(term: str, difficulty: str = "easy") -> str:
-    """
-    논문 용어집에서 전문 용어를 검색하여 설명합니다.
-
-    Args:
-        term: 검색할 용어
-        difficulty: 'easy' (초심자) 또는 'hard' (전문가)
-
-    Returns:
-        용어 정의 및 설명
-    """
-    # 1. PostgreSQL glossary 테이블에서 직접 검색 (빠름)
-    conn = psycopg2.connect("postgresql://user:password@localhost/papers")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT term, definition, easy_explanation, hard_explanation, category
-        FROM glossary
-        WHERE term ILIKE %s
-    """, (f"%{term}%",))
-
-    result = cursor.fetchone()
-
-    if result:
-        # PostgreSQL에서 찾은 경우
-        term_name, definition, easy_exp, hard_exp, category = result
-
-        if difficulty == "easy":
-            explanation = easy_exp if easy_exp else definition
-        else:
-            explanation = hard_exp if hard_exp else definition
-
-        output = f"## 📚 용어: {term_name}\n\n"
-        output += f"**카테고리**: {category}\n\n"
-        output += f"**설명**:\n{explanation}\n"
-
-        cursor.close()
-        conn.close()
-        return output
-
-    cursor.close()
-    conn.close()
-
-    # 2. PostgreSQL에 없으면 Vector DB에서 검색 (유연함)
-    glossary_docs = glossary_retriever.search(term)
-
-    if glossary_docs:
-        # Vector DB에서 찾은 경우
-        top_doc = glossary_docs[0]
-        return f"## 📚 용어 관련 내용\n\n{top_doc.page_content}"
-
-    # 3. 용어집에도 없으면 논문 본문에서 검색
-    paper_docs = rag_retriever.retrieve(f"{term} 정의", use_multi_query=False)
-
-    if paper_docs:
-        context = paper_docs[0].page_content
-        return f"## 📚 '{term}'에 대한 논문 내용\n\n{context}"
-
-    return f"'{term}'에 대한 정보를 찾을 수 없습니다."
-```
+**구현 방법**:
+1. Langchain `@tool` 데코레이터로 `search_glossary` 함수 정의
+   - 인자: term (검색할 용어), difficulty (난이도: easy/hard)
+   - 반환: 용어 정의 및 설명
+2. PostgreSQL glossary 테이블에서 직접 검색 (1차 검색)
+   - psycopg2로 PostgreSQL 연결
+   - ILIKE를 사용한 유연한 검색
+   - term, definition, easy_explanation, hard_explanation, category 조회
+3. PostgreSQL에서 결과를 찾은 경우
+   - 난이도에 따라 easy_explanation 또는 hard_explanation 선택
+   - Markdown 형식으로 포맷팅하여 반환
+4. PostgreSQL에 없으면 Vector DB에서 검색 (2차 검색)
+   - glossary_retriever.search()를 사용하여 유사 용어 검색
+   - 가장 유사한 문서의 내용 반환
+5. Vector DB에도 없으면 논문 본문에서 검색 (3차 검색)
+   - RAG Retriever로 논문에서 용어 정의 검색
+   - 검색된 문서의 내용 반환
+6. 모든 검색에 실패하면 "정보를 찾을 수 없습니다" 메시지 반환
 
 #### 3. 하이브리드 검색 (PostgreSQL + Vector DB)
-```python
-def hybrid_glossary_search(term: str, difficulty: str = "easy") -> str:
-    """
-    PostgreSQL과 Vector DB를 동시에 검색하여 최상의 결과 반환
-    """
-    results = {
-        "postgres": None,
-        "vector_db": None
-    }
 
-    # PostgreSQL 검색
-    conn = psycopg2.connect("postgresql://user:password@localhost/papers")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM glossary WHERE term ILIKE %s", (f"%{term}%",))
-    results["postgres"] = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
-    # Vector DB 검색
-    glossary_docs = glossary_retriever.search(term)
-    if glossary_docs:
-        results["vector_db"] = glossary_docs[0]
-
-    # 결과 통합
-    if results["postgres"]:
-        # PostgreSQL 우선 (정확도 높음)
-        return format_postgres_result(results["postgres"], difficulty)
-    elif results["vector_db"]:
-        # Vector DB (유연성 높음)
-        return format_vector_result(results["vector_db"])
-    else:
-        return f"'{term}'에 대한 정보를 찾을 수 없습니다."
-```
+**구현 방법**:
+1. `hybrid_glossary_search` 함수 정의
+   - PostgreSQL과 Vector DB를 동시에 검색하여 최상의 결과 반환
+2. PostgreSQL 검색 수행
+   - ILIKE를 사용하여 용어 검색
+   - 결과를 results["postgres"]에 저장
+3. Vector DB 검색 수행
+   - glossary_retriever.search()로 검색
+   - 결과를 results["vector_db"]에 저장
+4. 결과 통합 및 우선순위 처리
+   - PostgreSQL 결과가 있으면 우선 반환 (정확도 높음)
+   - PostgreSQL 결과가 없으면 Vector DB 결과 반환 (유연성 높음)
+   - 둘 다 없으면 "정보를 찾을 수 없습니다" 반환
 
 #### 4. 질문 분석 시 용어 자동 추출 및 컨텍스트 추가
-```python
-# src/rag/context_enhancer.py
 
-def extract_and_add_glossary_context(user_query: str) -> str:
-    """
-    사용자 질문에서 전문 용어를 추출하여 프롬프트에 추가
-    """
-    conn = psycopg2.connect("postgresql://user:password@localhost/papers")
-    cursor = conn.cursor()
+**파일 경로**: `src/rag/context_enhancer.py`
 
-    # 질문에서 용어 찾기 (PostgreSQL ILIKE 사용)
-    cursor.execute("""
-        SELECT term, definition, easy_explanation
-        FROM glossary
-        WHERE %s ILIKE '%' || term || '%'
-    """, (user_query,))
-
-    terms_found = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    if not terms_found:
-        return ""
-
-    # 용어 정의를 컨텍스트에 추가
-    glossary_context = "\n\n## 📚 관련 용어 정의\n\n"
-    for term, definition, easy_exp in terms_found:
-        explanation = easy_exp if easy_exp else definition
-        glossary_context += f"- **{term}**: {explanation}\n"
-
-    return glossary_context
-```
+**구현 방법**:
+1. `extract_and_add_glossary_context` 함수 정의
+   - 사용자 질문에서 전문 용어를 추출하여 프롬프트에 추가
+2. PostgreSQL 연결 및 용어 검색
+   - ILIKE를 사용하여 질문 내에 포함된 용어 찾기
+   - term, definition, easy_explanation 조회
+3. 검색된 용어가 있으면 컨텍스트 생성
+   - 각 용어에 대해 이름과 설명을 Markdown 형식으로 포맷팅
+   - "관련 용어 정의" 섹션으로 구성
+4. 검색된 용어가 없으면 빈 문자열 반환
 
 ### 사용하는 DB
 
@@ -500,25 +285,25 @@ def extract_and_add_glossary_context(user_query: str) -> str:
 
 ## 개발 일정
 
-### Phase 1: RAG 시스템 기초 구현 (10/28~10/30)
+### Phase 1: RAG 시스템 기초 구현
 - PostgreSQL + pgvector VectorStore 연동
 - OpenAI Embeddings 초기화
 - 기본 Retriever 구현 (similarity)
 - search_paper_database 도구 기본 구현
 
-### Phase 2: 고급 검색 기능 구현 (10/31~11/02)
+### Phase 2: 고급 검색 기능 구현
 - MultiQueryRetriever 구현 (쿼리 확장)
 - MMR 검색 방식 적용
 - 메타데이터 필터링
 - 유사도 점수 반환
 
-### Phase 3: 용어집 시스템 구현 (11/01~11/02)
+### Phase 3: 용어집 시스템 구현
 - 용어집 전용 VectorStore 초기화
 - search_glossary 도구 구현
 - PostgreSQL glossary 테이블 연동
 - 하이브리드 검색 구현
 
-### Phase 4: 통합 및 최적화 (11/03~11/04)
+### Phase 4: 통합 및 최적화
 - ContextualCompressionRetriever 구현 (선택)
 - 검색 결과 포맷팅 개선
 - PostgreSQL 연동 최적화
@@ -528,64 +313,38 @@ def extract_and_add_glossary_context(user_query: str) -> str:
 
 ## RAG 노드 구현 (LangGraph 통합)
 
-```python
-# src/agent/nodes.py
+**파일 경로**: `src/agent/nodes.py`
 
-def search_paper_node(state: AgentState):
-    """RAG 검색 노드"""
-    question = state["question"]
+### 1. RAG 검색 노드
 
-    # RAG 검색 도구 호출
-    search_result = search_paper_database.invoke({
-        "query": question,
-        "year_filter": None
-    })
+**구현 방법**:
+1. `search_paper_node` 함수 정의
+   - 인자: state (AgentState)
+2. state에서 질문 추출
+3. RAG 검색 도구 호출
+   - search_paper_database.invoke()로 검색 수행
+   - query와 year_filter 전달
+4. 검색 결과를 state["tool_result"]에 저장
+5. 난이도 정보 추출
+6. 프롬프트 구성
+   - 검색 결과, 사용자 질문, 난이도 포함
+7. LLM 호출하여 최종 답변 생성
+   - SystemMessage: "당신은 논문 리뷰 전문가입니다."
+   - HumanMessage: 프롬프트
+8. 최종 답변을 state["final_answer"]에 저장 후 반환
 
-    # 검색 결과를 상태에 저장
-    state["tool_result"] = search_result
+### 2. 용어집 검색 노드
 
-    # LLM에 전달하여 최종 답변 생성
-    difficulty = state.get("difficulty", "easy")
-
-    prompt = f"""
-    다음 논문 검색 결과를 바탕으로 사용자 질문에 답변해주세요.
-
-    검색 결과:
-    {search_result}
-
-    사용자 질문: {question}
-
-    난이도: {difficulty}
-
-    답변:
-    """
-
-    response = llm.invoke([
-        SystemMessage(content="당신은 논문 리뷰 전문가입니다."),
-        HumanMessage(content=prompt)
-    ])
-
-    state["final_answer"] = response.content
-    return state
-
-
-def glossary_node(state: AgentState):
-    """용어집 검색 노드"""
-    question = state["question"]
-    difficulty = state.get("difficulty", "easy")
-
-    # 질문에서 용어 추출 (간단한 방법)
-    term = question.replace("이 뭐야?", "").replace("란?", "").strip()
-
-    # 용어집 검색 도구 호출
-    glossary_result = search_glossary.invoke({
-        "term": term,
-        "difficulty": difficulty
-    })
-
-    state["final_answer"] = glossary_result
-    return state
-```
+**구현 방법**:
+1. `glossary_node` 함수 정의
+   - 인자: state (AgentState)
+2. state에서 질문과 난이도 추출
+3. 질문에서 용어 추출
+   - "이 뭐야?", "란?" 등의 패턴 제거
+4. 용어집 검색 도구 호출
+   - search_glossary.invoke()로 검색 수행
+   - term과 difficulty 전달
+5. 검색 결과를 state["final_answer"]에 저장 후 반환
 
 ---
 
@@ -600,37 +359,21 @@ def glossary_node(state: AgentState):
 
 ## 테스트 코드
 
-```python
-# tests/test_rag.py
+**파일 경로**: `tests/test_rag.py`
 
-import pytest
-from src.rag.retriever import RAGRetriever
-from src.tools.rag_search import search_paper_database
+### 테스트 항목
 
-def test_rag_retriever():
-    """RAG Retriever 테스트"""
-    retriever = RAGRetriever(llm)
+1. **test_rag_retriever**: RAG Retriever 테스트
+   - RAGRetriever 인스턴스 생성
+   - 기본 검색 테스트 (query: "Transformer architecture")
+   - 검색 결과가 존재하는지 확인
+   - 필터링 검색 테스트 (query: "BERT", filter: year >= 2018)
+   - 필터링된 검색 결과가 존재하는지 확인
 
-    # 기본 검색
-    docs = retriever.retrieve("Transformer architecture")
-    assert len(docs) > 0
-
-    # 필터링 검색
-    docs_filtered = retriever.retrieve_with_filter(
-        "BERT",
-        filter_dict={"year": {"$gte": 2018}}
-    )
-    assert len(docs_filtered) > 0
-
-def test_search_paper_database():
-    """RAG 검색 도구 테스트"""
-    result = search_paper_database.invoke({
-        "query": "Attention mechanism"
-    })
-
-    assert "검색된 논문" in result
-    assert len(result) > 0
-```
+2. **test_search_paper_database**: RAG 검색 도구 테스트
+   - search_paper_database.invoke() 호출 (query: "Attention mechanism")
+   - 반환 결과에 "검색된 논문" 텍스트가 포함되어 있는지 확인
+   - 결과가 비어있지 않은지 확인
 
 ---
 
