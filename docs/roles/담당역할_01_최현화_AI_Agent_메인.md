@@ -88,6 +88,9 @@
 from typing import TypedDict
 from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage
+from src.utils.logger import Logger
+
+logger = Logger(experiment_name="agent_general")
 
 class AgentState(TypedDict):
     question: str
@@ -101,6 +104,9 @@ def general_answer_node(state: AgentState):
     """
     question = state["question"]
     difficulty = state.get("difficulty", "easy")
+
+    logger.write(f"일반 답변 노드 실행: {question}")
+    logger.write(f"난이도: {difficulty}")
 
     # 난이도에 따른 SystemMessage 설정
     if difficulty == "easy":
@@ -121,6 +127,8 @@ def general_answer_node(state: AgentState):
     # 메시지 구성 및 LLM 호출
     messages = [system_msg, HumanMessage(content=question)]
     response = llm.invoke(messages)
+
+    logger.write(f"LLM 응답: {response.content}")
 
     # 최종 답변 저장
     state["final_answer"] = response.content
@@ -187,6 +195,9 @@ from langchain_openai import ChatOpenAI
 from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 import psycopg2
+from src.utils.logger import Logger
+
+logger = Logger(experiment_name="agent_summarize")
 
 @tool
 def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
@@ -200,6 +211,9 @@ def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
     Returns:
         논문 요약 내용
     """
+    logger.write(f"논문 요약 시작: {paper_title}")
+    logger.write(f"난이도: {difficulty}")
+
     # 1. PostgreSQL에서 논문 메타데이터 조회
     conn = psycopg2.connect("postgresql://user:password@localhost/papers")
     cursor = conn.cursor()
@@ -211,9 +225,11 @@ def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
     paper_meta = cursor.fetchone()
 
     if not paper_meta:
+        logger.write(f"논문을 찾을 수 없음: {paper_title}")
         return f"'{paper_title}' 논문을 찾을 수 없습니다."
 
     paper_id = paper_meta[0]
+    logger.write(f"논문 ID: {paper_id}")
 
     # 2. Vector DB에서 논문 전체 내용 조회
     vectorstore = PGVector(
@@ -226,6 +242,8 @@ def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
         k=10,
         filter={"paper_id": paper_id}
     )
+
+    logger.write(f"검색된 청크 수: {len(paper_chunks)}")
 
     # 3. 난이도별 프롬프트
     if difficulty == "easy":
@@ -257,9 +275,122 @@ def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
     llm = ChatOpenAI(model="gpt-4", temperature=0)
     chain = load_summarize_chain(llm, chain_type="stuff", prompt=PROMPT)
 
+    logger.write("요약 체인 실행 중...")
     summary = chain.run(paper_chunks)
 
+    logger.write(f"요약 완료: {len(summary)} 글자")
+
     return summary
+```
+
+---
+
+## Agent 아키텍처 다이어그램
+
+### 1. LangGraph Agent 구조
+
+```mermaid
+graph LR
+    START([🔸 시작]) --> Router{라우터<br/>노드}
+
+    Router -->|일반 질문| General[일반 답변]
+    Router -->|논문 검색| RAG[RAG 검색]
+    Router -->|웹 검색| Web[웹 검색]
+    Router -->|용어 질문| Glossary[용어집]
+    Router -->|요약 요청| Summarize[논문 요약]
+    Router -->|저장 요청| Save[파일 저장]
+
+    General --> END([✅ 종료])
+    RAG --> END
+    Web --> END
+    Glossary --> END
+    Summarize --> END
+    Save --> END
+
+    style START fill:#81c784,stroke:#388e3c
+    style END fill:#66bb6a,stroke:#2e7d32
+    style Router fill:#ba68c8,stroke:#7b1fa2
+    style General fill:#ce93d8,stroke:#7b1fa2
+    style RAG fill:#ce93d8,stroke:#7b1fa2
+    style Web fill:#ce93d8,stroke:#7b1fa2
+    style Glossary fill:#ce93d8,stroke:#7b1fa2
+    style Summarize fill:#ce93d8,stroke:#7b1fa2
+    style Save fill:#ce93d8,stroke:#7b1fa2
+```
+
+### 2. LLM 선택 전략
+
+```mermaid
+graph TB
+    A[작업 유형] --> B{작업 분류}
+
+    B -->|라우팅| C[Solar<br/>빠른 응답]
+    B -->|답변 생성| D[GPT-4<br/>높은 정확도]
+    B -->|요약| E[GPT-4<br/>품질 중요]
+    B -->|기타| F[GPT-3.5<br/>비용 효율]
+
+    C --> G[LLM 호출]
+    D --> G
+    E --> G
+    F --> G
+
+    G --> H{에러?}
+    H -->|Yes| I[재시도<br/>최대 3회]
+    H -->|No| J[✅ 결과 반환]
+    I --> G
+
+    style A fill:#90caf9,stroke:#1976d2
+    style B fill:#ba68c8,stroke:#7b1fa2
+    style C fill:#ce93d8,stroke:#7b1fa2
+    style D fill:#ce93d8,stroke:#7b1fa2
+    style E fill:#ce93d8,stroke:#7b1fa2
+    style F fill:#ce93d8,stroke:#7b1fa2
+    style G fill:#a5d6a7,stroke:#388e3c
+    style H fill:#ba68c8,stroke:#7b1fa2
+    style I fill:#ffcc80,stroke:#f57c00
+    style J fill:#66bb6a,stroke:#2e7d32
+```
+
+### 3. 에러 핸들링 흐름
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Agent
+    participant LLM
+    participant Retry
+
+    Agent->>LLM: API 호출
+
+    alt 성공
+        LLM-->>Agent: ✅ 응답 반환
+    else 실패 (1차)
+        LLM-->>Retry: ❌ 에러
+        Retry->>Retry: 대기 2초
+        Retry->>LLM: 재시도 (1/3)
+
+        alt 성공
+            LLM-->>Agent: ✅ 응답 반환
+        else 실패 (2차)
+            LLM-->>Retry: ❌ 에러
+            Retry->>Retry: 대기 4초
+            Retry->>LLM: 재시도 (2/3)
+
+            alt 성공
+                LLM-->>Agent: ✅ 응답 반환
+            else 실패 (3차)
+                LLM-->>Retry: ❌ 에러
+                Retry->>Retry: 대기 8초
+                Retry->>LLM: 재시도 (3/3)
+
+                alt 성공
+                    LLM-->>Agent: ✅ 응답 반환
+                else 최종 실패
+                    LLM-->>Agent: ❌ 에러 반환
+                end
+            end
+        end
+    end
 ```
 
 ---
@@ -316,6 +447,9 @@ def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
 from langgraph.graph import StateGraph, END
 from typing import TypedDict
 from langchain_openai import ChatOpenAI
+from src.utils.logger import Logger
+
+logger = Logger(experiment_name="agent_router")
 
 class AgentState(TypedDict):
     question: str
@@ -329,6 +463,8 @@ def router_node(state: AgentState):
     질문을 분석하여 어떤 도구를 사용할지 결정
     """
     question = state["question"]
+
+    logger.write(f"라우터 노드 실행: {question}")
 
     # LLM에게 라우팅 결정 요청
     routing_prompt = f"""
@@ -350,6 +486,8 @@ def router_node(state: AgentState):
     llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
     tool_choice = llm.invoke(routing_prompt).content.strip()
 
+    logger.write(f"라우팅 결정: {tool_choice}")
+
     state["tool_choice"] = tool_choice
     return state
 
@@ -359,6 +497,8 @@ def route_to_tool(state: AgentState):
 
 def create_agent_graph():
     """LangGraph Agent 그래프 생성"""
+    logger.write("Agent 그래프 생성 시작")
+
     workflow = StateGraph(AgentState)
 
     # 노드 추가
@@ -393,6 +533,8 @@ def create_agent_graph():
 
     # 그래프 컴파일
     agent_executor = workflow.compile()
+
+    logger.write("Agent 그래프 컴파일 완료")
 
     return agent_executor
 ```
@@ -449,6 +591,9 @@ from langchain_openai import ChatOpenAI
 from langchain_upstage import ChatUpstage
 from tenacity import retry, stop_after_attempt, wait_exponential
 from langchain.callbacks import get_openai_callback
+from src.utils.logger import Logger
+
+logger = Logger(experiment_name="agent_llm")
 
 class LLMClient:
     """다중 LLM 클라이언트 클래스"""
@@ -461,6 +606,8 @@ class LLMClient:
             temperature: 창의성 수준 (0-1)
         """
         self.provider = provider
+
+        logger.write(f"LLM 초기화: provider={provider}, model={model}")
 
         if provider == "openai":
             self.llm = ChatOpenAI(
@@ -483,6 +630,7 @@ class LLMClient:
         에러 핸들링 및 재시도
         최대 3회 재시도, 지수 백오프 (2초 → 4초 → 8초)
         """
+        logger.write("LLM 호출 시작 (재시도 가능)")
         return self.llm.invoke(messages)
 
     def invoke_with_tracking(self, messages):
@@ -490,20 +638,23 @@ class LLMClient:
         if self.provider == "openai":
             with get_openai_callback() as cb:
                 response = self.llm.invoke(messages)
-                print(f"Tokens Used: {cb.total_tokens}")
-                print(f"Total Cost: ${cb.total_cost:.4f}")
+                logger.write(f"Tokens Used: {cb.total_tokens}")
+                logger.write(f"Total Cost: ${cb.total_cost:.4f}")
                 return response
         else:
             return self.llm.invoke(messages)
 
     async def astream(self, messages):
         """스트리밍 응답 처리"""
+        logger.write("스트리밍 응답 시작")
         async for chunk in self.llm.astream(messages):
             yield chunk
 
 
 def get_llm_for_task(task_type):
     """작업 유형별 최적 LLM 선택"""
+    logger.write(f"작업 유형별 LLM 선택: {task_type}")
+
     if task_type == "routing":
         return LLMClient(provider="solar", model="solar-1-mini-chat", temperature=0)
     elif task_type == "generation":
@@ -618,6 +769,89 @@ if __name__ == "__main__":
 
 ---
 
+## 로깅 및 실험 추적 관리
+
+### 로깅 시스템 사용
+
+**중요**: 모든 출력은 Logger 클래스를 사용해야 합니다.
+
+**파일 경로**: `src/utils/logger.py`
+
+**사용 방법**:
+1. Logger 인스턴스 생성
+   - experiment_name 형식: `agent_xxx`, `rag_xxx`, `feature_xxx`
+   - 예: `logger = Logger(experiment_name="agent_main")`
+
+2. 로그 기록
+   - `logger.write()` 사용 (print() 대신)
+   - 예: `logger.write(f"라우팅 결정: {tool_choice}")`
+
+3. 실험 종료
+   - `logger.close()` 필수 호출
+
+### 실험 폴더 구조
+
+**규칙**: PRD 문서 06_실험_추적_관리.md 참조
+
+```
+experiments/
+├── {날짜}/
+│   ├── {날짜}_{시간}_{실험명}/
+│   │   ├── experiment.log         # 실험 로그
+│   │   ├── config.yaml            # 설정 파일
+│   │   └── results.json           # 결과 파일
+```
+
+**필수 파일**:
+- `experiment.log`: logger.write() 출력
+- `config.yaml`: LLM 설정, 난이도, 모델 정보
+- `results.json`: 최종 답변, 도구 선택, 응답 시간
+
+### 예제 코드
+
+```python
+from src.utils.logger import Logger
+import yaml
+import json
+from datetime import datetime
+
+# Logger 초기화
+logger = Logger(experiment_name="agent_main")
+
+# Config 저장
+config = {
+    "llm_provider": "openai",
+    "model": "gpt-4",
+    "temperature": 0.7,
+    "difficulty": "easy"
+}
+
+with open(f"{logger.experiment_dir}/config.yaml", "w") as f:
+    yaml.dump(config, f)
+
+# 실행 로그
+logger.write("Agent 실행 시작")
+logger.write(f"질문: {question}")
+logger.write(f"선택된 도구: {tool_choice}")
+
+# Results 저장
+results = {
+    "question": question,
+    "tool_choice": tool_choice,
+    "final_answer": final_answer,
+    "response_time_ms": 1250,
+    "timestamp": datetime.now().isoformat()
+}
+
+with open(f"{logger.experiment_dir}/results.json", "w", encoding="utf-8") as f:
+    json.dump(results, f, indent=2, ensure_ascii=False)
+
+# Logger 종료
+logger.close()
+```
+
+---
+
 ## 개발 일정
 
 ### Phase 1: LLM 클라이언트 및 공통 인프라
@@ -691,6 +925,26 @@ if __name__ == "__main__":
 - `feature/memory` - 대화 메모리 시스템
 - `feature/tool-summarize` - 논문 요약 도구
 - `feature/integration` - 통합 및 main.py
+
+---
+
+## 참고 PRD 문서
+
+개발 시 반드시 참고해야 할 PRD 문서 목록:
+
+### 필수 참고 문서
+1. **01_프로젝트_개요.md** - 프로젝트 전체 개요 및 목표
+2. **02_프로젝트_구조.md** - 폴더 구조 및 모듈 배치
+3. **05_로깅_시스템.md** ⭐ - Logger 클래스 사용법 및 규칙
+4. **06_실험_추적_관리.md** ⭐ - 실험 폴더 구조 및 명명 규칙
+5. **10_기술_요구사항.md** - 기술 스택 및 라이브러리
+6. **12_AI_Agent_설계.md** - LangGraph 구조 및 도구 정의
+7. **14_LLM_설정.md** - LLM 선택 전략 및 에러 핸들링
+
+### 참고 문서
+- **03_브랜치_전략.md** - Feature 브랜치 전략
+- **04_일정_관리.md** - 개발 일정 및 마일스톤
+- **11_데이터베이스_설계.md** - DB 스키마 (요약 도구에서 사용)
 
 ---
 

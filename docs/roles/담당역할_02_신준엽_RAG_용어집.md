@@ -34,6 +34,108 @@
 
 ---
 
+## RAG 시스템 다이어그램
+
+### 1. RAG 검색 흐름
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as 사용자 질문
+    participant Retriever as RAG Retriever
+    participant VDB as Vector DB<br/>(pgvector)
+    participant PG as PostgreSQL
+
+    User->>Retriever: "Transformer 논문 찾아줘"
+    Retriever->>Retriever: 질문 임베딩 생성
+    Retriever->>VDB: similarity_search(k=20)<br/>MMR 검색
+    VDB-->>Retriever: Top-20 유사 청크
+
+    Retriever->>VDB: MMR 재순위화<br/>(lambda=0.5)
+    VDB-->>Retriever: Top-5 최종 문서
+
+    loop 각 문서
+        Retriever->>PG: paper_id로 메타데이터 조회
+        PG-->>Retriever: title, authors, url
+    end
+
+    Retriever-->>User: 포맷팅된 검색 결과
+
+    style User fill:#90caf9,stroke:#1976d2
+    style Retriever fill:#ba68c8,stroke:#7b1fa2
+    style VDB fill:#a5d6a7,stroke:#388e3c
+    style PG fill:#81c784,stroke:#2e7d32
+```
+
+### 2. MultiQuery 과정
+
+```mermaid
+graph TB
+    A[원본 질문<br/>'Transformer 설명'] --> B[LLM]
+
+    B --> C1[쿼리 1<br/>'Transformer 아키텍처']
+    B --> C2[쿼리 2<br/>'Attention mechanism']
+    B --> C3[쿼리 3<br/>'Transformer 논문']
+
+    C1 --> D[Vector DB 검색]
+    C2 --> D
+    C3 --> D
+
+    D --> E1[결과 1]
+    D --> E2[결과 2]
+    D --> E3[결과 3]
+
+    E1 --> F[결과 통합<br/>중복 제거]
+    E2 --> F
+    E3 --> F
+
+    F --> G[✅ 최종 Top-5]
+
+    style A fill:#90caf9,stroke:#1976d2
+    style B fill:#ba68c8,stroke:#7b1fa2
+    style C1 fill:#ce93d8,stroke:#7b1fa2
+    style C2 fill:#ce93d8,stroke:#7b1fa2
+    style C3 fill:#ce93d8,stroke:#7b1fa2
+    style D fill:#a5d6a7,stroke:#388e3c
+    style E1 fill:#81c784,stroke:#2e7d32
+    style E2 fill:#81c784,stroke:#2e7d32
+    style E3 fill:#81c784,stroke:#2e7d32
+    style F fill:#ffcc80,stroke:#f57c00
+    style G fill:#66bb6a,stroke:#2e7d32
+```
+
+### 3. 용어집 하이브리드 검색
+
+```mermaid
+graph LR
+    A[용어 검색 요청<br/>'Attention'] --> B{검색 전략}
+
+    B -->|1차| C[PostgreSQL<br/>ILIKE 검색]
+    B -->|2차| D[Vector DB<br/>유사도 검색]
+
+    C --> E{결과 있음?}
+    E -->|Yes| F[✅ 정확한 정의<br/>PostgreSQL 반환]
+    E -->|No| G[Vector DB 실행]
+
+    D --> G
+    G --> H{결과 있음?}
+    H -->|Yes| I[✅ 유사 용어<br/>Vector DB 반환]
+    H -->|No| J[❌ 찾을 수 없음]
+
+    style A fill:#90caf9,stroke:#1976d2
+    style B fill:#ba68c8,stroke:#7b1fa2
+    style C fill:#81c784,stroke:#2e7d32
+    style D fill:#a5d6a7,stroke:#388e3c
+    style E fill:#ba68c8,stroke:#7b1fa2
+    style F fill:#66bb6a,stroke:#2e7d32
+    style G fill:#ffcc80,stroke:#f57c00
+    style H fill:#ba68c8,stroke:#7b1fa2
+    style I fill:#66bb6a,stroke:#2e7d32
+    style J fill:#ef9a9a,stroke:#c62828
+```
+
+---
+
 ## 도구 1: RAG 검색 도구
 
 ### 기능 설명
@@ -118,9 +220,12 @@
 ```python
 # src/rag/retriever.py
 
+from src.utils.logger import Logger
 from langchain_postgres.vectorstores import PGVector
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.retrievers import MultiQueryRetriever
+
+logger = Logger(experiment_name="rag_retriever")
 
 class RAGRetriever:
     """논문 검색을 위한 RAG Retriever"""
@@ -212,8 +317,11 @@ class RAGRetriever:
 
 # src/tools/rag_search.py
 
+from src.utils.logger import Logger
 from langchain.tools import tool
 import psycopg2
+
+logger = Logger(experiment_name="rag_search")
 
 @tool
 def search_paper_database(query: str, year_filter: int = None) -> str:
@@ -266,6 +374,7 @@ def search_paper_database(query: str, year_filter: int = None) -> str:
     cursor.close()
     conn.close()
 
+    logger.write(f"검색 결과: {len(results)}개 논문 발견")
     return format_search_results(results)
 
 
@@ -417,8 +526,11 @@ def format_search_results(results):
 ```python
 # src/rag/glossary_retriever.py
 
+from src.utils.logger import Logger
 from langchain_postgres.vectorstores import PGVector
 from langchain_openai import OpenAIEmbeddings
+
+logger = Logger(experiment_name="rag_glossary")
 
 class GlossaryRetriever:
     """용어집 검색을 위한 Retriever"""
@@ -450,8 +562,11 @@ class GlossaryRetriever:
 
 # src/tools/glossary.py
 
+from src.utils.logger import Logger
 from langchain.tools import tool
 import psycopg2
+
+logger = Logger(experiment_name="rag_glossary")
 
 @tool
 def search_glossary(term: str, difficulty: str = "easy") -> str:
@@ -487,6 +602,7 @@ def search_glossary(term: str, difficulty: str = "easy") -> str:
         formatted += f"**정의**: {definition}\n\n"
         formatted += f"**설명**: {explanation}\n"
 
+        logger.write(f"PostgreSQL에서 용어 발견: {term_name}")
         cursor.close()
         conn.close()
         return formatted
@@ -496,6 +612,7 @@ def search_glossary(term: str, difficulty: str = "easy") -> str:
     docs = glossary_retriever.search(term)
 
     if docs:
+        logger.write(f"Vector DB에서 유사 용어 발견: {term}")
         cursor.close()
         conn.close()
         return f"## {term} (유사 용어)\n\n{docs[0].page_content}"
@@ -504,6 +621,7 @@ def search_glossary(term: str, difficulty: str = "easy") -> str:
     from src.tools.rag_search import search_paper_database
     result = search_paper_database(f"{term} 정의")
 
+    logger.write(f"논문 본문에서 용어 검색: {term}")
     cursor.close()
     conn.close()
     return result
@@ -511,7 +629,10 @@ def search_glossary(term: str, difficulty: str = "easy") -> str:
 
 # src/rag/context_enhancer.py
 
+from src.utils.logger import Logger
 import psycopg2
+
+logger = Logger(experiment_name="rag_context")
 
 def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
     """
@@ -543,6 +664,7 @@ def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
         for term, definition, easy_exp in terms_found:
             glossary_context += f"- **{term}**: {easy_exp}\n"
 
+        logger.write(f"질문에서 {len(terms_found)}개 용어 추출")
         cursor.close()
         conn.close()
         return glossary_context
@@ -689,6 +811,51 @@ def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
    - search_paper_database.invoke() 호출 (query: "Attention mechanism")
    - 반환 결과에 "검색된 논문" 텍스트가 포함되어 있는지 확인
    - 결과가 비어있지 않은지 확인
+
+---
+
+## 로깅 및 실험 추적 관리
+
+### 로깅 시스템 사용
+
+**중요**: 모든 출력은 Logger 클래스를 사용해야 합니다.
+
+**파일 경로**: `src/utils/logger.py`
+
+**사용 방법**:
+1. Logger 인스턴스 생성
+   - experiment_name 형식: `rag_search`, `rag_glossary`
+   - 예: `logger = Logger(experiment_name="rag_search")`
+
+2. 로그 기록
+   - `logger.write()` 사용 (print() 대신)
+   - 예: `logger.write(f"검색 결과: {len(docs)}개")`
+
+3. 실험 종료
+   - `logger.close()` 필수 호출
+
+### 실험 폴더 구조
+
+PRD 문서 06_실험_추적_관리.md 참조
+
+---
+
+## 참고 PRD 문서
+
+개발 시 반드시 참고해야 할 PRD 문서 목록:
+
+### 필수 참고 문서
+1. **01_프로젝트_개요.md** - 프로젝트 전체 개요
+2. **02_프로젝트_구조.md** - 폴더 구조
+3. **05_로깅_시스템.md** ⭐ - Logger 사용법
+4. **06_실험_추적_관리.md** ⭐ - 실험 폴더 구조
+5. **10_기술_요구사항.md** - 기술 스택
+6. **11_데이터베이스_설계.md** - DB 스키마 (papers, glossary 테이블)
+7. **13_RAG_시스템_설계.md** - RAG 파이프라인 및 Retriever 설정
+
+### 참고 문서
+- **03_브랜치_전략.md** - Feature 브랜치
+- **04_일정_관리.md** - 개발 일정
 
 ---
 
