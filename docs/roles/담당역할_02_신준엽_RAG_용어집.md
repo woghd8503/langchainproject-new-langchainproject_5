@@ -61,10 +61,10 @@ sequenceDiagram
 
     Retriever-->>User: 포맷팅된 검색 결과
 
-    style User fill:#90caf9,stroke:#1976d2
-    style Retriever fill:#ba68c8,stroke:#7b1fa2
-    style VDB fill:#a5d6a7,stroke:#388e3c
-    style PG fill:#81c784,stroke:#2e7d32
+    style User fill:#90caf9,stroke:#1976d2,color:#000
+    style Retriever fill:#ba68c8,stroke:#7b1fa2,color:#000
+    style VDB fill:#a5d6a7,stroke:#388e3c,color:#000
+    style PG fill:#81c784,stroke:#2e7d32,color:#000
 ```
 
 ### 2. MultiQuery 과정
@@ -91,17 +91,17 @@ graph TB
 
     F --> G[✅ 최종 Top-5]
 
-    style A fill:#90caf9,stroke:#1976d2
-    style B fill:#ba68c8,stroke:#7b1fa2
-    style C1 fill:#ce93d8,stroke:#7b1fa2
-    style C2 fill:#ce93d8,stroke:#7b1fa2
-    style C3 fill:#ce93d8,stroke:#7b1fa2
-    style D fill:#a5d6a7,stroke:#388e3c
-    style E1 fill:#81c784,stroke:#2e7d32
-    style E2 fill:#81c784,stroke:#2e7d32
-    style E3 fill:#81c784,stroke:#2e7d32
-    style F fill:#ffcc80,stroke:#f57c00
-    style G fill:#66bb6a,stroke:#2e7d32
+    style A fill:#90caf9,stroke:#1976d2,color:#000
+    style B fill:#ba68c8,stroke:#7b1fa2,color:#000
+    style C1 fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style C2 fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style C3 fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style D fill:#a5d6a7,stroke:#388e3c,color:#000
+    style E1 fill:#81c784,stroke:#2e7d32,color:#000
+    style E2 fill:#81c784,stroke:#2e7d32,color:#000
+    style E3 fill:#81c784,stroke:#2e7d32,color:#000
+    style F fill:#ffcc80,stroke:#f57c00,color:#000
+    style G fill:#66bb6a,stroke:#2e7d32,color:#000
 ```
 
 ### 3. 용어집 하이브리드 검색
@@ -122,16 +122,16 @@ graph LR
     H -->|Yes| I[✅ 유사 용어<br/>Vector DB 반환]
     H -->|No| J[❌ 찾을 수 없음]
 
-    style A fill:#90caf9,stroke:#1976d2
-    style B fill:#ba68c8,stroke:#7b1fa2
-    style C fill:#81c784,stroke:#2e7d32
-    style D fill:#a5d6a7,stroke:#388e3c
+    style A fill:#90caf9,stroke:#1976d2,color:#000
+    style B fill:#ba68c8,stroke:#7b1fa2,color:#000
+    style C fill:#81c784,stroke:#2e7d32,color:#000
+    style D fill:#a5d6a7,stroke:#388e3c,color:#000
     style E fill:#ba68c8,stroke:#7b1fa2
-    style F fill:#66bb6a,stroke:#2e7d32
-    style G fill:#ffcc80,stroke:#f57c00
+    style F fill:#66bb6a,stroke:#2e7d32,color:#000
+    style G fill:#ffcc80,stroke:#f57c00,color:#000
     style H fill:#ba68c8,stroke:#7b1fa2
-    style I fill:#66bb6a,stroke:#2e7d32
-    style J fill:#ef9a9a,stroke:#c62828
+    style I fill:#66bb6a,stroke:#2e7d32,color:#000
+    style J fill:#ef9a9a,stroke:#c62828,color:#000
 ```
 
 ---
@@ -220,12 +220,20 @@ graph LR
 ```python
 # src/rag/retriever.py
 
+import os
+from datetime import datetime
 from src.utils.logger import Logger
 from langchain_postgres.vectorstores import PGVector
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.retrievers import MultiQueryRetriever
 
-logger = Logger(experiment_name="rag_retriever")
+# Logger 초기화
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "rag_retriever"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 class RAGRetriever:
     """논문 검색을 위한 RAG Retriever"""
@@ -317,11 +325,19 @@ class RAGRetriever:
 
 # src/tools/rag_search.py
 
+import os
+from datetime import datetime
 from src.utils.logger import Logger
 from langchain.tools import tool
 import psycopg2
 
-logger = Logger(experiment_name="rag_search")
+# Logger 초기화
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "rag_search"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 @tool
 def search_paper_database(query: str, year_filter: int = None) -> str:
@@ -526,11 +542,19 @@ def format_search_results(results):
 ```python
 # src/rag/glossary_retriever.py
 
+import os
+from datetime import datetime
 from src.utils.logger import Logger
 from langchain_postgres.vectorstores import PGVector
 from langchain_openai import OpenAIEmbeddings
 
-logger = Logger(experiment_name="rag_glossary")
+# Logger 초기화
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "rag_glossary"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 class GlossaryRetriever:
     """용어집 검색을 위한 Retriever"""
@@ -562,11 +586,19 @@ class GlossaryRetriever:
 
 # src/tools/glossary.py
 
+import os
+from datetime import datetime
 from src.utils.logger import Logger
 from langchain.tools import tool
 import psycopg2
 
-logger = Logger(experiment_name="rag_glossary")
+# Logger 초기화
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "rag_glossary_tool"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 @tool
 def search_glossary(term: str, difficulty: str = "easy") -> str:
@@ -629,10 +661,18 @@ def search_glossary(term: str, difficulty: str = "easy") -> str:
 
 # src/rag/context_enhancer.py
 
+import os
+from datetime import datetime
 from src.utils.logger import Logger
 import psycopg2
 
-logger = Logger(experiment_name="rag_context")
+# Logger 초기화
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "rag_context"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
     """
@@ -824,8 +864,22 @@ def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
 
 **사용 방법**:
 1. Logger 인스턴스 생성
-   - experiment_name 형식: `rag_search`, `rag_glossary`
-   - 예: `logger = Logger(experiment_name="rag_search")`
+   - 실험 폴더 생성 및 Logger 초기화
+   ```python
+   import os
+   from datetime import datetime
+   from src.utils.logger import Logger
+
+   # 실험 폴더 생성
+   today = datetime.now().strftime("%Y%m%d")
+   time_now = datetime.now().strftime("%H%M%S")
+   experiment_name = "rag_search"  # 또는 "rag_glossary" 등
+   log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+   os.makedirs(log_dir, exist_ok=True)
+
+   # Logger 초기화
+   logger = Logger(log_path=f"{log_dir}/experiment.log")
+   ```
 
 2. 로그 기록
    - `logger.write()` 사용 (print() 대신)

@@ -85,12 +85,20 @@
 ```python
 # src/agent/nodes.py
 
+import os
+from datetime import datetime
 from typing import TypedDict
 from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage
 from src.utils.logger import Logger
 
-logger = Logger(experiment_name="agent_general")
+# Logger 초기화
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "agent_general"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 class AgentState(TypedDict):
     question: str
@@ -189,6 +197,8 @@ def general_answer_node(state: AgentState):
 ```python
 # src/tools/summarize.py
 
+import os
+from datetime import datetime
 from langchain.tools import tool
 from langchain_postgres.vectorstores import PGVector
 from langchain_openai import ChatOpenAI
@@ -197,7 +207,13 @@ from langchain.prompts import PromptTemplate
 import psycopg2
 from src.utils.logger import Logger
 
-logger = Logger(experiment_name="agent_summarize")
+# Logger 초기화
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "agent_summarize"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 @tool
 def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
@@ -307,15 +323,15 @@ graph LR
     Summarize --> END
     Save --> END
 
-    style START fill:#81c784,stroke:#388e3c
-    style END fill:#66bb6a,stroke:#2e7d32
-    style Router fill:#ba68c8,stroke:#7b1fa2
-    style General fill:#ce93d8,stroke:#7b1fa2
-    style RAG fill:#ce93d8,stroke:#7b1fa2
-    style Web fill:#ce93d8,stroke:#7b1fa2
-    style Glossary fill:#ce93d8,stroke:#7b1fa2
-    style Summarize fill:#ce93d8,stroke:#7b1fa2
-    style Save fill:#ce93d8,stroke:#7b1fa2
+    style START fill:#81c784,stroke:#388e3c,color:#000
+    style END fill:#66bb6a,stroke:#2e7d32,color:#000
+    style Router fill:#ba68c8,stroke:#7b1fa2,color:#000
+    style General fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style RAG fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style Web fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style Glossary fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style Summarize fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style Save fill:#ce93d8,stroke:#7b1fa2,color:#000
 ```
 
 ### 2. LLM 선택 전략
@@ -339,16 +355,16 @@ graph TB
     H -->|No| J[✅ 결과 반환]
     I --> G
 
-    style A fill:#90caf9,stroke:#1976d2
-    style B fill:#ba68c8,stroke:#7b1fa2
-    style C fill:#ce93d8,stroke:#7b1fa2
-    style D fill:#ce93d8,stroke:#7b1fa2
-    style E fill:#ce93d8,stroke:#7b1fa2
-    style F fill:#ce93d8,stroke:#7b1fa2
-    style G fill:#a5d6a7,stroke:#388e3c
+    style A fill:#90caf9,stroke:#1976d2,color:#000
+    style B fill:#ba68c8,stroke:#7b1fa2,color:#000
+    style C fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style D fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style E fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style F fill:#ce93d8,stroke:#7b1fa2,color:#000
+    style G fill:#a5d6a7,stroke:#388e3c,color:#000
     style H fill:#ba68c8,stroke:#7b1fa2
-    style I fill:#ffcc80,stroke:#f57c00
-    style J fill:#66bb6a,stroke:#2e7d32
+    style I fill:#ffcc80,stroke:#f57c00,color:#000
+    style J fill:#66bb6a,stroke:#2e7d32,color:#000
 ```
 
 ### 3. 에러 핸들링 흐름
@@ -444,12 +460,20 @@ sequenceDiagram
 ```python
 # src/agent/graph.py
 
+import os
+from datetime import datetime
 from langgraph.graph import StateGraph, END
 from typing import TypedDict
 from langchain_openai import ChatOpenAI
 from src.utils.logger import Logger
 
-logger = Logger(experiment_name="agent_router")
+# Logger 초기화
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "agent_router"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 class AgentState(TypedDict):
     question: str
@@ -587,13 +611,20 @@ def create_agent_graph():
 # src/llm/client.py
 
 import os
+from datetime import datetime
 from langchain_openai import ChatOpenAI
 from langchain_upstage import ChatUpstage
 from tenacity import retry, stop_after_attempt, wait_exponential
 from langchain.callbacks import get_openai_callback
 from src.utils.logger import Logger
 
-logger = Logger(experiment_name="agent_llm")
+# Logger 초기화
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "agent_llm"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 class LLMClient:
     """다중 LLM 클라이언트 클래스"""
@@ -757,14 +788,15 @@ if __name__ == "__main__":
     memory_manager.add_user_message("Transformer 논문 설명해줘")
     memory_manager.add_ai_message("Transformer는 2017년 Google에서 발표한...")
 
-    print(memory_manager.get_history())
+    logger.write(f"메모리 히스토리: {memory_manager.get_history()}")
 
     # 세션 기반 메모리 사용
     session_history = get_session_history("user_123")
     session_history.add_user_message("BERT 논문은?")
     session_history.add_ai_message("BERT는 2018년에...")
 
-    print(session_history.messages)
+    logger.write(f"세션 메시지: {session_history.messages}")
+    logger.close()
 ```
 
 ---
@@ -778,9 +810,15 @@ if __name__ == "__main__":
 **파일 경로**: `src/utils/logger.py`
 
 **사용 방법**:
-1. Logger 인스턴스 생성
-   - experiment_name 형식: `agent_xxx`, `rag_xxx`, `feature_xxx`
-   - 예: `logger = Logger(experiment_name="agent_main")`
+1. 실험 폴더 및 Logger 생성
+   ```python
+   today = datetime.now().strftime("%Y%m%d")
+   time_now = datetime.now().strftime("%H%M%S")
+   experiment_name = "agent_main"  # agent_xxx, rag_xxx, feature_xxx
+   log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+   os.makedirs(log_dir, exist_ok=True)
+   logger = Logger(log_path=f"{log_dir}/experiment.log")
+   ```
 
 2. 로그 기록
    - `logger.write()` 사용 (print() 대신)
@@ -810,13 +848,21 @@ experiments/
 ### 예제 코드
 
 ```python
+import os
+from datetime import datetime
 from src.utils.logger import Logger
 import yaml
 import json
-from datetime import datetime
+
+# 실험 폴더 생성
+today = datetime.now().strftime("%Y%m%d")
+time_now = datetime.now().strftime("%H%M%S")
+experiment_name = "agent_main"
+log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
+os.makedirs(log_dir, exist_ok=True)
 
 # Logger 초기화
-logger = Logger(experiment_name="agent_main")
+logger = Logger(log_path=f"{log_dir}/experiment.log")
 
 # Config 저장
 config = {
@@ -826,7 +872,7 @@ config = {
     "difficulty": "easy"
 }
 
-with open(f"{logger.experiment_dir}/config.yaml", "w") as f:
+with open(f"{log_dir}/config.yaml", "w") as f:
     yaml.dump(config, f)
 
 # 실행 로그
@@ -843,7 +889,7 @@ results = {
     "timestamp": datetime.now().isoformat()
 }
 
-with open(f"{logger.experiment_dir}/results.json", "w", encoding="utf-8") as f:
+with open(f"{log_dir}/results.json", "w", encoding="utf-8") as f:
     json.dump(results, f, indent=2, ensure_ascii=False)
 
 # Logger 종료
