@@ -79,11 +79,12 @@ class AgentState(TypedDict):
 
 | 번호 | 도구 이름 | 파일 | 직접 구현 | 설명 |
 |------|-----------|------|-----------|------|
-| 1 | search_paper_database | rag_search.py | ✅ | 논문 DB 검색 |
-| 2 | web_search | web_search.py | ❌ Tavily | 웹 검색 |
-| 3 | search_glossary | glossary.py | ✅ | 용어집 검색 |
-| 4 | summarize_paper | summarize.py | ✅ | 논문 요약 |
-| 5 | save_to_file | file_save.py | ✅ | 파일 저장 |
+| 1 | general_answer | general.py | ✅ | 일반 질문 답변 |
+| 2 | search_paper_database | rag_search.py | ✅ | 논문 DB 검색 |
+| 3 | web_search | web_search.py | ❌ Tavily | 웹 검색 |
+| 4 | search_glossary | glossary.py | ✅ | 용어집 검색 |
+| 5 | summarize_paper | summarize.py | ✅ | 논문 요약 |
+| 6 | save_to_file | file_save.py | ✅ | 파일 저장 |
 
 ### 4.2 도구 구현 예시
 
@@ -99,7 +100,45 @@ def search_paper_database(query: str) -> str:
 
 ---
 
-## 5. LangGraph 구현
+## 5. Agent 실행 시퀀스
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as 사용자
+    participant UI as Streamlit UI
+    participant Agent as AI Agent
+    participant Router as 라우터 노드
+    participant Tool as 도구 (6개)
+    participant LLM as OpenAI / Solar
+
+    User->>UI: 질문 입력 + 난이도 선택
+    UI->>Agent: invoke(question, difficulty)
+    Agent->>Router: 질문 분석
+    Router->>LLM: 라우팅 결정 요청
+    LLM-->>Router: 도구 선택 (general, rag, web, ...)
+    Router->>Tool: 선택된 도구 실행
+
+    alt RAG 검색
+        Tool->>Tool: VectorDB 검색
+        Tool->>LLM: 컨텍스트 + 프롬프트
+    else 웹 검색
+        Tool->>Tool: Tavily API 호출
+        Tool->>LLM: 검색 결과 정리
+    else 용어집
+        Tool->>Tool: PostgreSQL 조회
+        Tool->>LLM: 난이도별 설명
+    end
+
+    LLM-->>Tool: 답변 생성
+    Tool-->>Agent: 도구 실행 결과
+    Agent-->>UI: final_answer 반환
+    UI-->>User: 답변 표시
+```
+
+---
+
+## 6. LangGraph 구현
 
 ```python
 from langgraph.graph import StateGraph, END
