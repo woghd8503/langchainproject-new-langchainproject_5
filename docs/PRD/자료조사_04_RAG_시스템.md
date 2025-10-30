@@ -46,7 +46,7 @@ graph TB
         A[논문 데이터 수집<br/>📊 arXiv, Scholar] --> B[데이터 전처리<br/>PDF → 텍스트]
         B --> C[텍스트 청크 분할<br/>1000자 단위]
         C --> D[임베딩 벡터 생성<br/>OpenAI Embeddings]
-        D --> E[💾 Vector DB 저장<br/>ChromaDB]
+        D --> E[💾 Vector DB 저장<br/>pgvector]
     end
 
     subgraph Search["🔹 단계 2: 검색 & 조회"]
@@ -249,13 +249,13 @@ print(len(vector))  # 1536
 **Vector DB에 저장:**
 
 ```python
-from langchain.vectorstores import Chroma
+from langchain_postgres.vectorstores import PGVector
 
-# ChromaDB 초기화
-vectorstore = Chroma(
+# pgvector 초기화
+vectorstore = PGVector(
     collection_name="paper_embeddings",
     embedding_function=embeddings,
-    persist_directory="data/vectordb"
+    connection_string="postgresql://user:password@localhost:5432/papers"
 )
 
 # 문서 추가
@@ -285,25 +285,28 @@ vectorstore.add_documents(chunks)
 ### 6.2 컬렉션별 구현
 
 ```python
+# PostgreSQL + pgvector 연결 문자열
+CONNECTION_STRING = "postgresql://user:password@localhost:5432/papers"
+
 # 1. 논문 본문 컬렉션
-paper_chunks_store = Chroma(
+paper_chunks_store = PGVector(
     collection_name="paper_chunks",
     embedding_function=embeddings,
-    persist_directory="data/vectordb/chunks"
+    connection_string=CONNECTION_STRING
 )
 
 # 2. 논문 초록 컬렉션
-abstract_store = Chroma(
+abstract_store = PGVector(
     collection_name="paper_abstracts",
     embedding_function=embeddings,
-    persist_directory="data/vectordb/abstracts"
+    connection_string=CONNECTION_STRING
 )
 
 # 3. 용어집 컬렉션
-glossary_store = Chroma(
+glossary_store = PGVector(
     collection_name="glossary_embeddings",
     embedding_function=embeddings,
-    persist_directory="data/vectordb/glossary"
+    connection_string=CONNECTION_STRING
 )
 ```
 
@@ -675,6 +678,6 @@ rag_graph = workflow.compile()
 
 - Langchain RAG 튜토리얼: https://python.langchain.com/docs/tutorials/rag/
 - Langchain Vector Stores: https://python.langchain.com/docs/integrations/vectorstores/
-- ChromaDB 문서: https://docs.trychroma.com/
+- pgvector 문서: https://github.com/pgvector/pgvector
 - OpenAI Embeddings: https://platform.openai.com/docs/guides/embeddings
 - Text Splitters: https://docs.langchain.com/oss/python/integrations/splitters

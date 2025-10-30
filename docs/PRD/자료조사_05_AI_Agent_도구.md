@@ -94,7 +94,7 @@ def web_search(query: str) -> str:
 **구현 예시:**
 ```python
 from langchain.tools import tool
-from langchain.vectorstores import Chroma
+from langchain_postgres.vectorstores import PGVector
 
 @tool
 def search_paper_database(query: str) -> str:
@@ -123,7 +123,7 @@ def search_paper_database(query: str) -> str:
 ```
 
 **DB 연동:**
-- Vector DB (ChromaDB/pgvector): 논문 본문 임베딩 검색
+- Vector DB (pgvector): 논문 본문 임베딩 검색
 - PostgreSQL: 논문 메타데이터 (제목, 저자, 년도 등) 조회
 
 ---
