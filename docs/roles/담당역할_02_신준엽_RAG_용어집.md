@@ -60,11 +60,6 @@ sequenceDiagram
     end
 
     Retriever-->>User: 포맷팅된 검색 결과
-
-    style User fill:#90caf9,stroke:#1976d2,color:#000
-    style Retriever fill:#ba68c8,stroke:#7b1fa2,color:#000
-    style VDB fill:#a5d6a7,stroke:#388e3c,color:#000
-    style PG fill:#81c784,stroke:#2e7d32,color:#000
 ```
 
 ### 2. MultiQuery 과정
