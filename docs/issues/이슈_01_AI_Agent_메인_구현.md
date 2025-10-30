@@ -125,28 +125,25 @@ pytest tests/test_agent.py -v
 ### 유용한 링크
 
 **필수 참고 PRD 문서:**
-- `docs/PRD/01_프로젝트_개요.md` - 프로젝트 전체 개요 및 목표
-- `docs/PRD/02_프로젝트_구조.md` - 폴더 구조 및 모듈 배치
-- `docs/PRD/05_로깅_시스템.md` ⭐ - Logger 클래스 사용법 및 규칙
-- `docs/PRD/06_실험_추적_관리.md` ⭐ - 실험 폴더 구조 및 명명 규칙
-- `docs/PRD/10_기술_요구사항.md` - 기술 스택 및 라이브러리
-- `docs/PRD/12_AI_Agent_설계.md` - LangGraph 구조 및 도구 정의
-- `docs/PRD/14_LLM_설정.md` - LLM 선택 전략 및 에러 핸들링
+- [docs/PRD/01_프로젝트_개요.md](../PRD/01_프로젝트_개요.md) - 프로젝트 전체 개요 및 목표
+- [docs/PRD/02_프로젝트_구조.md](../PRD/02_프로젝트_구조.md) - 폴더 구조 및 모듈 배치
+- [docs/PRD/05_로깅_시스템.md](../PRD/05_로깅_시스템.md) ⭐ - Logger 클래스 사용법 및 규칙
+- [docs/PRD/06_실험_추적_관리.md](../PRD/06_실험_추적_관리.md) ⭐ - 실험 폴더 구조 및 명명 규칙
+- [docs/PRD/10_기술_요구사항.md](../PRD/10_기술_요구사항.md) - 기술 스택 및 라이브러리
+- [docs/PRD/12_AI_Agent_설계.md](../PRD/12_AI_Agent_설계.md) - LangGraph 구조 및 도구 정의
+- [docs/PRD/14_LLM_설정.md](../PRD/14_LLM_설정.md) - LLM 선택 전략 및 에러 핸들링
 
 **참고 PRD 문서:**
-- `docs/PRD/03_브랜치_전략.md` - Feature 브랜치 전략
-- `docs/PRD/04_일정_관리.md` - 개발 일정 및 마일스톤
-- `docs/PRD/11_데이터베이스_설계.md` - DB 스키마
-- `docs/PRD/13_RAG_시스템_설계.md` - RAG 파이프라인
-- `docs/PRD/15_프롬프트_엔지니어링.md` - 프롬프트 템플릿
+- [docs/PRD/03_브랜치_전략.md](../PRD/03_브랜치_전략.md) - Feature 브랜치 전략
+- [docs/PRD/04_일정_관리.md](../PRD/04_일정_관리.md) - 개발 일정 및 마일스톤
+- [docs/PRD/11_데이터베이스_설계.md](../PRD/11_데이터베이스_설계.md) - DB 스키마
+- [docs/PRD/13_RAG_시스템_설계.md](../PRD/13_RAG_시스템_설계.md) - RAG 파이프라인
+- [docs/PRD/15_프롬프트_엔지니어링.md](../PRD/15_프롬프트_엔지니어링.md) - 프롬프트 템플릿
 
 **외부 링크:**
-- LangGraph 공식 문서: https://langchain-ai.github.io/langgraph/
-- Langchain Tools: https://python.langchain.com/docs/modules/agents/tools/
-- Langchain Memory: https://python.langchain.com/docs/modules/memory/
-
-**자료조사 문서:**
-- `docs/research/01_자료조사_LangGraph.md`
+- [LangGraph 공식 문서](https://langchain-ai.github.io/langgraph/)
+- [Langchain Tools](https://python.langchain.com/docs/modules/agents/tools/)
+- [Langchain Memory](https://python.langchain.com/docs/modules/memory/)
 
 ## 🔖 추천 라벨
 

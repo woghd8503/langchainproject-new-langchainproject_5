@@ -133,25 +133,22 @@ pytest tests/test_rag.py -v
 ### 유용한 링크
 
 **필수 참고 PRD 문서:**
-- `docs/PRD/01_프로젝트_개요.md` - 프로젝트 전체 개요
-- `docs/PRD/02_프로젝트_구조.md` - 폴더 구조
-- `docs/PRD/05_로깅_시스템.md` ⭐ - Logger 사용법
-- `docs/PRD/06_실험_추적_관리.md` ⭐ - 실험 폴더 구조
-- `docs/PRD/10_기술_요구사항.md` - 기술 스택
-- `docs/PRD/11_데이터베이스_설계.md` - DB 스키마 (papers, glossary 테이블)
-- `docs/PRD/13_RAG_시스템_설계.md` - RAG 파이프라인 및 Retriever 설정
+- [docs/PRD/01_프로젝트_개요.md](../PRD/01_프로젝트_개요.md) - 프로젝트 전체 개요
+- [docs/PRD/02_프로젝트_구조.md](../PRD/02_프로젝트_구조.md) - 폴더 구조
+- [docs/PRD/05_로깅_시스템.md](../PRD/05_로깅_시스템.md) ⭐ - Logger 사용법
+- [docs/PRD/06_실험_추적_관리.md](../PRD/06_실험_추적_관리.md) ⭐ - 실험 폴더 구조
+- [docs/PRD/10_기술_요구사항.md](../PRD/10_기술_요구사항.md) - 기술 스택
+- [docs/PRD/11_데이터베이스_설계.md](../PRD/11_데이터베이스_설계.md) - DB 스키마 (papers, glossary 테이블)
+- [docs/PRD/13_RAG_시스템_설계.md](../PRD/13_RAG_시스템_설계.md) - RAG 파이프라인 및 Retriever 설정
 
 **참고 PRD 문서:**
-- `docs/PRD/03_브랜치_전략.md` - Feature 브랜치
-- `docs/PRD/04_일정_관리.md` - 개발 일정
+- [docs/PRD/03_브랜치_전략.md](../PRD/03_브랜치_전략.md) - Feature 브랜치
+- [docs/PRD/04_일정_관리.md](../PRD/04_일정_관리.md) - 개발 일정
 
 **외부 링크:**
-- Langchain Retrieval: https://python.langchain.com/docs/tutorials/rag/
-- Langchain PGVector: https://python.langchain.com/docs/integrations/vectorstores/pgvector/
-- MultiQueryRetriever: https://python.langchain.com/docs/modules/data_connection/retrievers/multi_query/
-
-**자료조사 문서:**
-- `docs/research/02_자료조사_RAG_파이프라인.md`
+- [Langchain Retrieval](https://python.langchain.com/docs/tutorials/rag/)
+- [Langchain PGVector](https://python.langchain.com/docs/integrations/vectorstores/pgvector/)
+- [MultiQueryRetriever](https://python.langchain.com/docs/modules/data_connection/retrievers/multi_query/)
 
 ## 🔖 추천 라벨
 
