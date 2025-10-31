@@ -33,6 +33,9 @@ class Logger:                                    # Logger 클래스 정의
         # 로그 파일을 열고, UTF-8 인코딩을 사용합니다.
         self.log_file = open(self.log_path, 'a', encoding='utf-8')  # 로그 파일 열기
 
+        # tqdm 진행률 추적 변수
+        self._tqdm_last_percent = {}             # {desc: last_percent} - 작업별 마지막 기록 진행률
+
     
     # 로그 기록 함수 정의
     def write(self, message: str, print_also: Optional[bool] = None, print_error: bool = False):
@@ -91,19 +94,69 @@ class Logger:                                    # Logger 클래스 정의
         sys.stderr = self.original_stderr        # 표준 에러 원상 복구
     
     
-    # tqdm 리다이렉션 함수 정의
-    def tqdm_redirect(self):
-        """tqdm 진행률 표시를 로그로 리디렉션"""
+    # tqdm 진행률 표시 함수 정의
+    def tqdm(self, iterable=None, total=None, desc=None, **kwargs):
+        """
+        진행률 표시 - 10%마다만 로그 기록
+
+        Args:
+            iterable: 반복 가능한 객체
+            total: 전체 항목 수 (iterable이 None일 때 필수)
+            desc: 진행률 설명
+            **kwargs: tqdm의 기타 파라미터
+
+        사용법:
+            for item in logger.tqdm(items, desc="데이터 처리"):
+                # work
+        """
         if not TQDM_AVAILABLE:
-            self.write("tqdm이 설치되지 않았습니다.", print_error=True)
-            return None
+            self.write("tqdm이 설치되지 않았습니다. 기본 반복을 사용합니다.", print_error=True)
+            # tqdm 없이 기본 반복 - 10%마다 진행률 로그
+            if iterable:
+                total = total or (len(iterable) if hasattr(iterable, '__len__') else None)
+                for i, item in enumerate(iterable, 1):
+                    if total and i % max(1, total // 10) == 0:
+                        percent = (i / total * 100)
+                        self.write(f"{desc or 'Progress'}: {percent:.0f}% ({i}/{total})")
+                    yield item
+                if total:
+                    self.write(f"{desc or 'Progress'}: 100% ({total}/{total}) - 완료")
+            return
 
-        # tqdm 호환 래퍼 함수 정의
-        def tqdm_write_wrapper(s, file=None, end="\n", nolock=False):
-            self.write(s)                        # 메시지를 로거로 전달
+        # tqdm 사용 - 콘솔에는 진행률 바 표시, 로그에는 10%마다만 기록
+        desc = desc or "Progress"
+        last_percent = self._tqdm_last_percent.get(desc, -10)
+        total = total or (len(iterable) if iterable and hasattr(iterable, '__len__') else None)
 
-        tqdm.write = tqdm_write_wrapper          # tqdm 출력을 래퍼 함수로 리다이렉션
-        return tqdm
+        try:
+            # tqdm 진행률 바 생성 (콘솔에 표시)
+            from tqdm import tqdm as tqdm_orig
+            pbar = tqdm_orig(iterable=iterable, total=total, desc=desc, **kwargs)
+
+            for item in pbar:
+                # 10% 단위로만 로그 기록
+                if total:
+                    percent = (pbar.n / total * 100)
+                    if percent - last_percent >= 10:
+                        self.write(f"{desc}: {percent:.0f}% ({pbar.n}/{total})")
+                        last_percent = percent
+                        self._tqdm_last_percent[desc] = last_percent
+                yield item
+
+            # 완료 로그
+            if total:
+                self.write(f"{desc}: 100% ({total}/{total}) - 완료")
+
+            # 완료 후 추적 변수 초기화
+            self._tqdm_last_percent.pop(desc, None)
+
+        except Exception as e:
+            # 에러 발생 시 마지막 진행률 기록
+            if total and 'pbar' in locals():
+                current_percent = (pbar.n / total * 100)
+                self.write(f"{desc}: 에러 발생 (마지막 진행률: {current_percent:.0f}% - {pbar.n}/{total})", print_error=True)
+            self._tqdm_last_percent.pop(desc, None)
+            raise
 
     
     # 로거 종료 함수 정의
