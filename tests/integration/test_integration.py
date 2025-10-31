@@ -117,7 +117,7 @@ def test_find_experiments_integration():
 
     # find_experiments 모듈 임포트
     import sys
-    sys.path.insert(0, 'scripts')
+    sys.path.insert(0, 'scripts/system')
     from find_experiments import find_experiments
 
     # 난이도별 검색 테스트
@@ -199,8 +199,8 @@ def test_aggregate_metrics_integration():
 
     # aggregate_metrics 모듈 임포트
     import sys
-    if 'scripts' not in sys.path:
-        sys.path.insert(0, 'scripts')
+    if 'scripts/system' not in sys.path:
+        sys.path.insert(0, 'scripts/system')
     from aggregate_metrics import aggregate_rag_metrics, aggregate_agent_accuracy, aggregate_latency, aggregate_cost
 
     # 날짜 가져오기
@@ -394,8 +394,8 @@ def test_real_world_scenario():
 
     # 10. 검색 테스트
     import sys
-    if 'scripts' not in sys.path:
-        sys.path.insert(0, 'scripts')
+    if 'scripts/system' not in sys.path:
+        sys.path.insert(0, 'scripts/system')
     from find_experiments import find_experiments
 
     results = find_experiments(difficulty="easy", tool="rag_paper")
@@ -421,7 +421,7 @@ def test_find_experiments_script_execution():
     # 스크립트 실행
     import sys
     result = subprocess.run(
-        [sys.executable, 'scripts/find_experiments.py', '--difficulty', 'easy'],
+        [sys.executable, 'scripts/system/find_experiments.py', '--difficulty', 'easy'],
         capture_output=True,
         text=True,
         env={'PYTHONPATH': '/home/ieyeppo/AI_Lab/langchain-project'}
@@ -459,7 +459,7 @@ def test_aggregate_metrics_script_execution():
         output_file = tmp.name
 
     result = subprocess.run(
-        [sys.executable, 'scripts/aggregate_metrics.py', '--date', today, '--output', output_file],
+        [sys.executable, 'scripts/system/aggregate_metrics.py', '--date', today, '--output', output_file],
         capture_output=True,
         text=True,
         env={'PYTHONPATH': '/home/ieyeppo/AI_Lab/langchain-project'}
