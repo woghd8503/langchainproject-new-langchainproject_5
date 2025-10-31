@@ -11,7 +11,7 @@ from typing import Dict
 
 import json
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]  # 프로젝트 루트로 수정
 
 
 DDL_CREATE_TABLES = """

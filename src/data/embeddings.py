@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class PaperEmbeddingManager:
     """논문 임베딩 및 Vector DB 저장 클래스."""
 
-    def __init__(self, collection_name: str = "paper_chunks") -> None:
+    def __init__(self, collection_name: str = "paper_chunks", skip_extension_check: bool = False) -> None:
         load_dotenv(Path(__file__).resolve().parents[2] / ".env")
         self.embeddings = OpenAIEmbeddings(
             model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
@@ -31,11 +31,68 @@ class PaperEmbeddingManager:
         conn = os.getenv("DATABASE_URL")
         if not conn:
             raise RuntimeError("DATABASE_URL이 설정되지 않았습니다.")
-        self.vectorstore = PGVector(
-            collection_name=collection_name,
-            connection=conn,
-            embeddings=self.embeddings,
-        )
+        
+        try:
+            # pgvector extension 사전 확인 및 설치 시도
+            try:
+                import psycopg2
+                test_conn = psycopg2.connect(conn)
+                test_conn.autocommit = True
+                test_cur = test_conn.cursor()
+                test_cur.execute("SELECT 1 FROM pg_extension WHERE extname = 'vector';")
+                extension_exists = test_cur.fetchone() is not None
+                test_cur.close()
+                test_conn.close()
+                
+                if not extension_exists:
+                    print("\n[INFO] pgvector extension이 설치되지 않았습니다.")
+                    print("       설치를 시도합니다...")
+                    try:
+                        install_conn = psycopg2.connect(conn)
+                        install_conn.autocommit = True
+                        install_cur = install_conn.cursor()
+                        install_cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+                        install_cur.close()
+                        install_conn.close()
+                        print("[OK] pgvector extension 설치 완료")
+                    except Exception as install_err:
+                        print(f"[ERROR] 자동 설치 실패: {install_err}")
+                        error_msg = (
+                            "\n❌ pgvector extension이 설치되지 않았습니다.\n\n"
+                            "다음 명령을 실행하여 수동 설치하세요:\n"
+                            "  1. PostgreSQL 접속:\n"
+                            "     psql -U postgres -d papers\n\n"
+                            "  2. Extension 설치:\n"
+                            "     CREATE EXTENSION IF NOT EXISTS vector;\n\n"
+                            "  3. 확인:\n"
+                            "     \\dx\n\n"
+                            "자세한 내용은 docs/pgvector_quick_fix.md를 참조하세요.\n"
+                        )
+                        raise RuntimeError(error_msg) from install_err
+            except ImportError:
+                # psycopg2가 없으면 건너뜀 (langchain_postgres가 처리함)
+                pass
+            
+            self.vectorstore = PGVector(
+                collection_name=collection_name,
+                connection=conn,
+                embeddings=self.embeddings,
+            )
+        except Exception as e:
+            if "vector" in str(e).lower() and "extension" in str(e).lower():
+                error_msg = (
+                    "\n❌ pgvector extension이 설치되지 않았습니다.\n\n"
+                    "다음 명령을 실행하여 수동 설치하세요:\n"
+                    "  1. PostgreSQL 접속:\n"
+                    "     psql -U postgres -d papers\n\n"
+                    "  2. Extension 설치:\n"
+                    "     CREATE EXTENSION IF NOT EXISTS vector;\n\n"
+                    "  3. 확인:\n"
+                    "     \\dx\n\n"
+                    "자세한 내용은 docs/pgvector_quick_fix.md를 참조하세요.\n"
+                )
+                raise RuntimeError(error_msg) from e
+            raise
 
     def add_documents(self, documents: List[Document], batch_size: int = 50) -> int:
         """문서 리스트를 배치로 나누어 Vector DB에 저장합니다.

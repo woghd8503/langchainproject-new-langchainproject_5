@@ -10,6 +10,12 @@ import json
 import sys
 from pathlib import Path
 
+# Windows 콘솔 인코딩 설정
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
@@ -38,16 +44,16 @@ def main() -> int:
     
     # 파일 존재 확인
     if not pdf_dir.exists():
-        print(f"❌ PDF 디렉토리가 없습니다: {pdf_dir}")
+        print(f"[ERROR] PDF 디렉토리가 없습니다: {pdf_dir}")
         return 1
     
     if not metadata_path:
-        print(f"❌ 메타데이터 파일이 없습니다. 확인한 경로: {possible_metadata_paths}")
+        print(f"[ERROR] 메타데이터 파일이 없습니다. 확인한 경로: {possible_metadata_paths}")
         print("먼저 scripts/data/collect_arxiv_papers.py를 실행하세요.")
         return 1
     
     if not mapping_path.exists():
-        print(f"❌ 매핑 파일이 없습니다: {mapping_path}")
+        print(f"[ERROR] 매핑 파일이 없습니다: {mapping_path}")
         print("먼저 scripts/data/setup_database.py를 실행하세요.")
         return 1
     
@@ -65,9 +71,9 @@ def main() -> int:
     
     try:
         chunks = loader.load_all_pdfs(pdf_dir, metadata_path)
-        print(f"   ✅ {len(chunks)}개 청크 생성 완료")
+        print(f"   [OK] {len(chunks)}개 청크 생성 완료")
     except Exception as e:
-        print(f"   ❌ 오류: {e}")
+        print(f"   [ERROR] 오류: {e}")
         import traceback
         traceback.print_exc()
         return 1
@@ -77,9 +83,9 @@ def main() -> int:
     try:
         with open(mapping_path, 'r', encoding='utf-8') as f:
             mapping = json.load(f)
-        print(f"   ✅ {len(mapping)}개 매핑 로드 완료")
+        print(f"   [OK] {len(mapping)}개 매핑 로드 완료")
     except Exception as e:
-        print(f"   ❌ 오류: {e}")
+        print(f"   [ERROR] 오류: {e}")
         return 1
     
     # 임베딩 및 저장
@@ -89,10 +95,10 @@ def main() -> int:
     try:
         manager = PaperEmbeddingManager(collection_name="paper_chunks")
         count = manager.add_documents_with_paper_id(chunks, mapping, batch_size=50)
-        print(f"\n✅ {count}개 문서가 Vector DB에 저장되었습니다.")
+        print(f"\n[OK] {count}개 문서가 Vector DB에 저장되었습니다.")
         return 0
     except Exception as e:
-        print(f"❌ 오류: {e}")
+        print(f"[ERROR] 오류: {e}")
         import traceback
         traceback.print_exc()
         return 1

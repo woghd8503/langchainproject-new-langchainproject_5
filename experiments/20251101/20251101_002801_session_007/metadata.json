@@ -1,0 +1,10 @@
+{
+  "session_id": "007",
+  "start_time": "2025-11-01T00:28:01.483879",
+  "difficulty": "easy",
+  "tool_used": "arxiv_collector",
+  "user_query": "arXiv 논문 수집",
+  "success": true,
+  "response_time_ms": null,
+  "end_time": "2025-11-01T00:28:15.634397"
+}

@@ -1,0 +1,1510 @@
+[
+  {
+    "title": "Simulating Hard Attention Using Soft Attention",
+    "authors": [
+      "Andy Yang",
+      "Lena Strobl",
+      "David Chiang",
+      "Dana Angluin"
+    ],
+    "published_date": "2024-12-13",
+    "summary": "We study conditions under which transformers using soft attention can\nsimulate hard attention, that is, effectively focus all attention on a subset\nof positions. First, we examine several subclasses of languages recognized by\nhard-attention transformers, which can be defined in variants of linear\ntemporal logic. We demonstrate how soft-attention transformers can compute\nformulas of these logics using unbounded positional embeddings or temperature\nscaling. Second, we demonstrate how temperature scaling allows softmax\ntransformers to simulate general hard-attention transformers, using a\ntemperature that depends on the minimum gap between the maximum attention\nscores and other attention scores.",
+    "pdf_url": "http://arxiv.org/pdf/2412.09925v2",
+    "entry_id": "https://arxiv.org/abs/2412.09925v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Attention-Only Transformers and Implementing MLPs with Attention Heads",
+    "authors": [
+      "Robert Huben",
+      "Valerie Morris"
+    ],
+    "published_date": "2023-09-15",
+    "summary": "The transformer architecture is widely used in machine learning models and\nconsists of two alternating sublayers: attention heads and MLPs. We prove that\nan MLP neuron can be implemented by a masked attention head with internal\ndimension 1 so long as the MLP's activation function comes from a restricted\nclass including SiLU and close approximations of ReLU and GeLU. This allows one\nto convert an MLP-and-attention transformer into an attention-only transformer\nat the cost of greatly increasing the number of attention heads. We also prove\nthat attention heads can perform the components of an MLP (linear\ntransformations and activation functions) separately. Finally, we prove that\nattention heads can encode arbitrary masking patterns in their weight matrices\nto within arbitrarily small error.",
+    "pdf_url": "http://arxiv.org/pdf/2309.08593v1",
+    "entry_id": "https://arxiv.org/abs/2309.08593v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Generic Attention-model Explainability for Interpreting Bi-Modal and Encoder-Decoder Transformers",
+    "authors": [
+      "Hila Chefer",
+      "Shir Gur",
+      "Lior Wolf"
+    ],
+    "published_date": "2021-03-29",
+    "summary": "Transformers are increasingly dominating multi-modal reasoning tasks, such as\nvisual question answering, achieving state-of-the-art results thanks to their\nability to contextualize information using the self-attention and co-attention\nmechanisms. These attention modules also play a role in other computer vision\ntasks including object detection and image segmentation. Unlike Transformers\nthat only use self-attention, Transformers with co-attention require to\nconsider multiple attention maps in parallel in order to highlight the\ninformation that is relevant to the prediction in the model's input. In this\nwork, we propose the first method to explain prediction by any\nTransformer-based architecture, including bi-modal Transformers and\nTransformers with co-attentions. We provide generic solutions and apply these\nto the three most commonly used of these architectures: (i) pure\nself-attention, (ii) self-attention combined with co-attention, and (iii)\nencoder-decoder attention. We show that our method is superior to all existing\nmethods which are adapted from single modality explainability.",
+    "pdf_url": "http://arxiv.org/pdf/2103.15679v1",
+    "entry_id": "https://arxiv.org/abs/2103.15679v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Pale Transformer: A General Vision Transformer Backbone with Pale-Shaped Attention",
+    "authors": [
+      "Sitong Wu",
+      "Tianyi Wu",
+      "Haoru Tan",
+      "Guodong Guo"
+    ],
+    "published_date": "2021-12-28",
+    "summary": "Recently, Transformers have shown promising performance in various vision\ntasks. To reduce the quadratic computation complexity caused by the global\nself-attention, various methods constrain the range of attention within a local\nregion to improve its efficiency. Consequently, their receptive fields in a\nsingle attention layer are not large enough, resulting in insufficient context\nmodeling. To address this issue, we propose a Pale-Shaped self-Attention\n(PS-Attention), which performs self-attention within a pale-shaped region.\nCompared to the global self-attention, PS-Attention can reduce the computation\nand memory costs significantly. Meanwhile, it can capture richer contextual\ninformation under the similar computation complexity with previous local\nself-attention mechanisms. Based on the PS-Attention, we develop a general\nVision Transformer backbone with a hierarchical architecture, named Pale\nTransformer, which achieves 83.4%, 84.3%, and 84.9% Top-1 accuracy with the\nmodel size of 22M, 48M, and 85M respectively for 224 ImageNet-1K\nclassification, outperforming the previous Vision Transformer backbones. For\ndownstream tasks, our Pale Transformer backbone performs better than the recent\nstate-of-the-art CSWin Transformer by a large margin on ADE20K semantic\nsegmentation and COCO object detection & instance segmentation. The code will\nbe released on https://github.com/BR-IDL/PaddleViT.",
+    "pdf_url": "http://arxiv.org/pdf/2112.14000v1",
+    "entry_id": "https://arxiv.org/abs/2112.14000v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Adaptive Sparse and Monotonic Attention for Transformer-based Automatic Speech Recognition",
+    "authors": [
+      "Chendong Zhao",
+      "Jianzong Wang",
+      "Wen qi Wei",
+      "Xiaoyang Qu",
+      "Haoqian Wang",
+      "Jing Xiao"
+    ],
+    "published_date": "2022-09-30",
+    "summary": "The Transformer architecture model, based on self-attention and multi-head\nattention, has achieved remarkable success in offline end-to-end Automatic\nSpeech Recognition (ASR). However, self-attention and multi-head attention\ncannot be easily applied for streaming or online ASR. For self-attention in\nTransformer ASR, the softmax normalization function-based attention mechanism\nmakes it impossible to highlight important speech information. For multi-head\nattention in Transformer ASR, it is not easy to model monotonic alignments in\ndifferent heads. To overcome these two limits, we integrate sparse attention\nand monotonic attention into Transformer-based ASR. The sparse mechanism\nintroduces a learned sparsity scheme to enable each self-attention structure to\nfit the corresponding head better. The monotonic attention deploys\nregularization to prune redundant heads for the multi-head attention structure.\nThe experiments show that our method can effectively improve the attention\nmechanism on widely used benchmarks of speech recognition.",
+    "pdf_url": "http://arxiv.org/pdf/2209.15176v1",
+    "entry_id": "https://arxiv.org/abs/2209.15176v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Armour: Generalizable Compact Self-Attention for Vision Transformers",
+    "authors": [
+      "Lingchuan Meng"
+    ],
+    "published_date": "2021-08-03",
+    "summary": "Attention-based transformer networks have demonstrated promising potential as\ntheir applications extend from natural language processing to vision. However,\ndespite the recent improvements, such as sub-quadratic attention approximation\nand various training enhancements, the compact vision transformers to date\nusing the regular attention still fall short in comparison with its convnet\ncounterparts, in terms of \\textit{accuracy,} \\textit{model size}, \\textit{and}\n\\textit{throughput}. This paper introduces a compact self-attention mechanism\nthat is fundamental and highly generalizable. The proposed method reduces\nredundancy and improves efficiency on top of the existing attention\noptimizations. We show its drop-in applicability for both the regular attention\nmechanism and some most recent variants in vision transformers. As a result, we\nproduced smaller and faster models with the same or better accuracies.",
+    "pdf_url": "http://arxiv.org/pdf/2108.01778v1",
+    "entry_id": "https://arxiv.org/abs/2108.01778v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "BOAT: Bilateral Local Attention Vision Transformer",
+    "authors": [
+      "Tan Yu",
+      "Gangming Zhao",
+      "Ping Li",
+      "Yizhou Yu"
+    ],
+    "published_date": "2022-01-31",
+    "summary": "Vision Transformers achieved outstanding performance in many computer vision\ntasks. Early Vision Transformers such as ViT and DeiT adopt global\nself-attention, which is computationally expensive when the number of patches\nis large. To improve efficiency, recent Vision Transformers adopt local\nself-attention mechanisms, where self-attention is computed within local\nwindows. Despite the fact that window-based local self-attention significantly\nboosts efficiency, it fails to capture the relationships between distant but\nsimilar patches in the image plane. To overcome this limitation of image-space\nlocal attention, in this paper, we further exploit the locality of patches in\nthe feature space. We group the patches into multiple clusters using their\nfeatures, and self-attention is computed within every cluster. Such\nfeature-space local attention effectively captures the connections between\npatches across different local windows but still relevant. We propose a\nBilateral lOcal Attention vision Transformer (BOAT), which integrates\nfeature-space local attention with image-space local attention. We further\nintegrate BOAT with both Swin and CSWin models, and extensive experiments on\nseveral benchmark datasets demonstrate that our BOAT-CSWin model clearly and\nconsistently outperforms existing state-of-the-art CNN models and vision\nTransformers.",
+    "pdf_url": "http://arxiv.org/pdf/2201.13027v2",
+    "entry_id": "https://arxiv.org/abs/2201.13027v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "WavSpA: Wavelet Space Attention for Boosting Transformers' Long Sequence Learning Ability",
+    "authors": [
+      "Yufan Zhuang",
+      "Zihan Wang",
+      "Fangbo Tao",
+      "Jingbo Shang"
+    ],
+    "published_date": "2022-10-05",
+    "summary": "Transformer and its variants are fundamental neural architectures in deep\nlearning. Recent works show that learning attention in the Fourier space can\nimprove the long sequence learning capability of Transformers. We argue that\nwavelet transform shall be a better choice because it captures both position\nand frequency information with linear time complexity. Therefore, in this\npaper, we systematically study the synergy between wavelet transform and\nTransformers. We propose Wavelet Space Attention (WavSpA) that facilitates\nattention learning in a learnable wavelet coefficient space which replaces the\nattention in Transformers by (1) applying forward wavelet transform to project\nthe input sequences to multi-resolution bases, (2) conducting attention\nlearning in the wavelet coefficient space, and (3) reconstructing the\nrepresentation in input space via backward wavelet transform. Extensive\nexperiments on the Long Range Arena demonstrate that learning attention in the\nwavelet space using either fixed or adaptive wavelets can consistently improve\nTransformer's performance and also significantly outperform learning in Fourier\nspace. We further show our method can enhance Transformer's reasoning\nextrapolation capability over distance on the LEGO chain-of-reasoning task.",
+    "pdf_url": "http://arxiv.org/pdf/2210.01989v3",
+    "entry_id": "https://arxiv.org/abs/2210.01989v3",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Self-attention in Vision Transformers Performs Perceptual Grouping, Not Attention",
+    "authors": [
+      "Paria Mehrani",
+      "John K. Tsotsos"
+    ],
+    "published_date": "2023-03-02",
+    "summary": "Recently, a considerable number of studies in computer vision involves deep\nneural architectures called vision transformers. Visual processing in these\nmodels incorporates computational models that are claimed to implement\nattention mechanisms. Despite an increasing body of work that attempts to\nunderstand the role of attention mechanisms in vision transformers, their\neffect is largely unknown. Here, we asked if the attention mechanisms in vision\ntransformers exhibit similar effects as those known in human visual attention.\nTo answer this question, we revisited the attention formulation in these models\nand found that despite the name, computationally, these models perform a\nspecial class of relaxation labeling with similarity grouping effects.\nAdditionally, whereas modern experimental findings reveal that human visual\nattention involves both feed-forward and feedback mechanisms, the purely\nfeed-forward architecture of vision transformers suggests that attention in\nthese models will not have the same effects as those known in humans. To\nquantify these observations, we evaluated grouping performance in a family of\nvision transformers. Our results suggest that self-attention modules group\nfigures in the stimuli based on similarity in visual features such as color.\nAlso, in a singleton detection experiment as an instance of saliency detection,\nwe studied if these models exhibit similar effects as those of feed-forward\nvisual salience mechanisms utilized in human visual attention. We found that\ngenerally, the transformer-based attention modules assign more salience either\nto distractors or the ground. Together, our study suggests that the attention\nmechanisms in vision transformers perform similarity grouping and not\nattention.",
+    "pdf_url": "http://arxiv.org/pdf/2303.01542v1",
+    "entry_id": "https://arxiv.org/abs/2303.01542v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Selective Attention Improves Transformer",
+    "authors": [
+      "Yaniv Leviathan",
+      "Matan Kalman",
+      "Yossi Matias"
+    ],
+    "published_date": "2024-10-03",
+    "summary": "Unneeded elements in the attention's context degrade performance. We\nintroduce Selective Attention, a simple parameter-free change to the standard\nattention mechanism which reduces attention to unneeded elements. Selective\nattention consistently improves language modeling and downstream task\nperformance in a variety of model sizes and context lengths. For example,\ntransformers trained with the language modeling objective on C4 with selective\nattention perform language modeling equivalently to standard transformers with\n~2X more heads and parameters in their attention modules. Selective attention\nalso allows decreasing the size of the attention's context buffer, leading to\nmeaningful reductions in the memory and compute requirements during inference.\nFor example, transformers trained on C4 with context sizes of 512, 1,024, and\n2,048 need 16X, 25X, and 47X less memory for their attention module,\nrespectively, when equipped with selective attention, as those without\nselective attention, with the same validation perplexity.",
+    "pdf_url": "http://arxiv.org/pdf/2410.02703v2",
+    "entry_id": "https://arxiv.org/abs/2410.02703v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "The Hedgehog & the Porcupine: Expressive Linear Attentions with Softmax Mimicry",
+    "authors": [
+      "Michael Zhang",
+      "Kush Bhatia",
+      "Hermann Kumbong",
+      "Christopher Ré"
+    ],
+    "published_date": "2024-02-06",
+    "summary": "Linear attentions have shown potential for improving Transformer efficiency,\nreducing attention's quadratic complexity to linear in sequence length. This\nholds exciting promise for (1) training linear Transformers from scratch, (2)\n\"finetuned-conversion\" of task-specific Transformers into linear versions that\nrecover task performance, and (3) \"pretrained-conversion\" of Transformers such\nas large language models into linear versions finetunable on downstream tasks.\nHowever, linear attentions often underperform standard softmax attention in\nquality. To close this performance gap, we find prior linear attentions lack\nkey properties of softmax attention tied to good performance: low-entropy (or\n\"spiky\") weights and dot-product monotonicity. We further observe surprisingly\nsimple feature maps that retain these properties and match softmax performance,\nbut are inefficient to compute in linear attention. We thus propose Hedgehog, a\nlearnable linear attention that retains the spiky and monotonic properties of\nsoftmax attention while maintaining linear complexity. Hedgehog uses simple\ntrainable MLPs to produce attention weights mimicking softmax attention.\nExperiments show Hedgehog recovers over 99% of standard Transformer quality in\ntrain-from-scratch and finetuned-conversion settings, outperforming prior\nlinear attentions up to 6 perplexity points on WikiText-103 with causal GPTs,\nand up to 8.7 GLUE score points on finetuned bidirectional BERTs. Hedgehog also\nenables pretrained-conversion. Converting a pretrained GPT-2 into a linear\nattention variant achieves state-of-the-art 16.7 perplexity on WikiText-103 for\n125M subquadratic decoder models. We finally turn a pretrained Llama-2 7B into\na viable linear attention Llama. With low-rank adaptation, Hedgehog-Llama2 7B\nachieves 28.1 higher ROUGE-1 points over the base standard attention model,\nwhere prior linear attentions lead to 16.5 point drops.",
+    "pdf_url": "http://arxiv.org/pdf/2402.04347v1",
+    "entry_id": "https://arxiv.org/abs/2402.04347v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Unique Hard Attention: A Tale of Two Sides",
+    "authors": [
+      "Selim Jerad",
+      "Anej Svete",
+      "Jiaoda Li",
+      "Ryan Cotterell"
+    ],
+    "published_date": "2025-03-18",
+    "summary": "Understanding the expressive power of transformers has recently attracted\nattention, as it offers insights into their abilities and limitations. Many\nstudies analyze unique hard attention transformers, where attention selects a\nsingle position that maximizes the attention scores. When multiple positions\nachieve the maximum score, either the rightmost or the leftmost of those is\nchosen. In this paper, we highlight the importance of this seeming triviality.\nRecently, finite-precision transformers with both leftmost- and rightmost-hard\nattention were shown to be equivalent to Linear Temporal Logic (LTL). We show\nthat this no longer holds with only leftmost-hard attention -- in that case,\nthey correspond to a \\emph{strictly weaker} fragment of LTL. Furthermore, we\nshow that models with leftmost-hard attention are equivalent to \\emph{soft}\nattention, suggesting they may better approximate real-world transformers than\nright-attention models. These findings refine the landscape of transformer\nexpressivity and underscore the role of attention directionality.",
+    "pdf_url": "http://arxiv.org/pdf/2503.14615v2",
+    "entry_id": "https://arxiv.org/abs/2503.14615v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "CAT: Cross Attention in Vision Transformer",
+    "authors": [
+      "Hezheng Lin",
+      "Xing Cheng",
+      "Xiangyu Wu",
+      "Fan Yang",
+      "Dong Shen",
+      "Zhongyuan Wang",
+      "Qing Song",
+      "Wei Yuan"
+    ],
+    "published_date": "2021-06-10",
+    "summary": "Since Transformer has found widespread use in NLP, the potential of\nTransformer in CV has been realized and has inspired many new approaches.\nHowever, the computation required for replacing word tokens with image patches\nfor Transformer after the tokenization of the image is vast(e.g., ViT), which\nbottlenecks model training and inference. In this paper, we propose a new\nattention mechanism in Transformer termed Cross Attention, which alternates\nattention inner the image patch instead of the whole image to capture local\ninformation and apply attention between image patches which are divided from\nsingle-channel feature maps capture global information. Both operations have\nless computation than standard self-attention in Transformer. By alternately\napplying attention inner patch and between patches, we implement cross\nattention to maintain the performance with lower computational cost and build a\nhierarchical network called Cross Attention Transformer(CAT) for other vision\ntasks. Our base model achieves state-of-the-arts on ImageNet-1K, and improves\nthe performance of other methods on COCO and ADE20K, illustrating that our\nnetwork has the potential to serve as general backbones. The code and models\nare available at \\url{https://github.com/linhezheng19/CAT}.",
+    "pdf_url": "http://arxiv.org/pdf/2106.05786v1",
+    "entry_id": "https://arxiv.org/abs/2106.05786v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "You Only Need Less Attention at Each Stage in Vision Transformers",
+    "authors": [
+      "Shuoxi Zhang",
+      "Hanpeng Liu",
+      "Stephen Lin",
+      "Kun He"
+    ],
+    "published_date": "2024-06-01",
+    "summary": "The advent of Vision Transformers (ViTs) marks a substantial paradigm shift\nin the realm of computer vision. ViTs capture the global information of images\nthrough self-attention modules, which perform dot product computations among\npatchified image tokens. While self-attention modules empower ViTs to capture\nlong-range dependencies, the computational complexity grows quadratically with\nthe number of tokens, which is a major hindrance to the practical application\nof ViTs. Moreover, the self-attention mechanism in deep ViTs is also\nsusceptible to the attention saturation issue. Accordingly, we argue against\nthe necessity of computing the attention scores in every layer, and we propose\nthe Less-Attention Vision Transformer (LaViT), which computes only a few\nattention operations at each stage and calculates the subsequent feature\nalignments in other layers via attention transformations that leverage the\npreviously calculated attention scores. This novel approach can mitigate two\nprimary issues plaguing traditional self-attention modules: the heavy\ncomputational burden and attention saturation. Our proposed architecture offers\nsuperior efficiency and ease of implementation, merely requiring matrix\nmultiplications that are highly optimized in contemporary deep learning\nframeworks. Moreover, our architecture demonstrates exceptional performance\nacross various vision tasks including classification, detection and\nsegmentation.",
+    "pdf_url": "http://arxiv.org/pdf/2406.00427v1",
+    "entry_id": "https://arxiv.org/abs/2406.00427v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Generalized Probabilistic Attention Mechanism in Transformers",
+    "authors": [
+      "DongNyeong Heo",
+      "Heeyoul Choi"
+    ],
+    "published_date": "2024-10-21",
+    "summary": "The Transformer architecture has become widely adopted due to its\ndemonstrated success, attributed to the attention mechanism at its core.\nDespite these successes, the attention mechanism of Transformers is associated\nwith two well-known issues: rank-collapse and gradient vanishing. In this\npaper, we present a theoretical analysis that it is inherently difficult to\naddress both issues simultaneously in the conventional attention mechanism. To\nhandle these issues, we introduce a novel class of attention mechanism,\nreferred to as generalized probabilistic attention mechanism (GPAM), and its\ndual-attention implementation within the Transformer architecture. Unlike\nconventional attention mechanisms, GPAM allows for negative attention scores\nwhile preserving a fixed total sum. We provide theoretical evidence that the\nproposed dual-attention GPAM (daGPAM) effectively mitigates both the\nrank-collapse and gradient vanishing issues which are difficult to resolve\nsimultaneously with the conventional attention mechanisms. Furthermore, we\nempirically validate this theoretical evidence, demonstrating the superiority\nof daGPAM compared to other alternative attention mechanisms that were proposed\nto address the same issues. Additionally, we demonstrate the practical benefits\nof GPAM in natural language processing tasks, such as language modeling and\nneural machine translation.",
+    "pdf_url": "http://arxiv.org/pdf/2410.15578v1",
+    "entry_id": "https://arxiv.org/abs/2410.15578v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "FoundationLayerNorm: Scaling BERT and GPT to 1,000 Layers",
+    "authors": [
+      "Dezhou Shen"
+    ],
+    "published_date": "2022-04-09",
+    "summary": "The mainstream BERT/GPT model contains only 10 to 20 layers, and there is\nlittle literature to discuss the training of deep BERT/GPT. This paper proposes\na simple yet effective method to stabilize BERT and GPT training. We\nsuccessfully scale up BERT and GPT to 1,000 layers, which is an order of\nmagnitude deeper than previous BERT and GPT. The proposed method\nFoundationLayerNormalization enables efficient training of deep neural networks\nand is validated at the 1000-layer scale.",
+    "pdf_url": "http://arxiv.org/pdf/2204.04477v1",
+    "entry_id": "https://arxiv.org/abs/2204.04477v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Adapting GPT, GPT-2 and BERT Language Models for Speech Recognition",
+    "authors": [
+      "Xianrui Zheng",
+      "Chao Zhang",
+      "Philip C. Woodland"
+    ],
+    "published_date": "2021-07-29",
+    "summary": "Language models (LMs) pre-trained on massive amounts of text, in particular\nbidirectional encoder representations from Transformers (BERT), generative\npre-training (GPT), and GPT-2, have become a key technology for many natural\nlanguage processing tasks. In this paper, we present results using fine-tuned\nGPT, GPT-2, and their combination for automatic speech recognition (ASR).\nUnlike unidirectional LM GPT and GPT-2, BERT is bidirectional whose direct\nproduct of the output probabilities is no longer a valid language prior\nprobability. A conversion method is proposed to compute the correct language\nprior probability based on bidirectional LM outputs in a mathematically exact\nway. Experimental results on the widely used AMI and Switchboard ASR tasks\nshowed that the combination of the fine-tuned GPT and GPT-2 outperformed the\ncombination of three neural LMs with different architectures trained from\nscratch on the in-domain text by up to a 12% relative word error rate reduction\n(WERR). Furthermore, on the AMI corpus, the proposed conversion for language\nprior probabilities enables BERT to obtain an extra 3% relative WERR, and the\ncombination of BERT, GPT and GPT-2 results in further improvements.",
+    "pdf_url": "http://arxiv.org/pdf/2108.07789v2",
+    "entry_id": "https://arxiv.org/abs/2108.07789v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "(Chat)GPT v BERT: Dawn of Justice for Semantic Change Detection",
+    "authors": [
+      "Francesco Periti",
+      "Haim Dubossarsky",
+      "Nina Tahmasebi"
+    ],
+    "published_date": "2024-01-25",
+    "summary": "In the universe of Natural Language Processing, Transformer-based language\nmodels like BERT and (Chat)GPT have emerged as lexical superheroes with great\npower to solve open research problems. In this paper, we specifically focus on\nthe temporal problem of semantic change, and evaluate their ability to solve\ntwo diachronic extensions of the Word-in-Context (WiC) task: TempoWiC and\nHistoWiC. In particular, we investigate the potential of a novel, off-the-shelf\ntechnology like ChatGPT (and GPT) 3.5 compared to BERT, which represents a\nfamily of models that currently stand as the state-of-the-art for modeling\nsemantic change. Our experiments represent the first attempt to assess the use\nof (Chat)GPT for studying semantic change. Our results indicate that ChatGPT\nperforms significantly worse than the foundational GPT version. Furthermore,\nour results demonstrate that (Chat)GPT achieves slightly lower performance than\nBERT in detecting long-term changes but performs significantly worse in\ndetecting short-term changes.",
+    "pdf_url": "http://arxiv.org/pdf/2401.14040v3",
+    "entry_id": "https://arxiv.org/abs/2401.14040v3",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Assessing Large Language Models for Online Extremism Research: Identification, Explanation, and New Knowledge",
+    "authors": [
+      "Beidi Dong",
+      "Jin R. Lee",
+      "Ziwei Zhu",
+      "Balassubramanian Srinivasan"
+    ],
+    "published_date": "2024-08-29",
+    "summary": "The United States has experienced a significant increase in violent\nextremism, prompting the need for automated tools to detect and limit the\nspread of extremist ideology online. This study evaluates the performance of\nBidirectional Encoder Representations from Transformers (BERT) and Generative\nPre-Trained Transformers (GPT) in detecting and classifying online domestic\nextremist posts. We collected social media posts containing \"far-right\" and\n\"far-left\" ideological keywords and manually labeled them as extremist or\nnon-extremist. Extremist posts were further classified into one or more of five\ncontributing elements of extremism based on a working definitional framework.\nThe BERT model's performance was evaluated based on training data size and\nknowledge transfer between categories. We also compared the performance of GPT\n3.5 and GPT 4 models using different prompts: na\\\"ive, layperson-definition,\nrole-playing, and professional-definition. Results showed that the best\nperforming GPT models outperformed the best performing BERT models, with more\ndetailed prompts generally yielding better results. However, overly complex\nprompts may impair performance. Different versions of GPT have unique\nsensitives to what they consider extremist. GPT 3.5 performed better at\nclassifying far-left extremist posts, while GPT 4 performed better at\nclassifying far-right extremist posts. Large language models, represented by\nGPT models, hold significant potential for online extremism classification\ntasks, surpassing traditional BERT models in a zero-shot setting. Future\nresearch should explore human-computer interactions in optimizing GPT models\nfor extremist detection and classification tasks to develop more efficient\n(e.g., quicker, less effort) and effective (e.g., fewer errors or mistakes)\nmethods for identifying extremist content.",
+    "pdf_url": "http://arxiv.org/pdf/2408.16749v1",
+    "entry_id": "https://arxiv.org/abs/2408.16749v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "BERT vs GPT for financial engineering",
+    "authors": [
+      "Edward Sharkey",
+      "Philip Treleaven"
+    ],
+    "published_date": "2024-04-24",
+    "summary": "The paper benchmarks several Transformer models [4], to show how these models\ncan judge sentiment from a news event. This signal can then be used for\ndownstream modelling and signal identification for commodity trading. We find\nthat fine-tuned BERT models outperform fine-tuned or vanilla GPT models on this\ntask. Transformer models have revolutionized the field of natural language\nprocessing (NLP) in recent years, achieving state-of-the-art results on various\ntasks such as machine translation, text summarization, question answering, and\nnatural language generation. Among the most prominent transformer models are\nBidirectional Encoder Representations from Transformers (BERT) and Generative\nPre-trained Transformer (GPT), which differ in their architectures and\nobjectives.\n  A CopBERT model training data and process overview is provided. The CopBERT\nmodel outperforms similar domain specific BERT trained models such as FinBERT.\nThe below confusion matrices show the performance on CopBERT & CopGPT\nrespectively. We see a ~10 percent increase in f1_score when compare CopBERT vs\nGPT4 and 16 percent increase vs CopGPT. Whilst GPT4 is dominant It highlights\nthe importance of considering alternatives to GPT models for financial\nengineering tasks, given risks of hallucinations, and challenges with\ninterpretability. We unsurprisingly see the larger LLMs outperform the BERT\nmodels, with predictive power. In summary BERT is partially the new XGboost,\nwhat it lacks in predictive power it provides with higher levels of\ninterpretability. Concluding that BERT models might not be the next XGboost\n[2], but represent an interesting alternative for financial engineering tasks,\nthat require a blend of interpretability and accuracy.",
+    "pdf_url": "http://arxiv.org/pdf/2405.12990v1",
+    "entry_id": "https://arxiv.org/abs/2405.12990v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Selecting Between BERT and GPT for Text Classification in Political Science Research",
+    "authors": [
+      "Yu Wang",
+      "Wen Qu",
+      "Xin Ye"
+    ],
+    "published_date": "2024-11-07",
+    "summary": "Political scientists often grapple with data scarcity in text classification.\nRecently, fine-tuned BERT models and their variants have gained traction as\neffective solutions to address this issue. In this study, we investigate the\npotential of GPT-based models combined with prompt engineering as a viable\nalternative. We conduct a series of experiments across various classification\ntasks, differing in the number of classes and complexity, to evaluate the\neffectiveness of BERT-based versus GPT-based models in low-data scenarios. Our\nfindings indicate that while zero-shot and few-shot learning with GPT models\nprovide reasonable performance and are well-suited for early-stage research\nexploration, they generally fall short - or, at best, match - the performance\nof BERT fine-tuning, particularly as the training set reaches a substantial\nsize (e.g., 1,000 samples). We conclude by comparing these approaches in terms\nof performance, ease of use, and cost, providing practical guidance for\nresearchers facing data limitations. Our results are particularly relevant for\nthose engaged in quantitative text analysis in low-resource settings or with\nlimited labeled data.",
+    "pdf_url": "http://arxiv.org/pdf/2411.05050v1",
+    "entry_id": "https://arxiv.org/abs/2411.05050v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Mogo: RQ Hierarchical Causal Transformer for High-Quality 3D Human Motion Generation",
+    "authors": [
+      "Dongjie Fu"
+    ],
+    "published_date": "2024-12-05",
+    "summary": "In the field of text-to-motion generation, Bert-type Masked Models (MoMask,\nMMM) currently produce higher-quality outputs compared to GPT-type\nautoregressive models (T2M-GPT). However, these Bert-type models often lack the\nstreaming output capability required for applications in video game and\nmultimedia environments, a feature inherent to GPT-type models. Additionally,\nthey demonstrate weaker performance in out-of-distribution generation. To\nsurpass the quality of BERT-type models while leveraging a GPT-type structure,\nwithout adding extra refinement models that complicate scaling data, we propose\na novel architecture, Mogo (Motion Only Generate Once), which generates\nhigh-quality lifelike 3D human motions by training a single transformer model.\nMogo consists of only two main components: 1) RVQ-VAE, a hierarchical residual\nvector quantization variational autoencoder, which discretizes continuous\nmotion sequences with high precision; 2) Hierarchical Causal Transformer,\nresponsible for generating the base motion sequences in an autoregressive\nmanner while simultaneously inferring residuals across different layers.\nExperimental results demonstrate that Mogo can generate continuous and cyclic\nmotion sequences up to 260 frames (13 seconds), surpassing the 196 frames (10\nseconds) length limitation of existing datasets like HumanML3D. On the\nHumanML3D test set, Mogo achieves a FID score of 0.079, outperforming both the\nGPT-type model T2M-GPT (FID = 0.116), AttT2M (FID = 0.112) and the BERT-type\nmodel MMM (FID = 0.080). Furthermore, our model achieves the best quantitative\nperformance in out-of-distribution generation.",
+    "pdf_url": "http://arxiv.org/pdf/2412.07797v1",
+    "entry_id": "https://arxiv.org/abs/2412.07797v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Evaluation of GPT and BERT-based models on identifying protein-protein interactions in biomedical text",
+    "authors": [
+      "Hasin Rehana",
+      "Nur Bengisu Çam",
+      "Mert Basmaci",
+      "Jie Zheng",
+      "Christianah Jemiyo",
+      "Yongqun He",
+      "Arzucan Özgür",
+      "Junguk Hur"
+    ],
+    "published_date": "2023-03-30",
+    "summary": "Detecting protein-protein interactions (PPIs) is crucial for understanding\ngenetic mechanisms, disease pathogenesis, and drug design. However, with the\nfast-paced growth of biomedical literature, there is a growing need for\nautomated and accurate extraction of PPIs to facilitate scientific knowledge\ndiscovery. Pre-trained language models, such as generative pre-trained\ntransformers (GPT) and bidirectional encoder representations from transformers\n(BERT), have shown promising results in natural language processing (NLP)\ntasks. We evaluated the performance of PPI identification of multiple GPT and\nBERT models using three manually curated gold-standard corpora: Learning\nLanguage in Logic (LLL) with 164 PPIs in 77 sentences, Human Protein Reference\nDatabase with 163 PPIs in 145 sentences, and Interaction Extraction Performance\nAssessment with 335 PPIs in 486 sentences. BERT-based models achieved the best\noverall performance, with BioBERT achieving the highest recall (91.95%) and\nF1-score (86.84%) and PubMedBERT achieving the highest precision (85.25%).\nInterestingly, despite not being explicitly trained for biomedical texts, GPT-4\nachieved commendable performance, comparable to the top-performing BERT models.\nIt achieved a precision of 88.37%, a recall of 85.14%, and an F1-score of\n86.49% on the LLL dataset. These results suggest that GPT models can\neffectively detect PPIs from text data, offering promising avenues for\napplication in biomedical literature mining. Further research could explore how\nthese models might be fine-tuned for even more specialized tasks within the\nbiomedical domain.",
+    "pdf_url": "http://arxiv.org/pdf/2303.17728v2",
+    "entry_id": "https://arxiv.org/abs/2303.17728v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "MedicalBERT: enhancing biomedical natural language processing using pretrained BERT-based model",
+    "authors": [
+      "K. Sahit Reddy",
+      "N. Ragavenderan",
+      "Vasanth K.",
+      "Ganesh N. Naik",
+      "Vishalakshi Prabhu",
+      "Nagaraja G. S"
+    ],
+    "published_date": "2025-07-06",
+    "summary": "Recent advances in natural language processing (NLP) have been driven\nbypretrained language models like BERT, RoBERTa, T5, and GPT. Thesemodels excel\nat understanding complex texts, but biomedical literature, withits\ndomain-specific terminology, poses challenges that models likeWord2Vec and\nbidirectional long short-term memory (Bi-LSTM) can't fullyaddress. GPT and T5,\ndespite capturing context, fall short in tasks needingbidirectional\nunderstanding, unlike BERT. Addressing this, we proposedMedicalBERT, a\npretrained BERT model trained on a large biomedicaldataset and equipped with\ndomain-specific vocabulary that enhances thecomprehension of biomedical\nterminology. MedicalBERT model is furtheroptimized and fine-tuned to address\ndiverse tasks, including named entityrecognition, relation extraction, question\nanswering, sentence similarity, anddocument classification. Performance metrics\nsuch as the F1-score,accuracy, and Pearson correlation are employed to showcase\nthe efficiencyof our model in comparison to other BERT-based models such as\nBioBERT,SciBERT, and ClinicalBERT. MedicalBERT outperforms these models onmost\nof the benchmarks, and surpasses the general-purpose BERT model by5.67% on\naverage across all the tasks evaluated respectively. This work alsounderscores\nthe potential of leveraging pretrained BERT models for medicalNLP tasks,\ndemonstrating the effectiveness of transfer learning techniques incapturing\ndomain-specific information.\n  (PDF) MedicalBERT: enhancing biomedical natural language processing using\npretrained BERT-based model. Available from:\nhttps://www.researchgate.net/publication/392489050_MedicalBERT_enhancing_biomedical_natural_language_processing_using_pretrained_BERT-based_model\n[accessed Jul 06 2025].",
+    "pdf_url": "http://arxiv.org/pdf/2507.08013v2",
+    "entry_id": "https://arxiv.org/abs/2507.08013v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Semantics-aware BERT for Language Understanding",
+    "authors": [
+      "Zhuosheng Zhang",
+      "Yuwei Wu",
+      "Hai Zhao",
+      "Zuchao Li",
+      "Shuailiang Zhang",
+      "Xi Zhou",
+      "Xiang Zhou"
+    ],
+    "published_date": "2019-09-05",
+    "summary": "The latest work on language representations carefully integrates\ncontextualized features into language model training, which enables a series of\nsuccess especially in various machine reading comprehension and natural\nlanguage inference tasks. However, the existing language representation models\nincluding ELMo, GPT and BERT only exploit plain context-sensitive features such\nas character or word embeddings. They rarely consider incorporating structured\nsemantic information which can provide rich semantics for language\nrepresentation. To promote natural language understanding, we propose to\nincorporate explicit contextual semantics from pre-trained semantic role\nlabeling, and introduce an improved language representation model,\nSemantics-aware BERT (SemBERT), which is capable of explicitly absorbing\ncontextual semantics over a BERT backbone. SemBERT keeps the convenient\nusability of its BERT precursor in a light fine-tuning way without substantial\ntask-specific modifications. Compared with BERT, semantics-aware BERT is as\nsimple in concept but more powerful. It obtains new state-of-the-art or\nsubstantially improves results on ten reading comprehension and language\ninference tasks.",
+    "pdf_url": "http://arxiv.org/pdf/1909.02209v3",
+    "entry_id": "https://arxiv.org/abs/1909.02209v3",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "KI-BERT: Infusing Knowledge Context for Better Language and Domain Understanding",
+    "authors": [
+      "Keyur Faldu",
+      "Amit Sheth",
+      "Prashant Kikani",
+      "Hemang Akbari"
+    ],
+    "published_date": "2021-04-09",
+    "summary": "Contextualized entity representations learned by state-of-the-art\ntransformer-based language models (TLMs) like BERT, GPT, T5, etc., leverage the\nattention mechanism to learn the data context from training data corpus.\nHowever, these models do not use the knowledge context. Knowledge context can\nbe understood as semantics about entities and their relationship with\nneighboring entities in knowledge graphs. We propose a novel and effective\ntechnique to infuse knowledge context from multiple knowledge graphs for\nconceptual and ambiguous entities into TLMs during fine-tuning. It projects\nknowledge graph embeddings in the homogeneous vector-space, introduces new\ntoken-types for entities, aligns entity position ids, and a selective attention\nmechanism. We take BERT as a baseline model and implement the\n\"Knowledge-Infused BERT\" by infusing knowledge context from ConceptNet and\nWordNet, which significantly outperforms BERT and other recent knowledge-aware\nBERT variants like ERNIE, SenseBERT, and BERT_CS over eight different subtasks\nof GLUE benchmark. The KI-BERT-base model even significantly outperforms\nBERT-large for domain-specific tasks like SciTail and academic subsets of QQP,\nQNLI, and MNLI.",
+    "pdf_url": "http://arxiv.org/pdf/2104.08145v2",
+    "entry_id": "https://arxiv.org/abs/2104.08145v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "GPT or BERT: why not both?",
+    "authors": [
+      "Lucas Georges Gabriel Charpentier",
+      "David Samuel"
+    ],
+    "published_date": "2024-10-31",
+    "summary": "We present a simple way to merge masked language modeling with causal\nlanguage modeling. This hybrid training objective results in a model that\ncombines the strengths of both modeling paradigms within a single transformer\nstack: GPT-BERT can be transparently used like any standard causal or masked\nlanguage model. We test the pretraining process that enables this flexible\nbehavior on the BabyLM Challenge 2024. The results show that the hybrid\npretraining outperforms masked-only or causal-only models. We openly release\nthe models, training corpora and code.",
+    "pdf_url": "http://arxiv.org/pdf/2410.24159v2",
+    "entry_id": "https://arxiv.org/abs/2410.24159v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Single layer tiny Co$^4$ outpaces GPT-2 and GPT-BERT",
+    "authors": [
+      "Noor Ul Zain",
+      "Mohsin Raza",
+      "Ahsan Adeel"
+    ],
+    "published_date": "2025-10-09",
+    "summary": "We show that a tiny Co$^4$ machine(Adeel,2025) with a single layer, two\nheads, and 8M parameters, operating at an approximate cost of $O(N)$ (where $N$\nis the number of input tokens), outpaces the BabyLM Challenge baselines GPT-2\n(124M, 12 layers, $O(N^2))$ and GPT-BERT (30M, 12 layers, $O(N^2))$ in just two\nepochs, while both are trained for ten. Co$^4$ achieves orders-of-magnitude\ngreater training efficiency on 10M tokens, demonstrating highly sample\nefficient pretraining. Using the BabyLM challenge evaluation pipeline across\ncomplex benchmarks, Co$^4$ exhibits strong zero-shot and fine-tuning\nperformance on SuperGLUE tasks. Specifically, Co$^4$ outperforms GPT-2 on 5 out\nof 7 zero-shot metrics and 6 out of 7 fine-tuning tasks, and GPT-BERT on 4 out\nof 7 metrics in both cases. These results suggest the need to rethink\nprevailing deep learning paradigms and associated scaling laws.",
+    "pdf_url": "http://arxiv.org/pdf/2510.08404v1",
+    "entry_id": "https://arxiv.org/abs/2510.08404v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Comparing Few-Shot Prompting of GPT-4 LLMs with BERT Classifiers for Open-Response Assessment in Tutor Equity Training",
+    "authors": [
+      "Sanjit Kakarla",
+      "Conrad Borchers",
+      "Danielle Thomas",
+      "Shambhavi Bhushan",
+      "Kenneth R. Koedinger"
+    ],
+    "published_date": "2025-01-11",
+    "summary": "Assessing learners in ill-defined domains, such as scenario-based human\ntutoring training, is an area of limited research. Equity training requires a\nnuanced understanding of context, but do contemporary large language models\n(LLMs) have a knowledge base that can navigate these nuances? Legacy\ntransformer models like BERT, in contrast, have less real-world knowledge but\ncan be more easily fine-tuned than commercial LLMs. Here, we study whether\nfine-tuning BERT on human annotations outperforms state-of-the-art LLMs (GPT-4o\nand GPT-4-Turbo) with few-shot prompting and instruction. We evaluate\nperformance on four prediction tasks involving generating and explaining\nopen-ended responses in advocacy-focused training lessons in a higher education\nstudent population learning to become middle school tutors. Leveraging a\ndataset of 243 human-annotated open responses from tutor training lessons, we\nfind that BERT demonstrates superior performance using an offline fine-tuning\napproach, which is more resource-efficient than commercial GPT models. We\nconclude that contemporary GPT models may not adequately capture nuanced\nresponse patterns, especially in complex tasks requiring explanation. This work\nadvances the understanding of AI-driven learner evaluation under the lens of\nfine-tuning versus few-shot prompting on the nuanced task of equity training,\ncontributing to more effective training solutions and assisting practitioners\nin choosing adequate assessment methods.",
+    "pdf_url": "http://arxiv.org/pdf/2501.06658v1",
+    "entry_id": "https://arxiv.org/abs/2501.06658v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Sim-GPT: Text Similarity via GPT Annotated Data",
+    "authors": [
+      "Shuhe Wang",
+      "Beiming Cao",
+      "Shengyu Zhang",
+      "Xiaoya Li",
+      "Jiwei Li",
+      "Fei Wu",
+      "Guoyin Wang",
+      "Eduard Hovy"
+    ],
+    "published_date": "2023-12-09",
+    "summary": "Due to the lack of a large collection of high-quality labeled sentence pairs\nwith textual similarity scores, existing approaches for Semantic Textual\nSimilarity (STS) mostly rely on unsupervised techniques or training signals\nthat are only partially correlated with textual similarity, e.g., NLI-based\ndatasets. To tackle this issue, in this paper, we propose the strategy of\nmeasuring text similarity via GPT annotated data (Sim-GPT for short). The core\nidea of Sim-GPT is to generate data with STS labels using GPT-4, based on which\nan STS model is trained. Sim-GPT framework utilizes LLMs to provide a\nsubstantial amount of reliable annotated data filling the gap of the lack of\ntraining signals for STS. Sim-GPT is trained on a one-time generated dataset\nusing BERT or RoBERTa as the backbone, which offers long-term savings in cost\nand speed compared to repeatedly invoking LLMs for each sentence pair. Trained\non the examples from GPT-4 (371K), Sim-GPT yields SOTA performances on the\nwidely-used seven STS benchmarks: +0.99 over supervised-SimCSE, and +0.42 over\nthe current SOTA PromCSE model. To encourage further advancements of the field,\nwe release both models and the 371K annotated examples from GPT-4. Code, models\nand annotated data are available at: https://github.com/ShuheWang1998/Sim-GPT.",
+    "pdf_url": "http://arxiv.org/pdf/2312.05603v2",
+    "entry_id": "https://arxiv.org/abs/2312.05603v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Lost in Translation: Large Language Models in Non-English Content Analysis",
+    "authors": [
+      "Gabriel Nicholas",
+      "Aliya Bhatia"
+    ],
+    "published_date": "2023-06-12",
+    "summary": "In recent years, large language models (e.g., Open AI's GPT-4, Meta's LLaMa,\nGoogle's PaLM) have become the dominant approach for building AI systems to\nanalyze and generate language online. However, the automated systems that\nincreasingly mediate our interactions online -- such as chatbots, content\nmoderation systems, and search engines -- are primarily designed for and work\nfar more effectively in English than in the world's other 7,000 languages.\nRecently, researchers and technology companies have attempted to extend the\ncapabilities of large language models into languages other than English by\nbuilding what are called multilingual language models.\n  In this paper, we explain how these multilingual language models work and\nexplore their capabilities and limits. Part I provides a simple technical\nexplanation of how large language models work, why there is a gap in available\ndata between English and other languages, and how multilingual language models\nattempt to bridge that gap. Part II accounts for the challenges of doing\ncontent analysis with large language models in general and multilingual\nlanguage models in particular. Part III offers recommendations for companies,\nresearchers, and policymakers to keep in mind when considering researching,\ndeveloping and deploying large and multilingual language models.",
+    "pdf_url": "http://arxiv.org/pdf/2306.07377v1",
+    "entry_id": "https://arxiv.org/abs/2306.07377v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Cedille: A large autoregressive French language model",
+    "authors": [
+      "Martin Müller",
+      "Florian Laurent"
+    ],
+    "published_date": "2022-02-07",
+    "summary": "Scaling up the size and training of autoregressive language models has\nenabled novel ways of solving Natural Language Processing tasks using zero-shot\nand few-shot learning. While extreme-scale language models such as GPT-3 offer\nmultilingual capabilities, zero-shot learning for languages other than English\nremain largely unexplored. Here, we introduce Cedille, a large open source\nauto-regressive language model, specifically trained for the French language.\nOur results show that Cedille outperforms existing French language models and\nis competitive with GPT-3 on a range of French zero-shot benchmarks.\nFurthermore, we provide an in-depth comparison of the toxicity exhibited by\nthese models, showing that Cedille marks an improvement in language model\nsafety thanks to dataset filtering.",
+    "pdf_url": "http://arxiv.org/pdf/2202.03371v1",
+    "entry_id": "https://arxiv.org/abs/2202.03371v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "How Good are Commercial Large Language Models on African Languages?",
+    "authors": [
+      "Jessica Ojo",
+      "Kelechi Ogueji"
+    ],
+    "published_date": "2023-05-11",
+    "summary": "Recent advancements in Natural Language Processing (NLP) has led to the\nproliferation of large pretrained language models. These models have been shown\nto yield good performance, using in-context learning, even on unseen tasks and\nlanguages. They have also been exposed as commercial APIs as a form of\nlanguage-model-as-a-service, with great adoption. However, their performance on\nAfrican languages is largely unknown. We present a preliminary analysis of\ncommercial large language models on two tasks (machine translation and text\nclassification) across eight African languages, spanning different language\nfamilies and geographical areas. Our results suggest that commercial language\nmodels produce below-par performance on African languages. We also find that\nthey perform better on text classification than machine translation. In\ngeneral, our findings present a call-to-action to ensure African languages are\nwell represented in commercial large language models, given their growing\npopularity.",
+    "pdf_url": "http://arxiv.org/pdf/2305.06530v1",
+    "entry_id": "https://arxiv.org/abs/2305.06530v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Goldfish: Monolingual Language Models for 350 Languages",
+    "authors": [
+      "Tyler A. Chang",
+      "Catherine Arnett",
+      "Zhuowen Tu",
+      "Benjamin K. Bergen"
+    ],
+    "published_date": "2024-08-19",
+    "summary": "For many low-resource languages, the only available language models are large\nmultilingual models trained on many languages simultaneously. However, using\nFLORES perplexity as a metric, we find that these models perform worse than\nbigrams for many languages (e.g. 24% of languages in XGLM 4.5B; 43% in BLOOM\n7.1B). To facilitate research that focuses on low-resource languages, we\npre-train and release Goldfish, a suite of monolingual autoregressive\nTransformer language models up to 125M parameters for 350 languages. The\nGoldfish reach lower FLORES perplexities than BLOOM, XGLM, and MaLA-500 on 98\nof 204 FLORES languages, despite each Goldfish model being over 10x smaller.\nHowever, the Goldfish significantly underperform larger multilingual models on\nreasoning benchmarks, suggesting that for low-resource languages,\nmultilinguality primarily improves general reasoning abilities rather than\nbasic text generation. We release models trained on 5MB (350 languages), 10MB\n(288 languages), 100MB (166 languages), and 1GB (83 languages) of text data\nwhere available. The Goldfish models are available as baselines, fine-tuning\nsources, or augmentations to existing models in low-resource NLP research, and\nthey are further useful for crosslinguistic studies requiring maximally\ncomparable models across languages.",
+    "pdf_url": "http://arxiv.org/pdf/2408.10441v1",
+    "entry_id": "https://arxiv.org/abs/2408.10441v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Modelling Language",
+    "authors": [
+      "Jumbly Grindrod"
+    ],
+    "published_date": "2024-04-15",
+    "summary": "This paper argues that large language models have a valuable scientific role\nto play in serving as scientific models of a language. Linguistic study should\nnot only be concerned with the cognitive processes behind linguistic\ncompetence, but also with language understood as an external, social entity.\nOnce this is recognized, the value of large language models as scientific\nmodels becomes clear. This paper defends this position against a number of\narguments to the effect that language models provide no linguistic insight. It\nalso draws upon recent work in philosophy of science to show how large language\nmodels could serve as scientific models.",
+    "pdf_url": "http://arxiv.org/pdf/2404.09579v1",
+    "entry_id": "https://arxiv.org/abs/2404.09579v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "LLaMA-Reg: Using LLaMA 2 for Unsupervised Medical Image Registration",
+    "authors": [
+      "Mingrui Ma",
+      "Yu Yang"
+    ],
+    "published_date": "2024-05-29",
+    "summary": "Medical image registration is an essential topic in medical image analysis.\nIn this paper, we propose a method for medical image registration using a\npretrained large language model. We find that using the pretrained large\nlanguage model to encode deep features of the medical images in the\nregistration model can effectively improve image registration accuracy,\nindicating the great potential of the large language model in medical image\nregistration tasks. We use dual encoders to perform deep feature extraction on\nimage pairs and then input the features into the pretrained large language\nmodel. To adapt the large language model to our registration task, the weights\nof the large language model are frozen in the registration model, and an\nadapter is utilized to fine-tune the large language model, which aims at (a)\nmapping the visual tokens to the language space before the large language model\ncomputing, (b) project the modeled language tokens output from the large\nlanguage model to the visual space. Our method combines output features from\nthe fine-tuned large language model with the features output from each encoder\nlayer to gradually generate the deformation fields required for registration in\nthe decoder. To demonstrate the effectiveness of the large prediction model in\nregistration tasks, we conducted experiments on knee and brain MRI and achieved\nstate-of-the-art results.",
+    "pdf_url": "http://arxiv.org/pdf/2405.18774v1",
+    "entry_id": "https://arxiv.org/abs/2405.18774v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Using Sign Language Production as Data Augmentation to enhance Sign Language Translation",
+    "authors": [
+      "Harry Walsh",
+      "Maksym Ivashechkin",
+      "Richard Bowden"
+    ],
+    "published_date": "2025-06-11",
+    "summary": "Machine learning models fundamentally rely on large quantities of\nhigh-quality data. Collecting the necessary data for these models can be\nchallenging due to cost, scarcity, and privacy restrictions. Signed languages\nare visual languages used by the deaf community and are considered low-resource\nlanguages. Sign language datasets are often orders of magnitude smaller than\ntheir spoken language counterparts. Sign Language Production is the task of\ngenerating sign language videos from spoken language sentences, while Sign\nLanguage Translation is the reverse translation task. Here, we propose\nleveraging recent advancements in Sign Language Production to augment existing\nsign language datasets and enhance the performance of Sign Language Translation\nmodels. For this, we utilize three techniques: a skeleton-based approach to\nproduction, sign stitching, and two photo-realistic generative models, SignGAN\nand SignSplat. We evaluate the effectiveness of these techniques in enhancing\nthe performance of Sign Language Translation models by generating variation in\nthe signer's appearance and the motion of the skeletal data. Our results\ndemonstrate that the proposed methods can effectively augment existing datasets\nand enhance the performance of Sign Language Translation models by up to 19%,\npaving the way for more robust and accurate Sign Language Translation systems,\neven in resource-constrained environments.",
+    "pdf_url": "http://arxiv.org/pdf/2506.09643v1",
+    "entry_id": "https://arxiv.org/abs/2506.09643v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "A Precis of Language Models are not Models of Language",
+    "authors": [
+      "Csaba Veres"
+    ],
+    "published_date": "2022-05-16",
+    "summary": "Natural Language Processing is one of the leading application areas in the\ncurrent resurgence of Artificial Intelligence, spearheaded by Artificial Neural\nNetworks. We show that despite their many successes at performing linguistic\ntasks, Large Neural Language Models are ill-suited as comprehensive models of\nnatural language. The wider implication is that, in spite of the often\noverbearing optimism about AI, modern neural models do not represent a\nrevolution in our understanding of cognition.",
+    "pdf_url": "http://arxiv.org/pdf/2205.07634v1",
+    "entry_id": "https://arxiv.org/abs/2205.07634v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "A Survey of Large Language Models for European Languages",
+    "authors": [
+      "Wazir Ali",
+      "Sampo Pyysalo"
+    ],
+    "published_date": "2024-08-27",
+    "summary": "Large Language Models (LLMs) have gained significant attention due to their\nhigh performance on a wide range of natural language tasks since the release of\nChatGPT. The LLMs learn to understand and generate language by training\nbillions of model parameters on vast volumes of text data. Despite being a\nrelatively new field, LLM research is rapidly advancing in various directions.\nIn this paper, we present an overview of LLM families, including LLaMA, PaLM,\nGPT, and MoE, and the methods developed to create and enhance LLMs for official\nEuropean Union (EU) languages. We provide a comprehensive summary of common\nmonolingual and multilingual datasets used for pretraining large language\nmodels.",
+    "pdf_url": "http://arxiv.org/pdf/2408.15040v2",
+    "entry_id": "https://arxiv.org/abs/2408.15040v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Beyond the limitations of any imaginable mechanism: large language models and psycholinguistics",
+    "authors": [
+      "Conor Houghton",
+      "Nina Kazanina",
+      "Priyanka Sukumaran"
+    ],
+    "published_date": "2023-02-28",
+    "summary": "Large language models are not detailed models of human linguistic processing.\nThey are, however, extremely successful at their primary task: providing a\nmodel for language. For this reason and because there are no animal models for\nlanguage, large language models are important in psycholinguistics: they are\nuseful as a practical tool, as an illustrative comparative, and\nphilosophically, as a basis for recasting the relationship between language and\nthought.",
+    "pdf_url": "http://arxiv.org/pdf/2303.00077v1",
+    "entry_id": "https://arxiv.org/abs/2303.00077v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Enhance Reasoning Ability of Visual-Language Models via Large Language Models",
+    "authors": [
+      "Yueting Yang",
+      "Xintong Zhang",
+      "Wenjuan Han"
+    ],
+    "published_date": "2023-05-22",
+    "summary": "Pre-trained visual language models (VLM) have shown excellent performance in\nimage caption tasks. However, it sometimes shows insufficient reasoning\nability. In contrast, large language models (LLMs) emerge with powerful\nreasoning capabilities. Therefore, we propose a method called TReE, which\ntransfers the reasoning ability of a large language model to a visual language\nmodel in zero-shot scenarios. TReE contains three stages: observation,\nthinking, and re-thinking. Observation stage indicates that VLM obtains the\noverall information of the relative image. Thinking stage combines the image\ninformation and task description as the prompt of the LLM, inference with the\nrationals. Re-Thinking stage learns from rationale and then inference the final\nresult through VLM.",
+    "pdf_url": "http://arxiv.org/pdf/2305.13267v1",
+    "entry_id": "https://arxiv.org/abs/2305.13267v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Should we Stop Training More Monolingual Models, and Simply Use Machine Translation Instead?",
+    "authors": [
+      "Tim Isbister",
+      "Fredrik Carlsson",
+      "Magnus Sahlgren"
+    ],
+    "published_date": "2021-04-21",
+    "summary": "Most work in NLP makes the assumption that it is desirable to develop\nsolutions in the native language in question. There is consequently a strong\ntrend towards building native language models even for low-resource languages.\nThis paper questions this development, and explores the idea of simply\ntranslating the data into English, thereby enabling the use of pretrained, and\nlarge-scale, English language models. We demonstrate empirically that a large\nEnglish language model coupled with modern machine translation outperforms\nnative language models in most Scandinavian languages. The exception to this is\nFinnish, which we assume is due to inferior translation quality. Our results\nsuggest that machine translation is a mature technology, which raises a serious\ncounter-argument for training native language models for low-resource\nlanguages. This paper therefore strives to make a provocative but important\npoint. As English language models are improving at an unprecedented pace, which\nin turn improves machine translation, it is from an empirical and environmental\nstand-point more effective to translate data from low-resource languages into\nEnglish, than to build language models for such languages.",
+    "pdf_url": "http://arxiv.org/pdf/2104.10441v1",
+    "entry_id": "https://arxiv.org/abs/2104.10441v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "The Heap: A Contamination-Free Multilingual Code Dataset for Evaluating Large Language Models",
+    "authors": [
+      "Jonathan Katzy",
+      "Razvan Mihai Popescu",
+      "Arie van Deursen",
+      "Maliheh Izadi"
+    ],
+    "published_date": "2025-01-16",
+    "summary": "The recent rise in the popularity of large language models has spurred the\ndevelopment of extensive code datasets needed to train them. This has left\nlimited code available for collection and use in the downstream investigation\nof specific behaviors, or evaluation of large language models without suffering\nfrom data contamination. To address this problem, we release The Heap, a large\nmultilingual dataset covering 57 programming languages that has been\ndeduplicated with respect to other open datasets of code, enabling researchers\nto conduct fair evaluations of large language models without significant data\ncleaning overhead.",
+    "pdf_url": "http://arxiv.org/pdf/2501.09653v1",
+    "entry_id": "https://arxiv.org/abs/2501.09653v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Formal Aspects of Language Modeling",
+    "authors": [
+      "Ryan Cotterell",
+      "Anej Svete",
+      "Clara Meister",
+      "Tianyu Liu",
+      "Li Du"
+    ],
+    "published_date": "2023-11-07",
+    "summary": "Large language models have become one of the most commonly deployed NLP\ninventions. In the past half-decade, their integration into core natural\nlanguage processing tools has dramatically increased the performance of such\ntools, and they have entered the public discourse surrounding artificial\nintelligence. Consequently, it is important for both developers and researchers\nalike to understand the mathematical foundations of large language models, as\nwell as how to implement them. These notes are the accompaniment to the\ntheoretical portion of the ETH Z\\\"urich course on large language models,\ncovering what constitutes a language model from a formal, theoretical\nperspective.",
+    "pdf_url": "http://arxiv.org/pdf/2311.04329v2",
+    "entry_id": "https://arxiv.org/abs/2311.04329v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Images in Language Space: Exploring the Suitability of Large Language Models for Vision & Language Tasks",
+    "authors": [
+      "Sherzod Hakimov",
+      "David Schlangen"
+    ],
+    "published_date": "2023-05-23",
+    "summary": "Large language models have demonstrated robust performance on various\nlanguage tasks using zero-shot or few-shot learning paradigms. While being\nactively researched, multimodal models that can additionally handle images as\ninput have yet to catch up in size and generality with language-only models. In\nthis work, we ask whether language-only models can be utilised for tasks that\nrequire visual input -- but also, as we argue, often require a strong reasoning\ncomponent. Similar to some recent related work, we make visual information\naccessible to the language model using separate verbalisation models.\nSpecifically, we investigate the performance of open-source, open-access\nlanguage models against GPT-3 on five vision-language tasks when given\ntextually-encoded visual information. Our results suggest that language models\nare effective for solving vision-language tasks even with limited samples. This\napproach also enhances the interpretability of a model's output by providing a\nmeans of tracing the output back through the verbalised image content.",
+    "pdf_url": "http://arxiv.org/pdf/2305.13782v1",
+    "entry_id": "https://arxiv.org/abs/2305.13782v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Evaluating the Effectiveness and Scalability of LLM-Based Data Augmentation for Retrieval",
+    "authors": [
+      "Pranjal A. Chitale",
+      "Bishal Santra",
+      "Yashoteja Prabhu",
+      "Amit Sharma"
+    ],
+    "published_date": "2025-09-19",
+    "summary": "Compact dual-encoder models are widely used for retrieval owing to their\nefficiency and scalability. However, such models often underperform compared to\ntheir Large Language Model (LLM)-based retrieval counterparts, likely due to\ntheir limited world knowledge. While LLM-based data augmentation has been\nproposed as a strategy to bridge this performance gap, there is insufficient\nunderstanding of its effectiveness and scalability to real-world retrieval\nproblems. Existing research does not systematically explore key factors such as\nthe optimal augmentation scale, the necessity of using large augmentation\nmodels, and whether diverse augmentations improve generalization, particularly\nin out-of-distribution (OOD) settings. This work presents a comprehensive study\nof the effectiveness of LLM augmentation for retrieval, comprising over 100\ndistinct experimental settings of retrieval models, augmentation models and\naugmentation strategies. We find that, while augmentation enhances retrieval\nperformance, its benefits diminish beyond a certain augmentation scale, even\nwith diverse augmentation strategies. Surprisingly, we observe that\naugmentation with smaller LLMs can achieve performance competitive with larger\naugmentation models. Moreover, we examine how augmentation effectiveness varies\nwith retrieval model pre-training, revealing that augmentation provides the\nmost benefit to models which are not well pre-trained. Our insights pave the\nway for more judicious and efficient augmentation strategies, thus enabling\ninformed decisions and maximizing retrieval performance while being more\ncost-effective. Code and augmented datasets accompanying this work are publicly\navailable at https://aka.ms/DAGR.",
+    "pdf_url": "http://arxiv.org/pdf/2509.16442v1",
+    "entry_id": "https://arxiv.org/abs/2509.16442v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "R^2AG: Incorporating Retrieval Information into Retrieval Augmented Generation",
+    "authors": [
+      "Fuda Ye",
+      "Shuangyin Li",
+      "Yongqi Zhang",
+      "Lei Chen"
+    ],
+    "published_date": "2024-06-19",
+    "summary": "Retrieval augmented generation (RAG) has been applied in many scenarios to\naugment large language models (LLMs) with external documents provided by\nretrievers. However, a semantic gap exists between LLMs and retrievers due to\ndifferences in their training objectives and architectures. This misalignment\nforces LLMs to passively accept the documents provided by the retrievers,\nleading to incomprehension in the generation process, where the LLMs are\nburdened with the task of distinguishing these documents using their inherent\nknowledge. This paper proposes R$^2$AG, a novel enhanced RAG framework to fill\nthis gap by incorporating Retrieval information into Retrieval Augmented\nGeneration. Specifically, R$^2$AG utilizes the nuanced features from the\nretrievers and employs a R$^2$-Former to capture retrieval information. Then, a\nretrieval-aware prompting strategy is designed to integrate retrieval\ninformation into LLMs' generation. Notably, R$^2$AG suits low-source scenarios\nwhere LLMs and retrievers are frozen. Extensive experiments across five\ndatasets validate the effectiveness, robustness, and efficiency of R$^2$AG. Our\nanalysis reveals that retrieval information serves as an anchor to aid LLMs in\nthe generation process, thereby filling the semantic gap.",
+    "pdf_url": "http://arxiv.org/pdf/2406.13249v2",
+    "entry_id": "https://arxiv.org/abs/2406.13249v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "A Survey on Retrieval-Augmented Text Generation",
+    "authors": [
+      "Huayang Li",
+      "Yixuan Su",
+      "Deng Cai",
+      "Yan Wang",
+      "Lemao Liu"
+    ],
+    "published_date": "2022-02-02",
+    "summary": "Recently, retrieval-augmented text generation attracted increasing attention\nof the computational linguistics community. Compared with conventional\ngeneration models, retrieval-augmented text generation has remarkable\nadvantages and particularly has achieved state-of-the-art performance in many\nNLP tasks. This paper aims to conduct a survey about retrieval-augmented text\ngeneration. It firstly highlights the generic paradigm of retrieval-augmented\ngeneration, and then it reviews notable approaches according to different tasks\nincluding dialogue response generation, machine translation, and other\ngeneration tasks. Finally, it points out some important directions on top of\nrecent methods to facilitate future research.",
+    "pdf_url": "http://arxiv.org/pdf/2202.01110v2",
+    "entry_id": "https://arxiv.org/abs/2202.01110v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Meta-prompting Optimized Retrieval-augmented Generation",
+    "authors": [
+      "João Rodrigues",
+      "António Branco"
+    ],
+    "published_date": "2024-07-04",
+    "summary": "Retrieval-augmented generation resorts to content retrieved from external\nsources in order to leverage the performance of large language models in\ndownstream tasks. The excessive volume of retrieved content, the possible\ndispersion of its parts, or their out of focus range may happen nevertheless to\neventually have a detrimental rather than an incremental effect. To mitigate\nthis issue and improve retrieval-augmented generation, we propose a method to\nrefine the retrieved content before it is included in the prompt by resorting\nto meta-prompting optimization. Put to empirical test with the demanding\nmulti-hop question answering task from the StrategyQA dataset, the evaluation\nresults indicate that this method outperforms a similar retrieval-augmented\nsystem but without this method by over 30%.",
+    "pdf_url": "http://arxiv.org/pdf/2407.03955v1",
+    "entry_id": "https://arxiv.org/abs/2407.03955v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "End-to-End Trainable Retrieval-Augmented Generation for Relation Extraction",
+    "authors": [
+      "Kohei Makino",
+      "Makoto Miwa",
+      "Yutaka Sasaki"
+    ],
+    "published_date": "2024-06-06",
+    "summary": "This paper addresses a crucial challenge in retrieval-augmented\ngeneration-based relation extractors; the end-to-end training is not applicable\nto conventional retrieval-augmented generation due to the non-differentiable\nnature of instance retrieval. This problem prevents the instance retrievers\nfrom being optimized for the relation extraction task, and conventionally it\nmust be trained with an objective different from that for relation extraction.\nTo address this issue, we propose a novel End-to-end Trainable\nRetrieval-Augmented Generation (ETRAG), which allows end-to-end optimization of\nthe entire model, including the retriever, for the relation extraction\nobjective by utilizing a differentiable selection of the $k$ nearest instances.\nWe evaluate the relation extraction performance of ETRAG on the TACRED dataset,\nwhich is a standard benchmark for relation extraction. ETRAG demonstrates\nconsistent improvements against the baseline model as retrieved instances are\nadded. Furthermore, the analysis of instances retrieved by the end-to-end\ntrained retriever confirms that the retrieved instances contain common relation\nlabels or entities with the query and are specialized for the target task. Our\nfindings provide a promising foundation for future research on\nretrieval-augmented generation and the broader applications of text generation\nin Natural Language Processing.",
+    "pdf_url": "http://arxiv.org/pdf/2406.03790v2",
+    "entry_id": "https://arxiv.org/abs/2406.03790v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "DuetRAG: Collaborative Retrieval-Augmented Generation",
+    "authors": [
+      "Dian Jiao",
+      "Li Cai",
+      "Jingsheng Huang",
+      "Wenqiao Zhang",
+      "Siliang Tang",
+      "Yueting Zhuang"
+    ],
+    "published_date": "2024-05-12",
+    "summary": "Retrieval-Augmented Generation (RAG) methods augment the input of Large\nLanguage Models (LLMs) with relevant retrieved passages, reducing factual\nerrors in knowledge-intensive tasks. However, contemporary RAG approaches\nsuffer from irrelevant knowledge retrieval issues in complex domain questions\n(e.g., HotPot QA) due to the lack of corresponding domain knowledge, leading to\nlow-quality generations. To address this issue, we propose a novel\nCollaborative Retrieval-Augmented Generation framework, DuetRAG. Our\nbootstrapping philosophy is to simultaneously integrate the domain fintuning\nand RAG models to improve the knowledge retrieval quality, thereby enhancing\ngeneration quality. Finally, we demonstrate DuetRAG' s matches with expert\nhuman researchers on HotPot QA.",
+    "pdf_url": "http://arxiv.org/pdf/2405.13002v1",
+    "entry_id": "https://arxiv.org/abs/2405.13002v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Retrieval-Augmented Generation: A Comprehensive Survey of Architectures, Enhancements, and Robustness Frontiers",
+    "authors": [
+      "Chaitanya Sharma"
+    ],
+    "published_date": "2025-05-28",
+    "summary": "Retrieval-Augmented Generation (RAG) has emerged as a powerful paradigm to\nenhance large language models (LLMs) by conditioning generation on external\nevidence retrieved at inference time. While RAG addresses critical limitations\nof parametric knowledge storage-such as factual inconsistency and domain\ninflexibility-it introduces new challenges in retrieval quality, grounding\nfidelity, pipeline efficiency, and robustness against noisy or adversarial\ninputs. This survey provides a comprehensive synthesis of recent advances in\nRAG systems, offering a taxonomy that categorizes architectures into\nretriever-centric, generator-centric, hybrid, and robustness-oriented designs.\nWe systematically analyze enhancements across retrieval optimization, context\nfiltering, decoding control, and efficiency improvements, supported by\ncomparative performance analyses on short-form and multi-hop question answering\ntasks. Furthermore, we review state-of-the-art evaluation frameworks and\nbenchmarks, highlighting trends in retrieval-aware evaluation, robustness\ntesting, and federated retrieval settings. Our analysis reveals recurring\ntrade-offs between retrieval precision and generation flexibility, efficiency\nand faithfulness, and modularity and coordination. We conclude by identifying\nopen challenges and future research directions, including adaptive retrieval\narchitectures, real-time retrieval integration, structured reasoning over\nmulti-hop evidence, and privacy-preserving retrieval mechanisms. This survey\naims to consolidate current knowledge in RAG research and serve as a foundation\nfor the next generation of retrieval-augmented language modeling systems.",
+    "pdf_url": "http://arxiv.org/pdf/2506.00054v1",
+    "entry_id": "https://arxiv.org/abs/2506.00054v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Controlled Retrieval-augmented Context Evaluation for Long-form RAG",
+    "authors": [
+      "Jia-Huei Ju",
+      "Suzan Verberne",
+      "Maarten de Rijke",
+      "Andrew Yates"
+    ],
+    "published_date": "2025-06-24",
+    "summary": "Retrieval-augmented generation (RAG) enhances large language models by\nincorporating context retrieved from external knowledge sources. While the\neffectiveness of the retrieval module is typically evaluated with\nrelevance-based ranking metrics, such metrics may be insufficient to reflect\nthe retrieval's impact on the final RAG result, especially in long-form\ngeneration scenarios. We argue that providing a comprehensive\nretrieval-augmented context is important for long-form RAG tasks like report\ngeneration and propose metrics for assessing the context independent of\ngeneration. We introduce CRUX, a \\textbf{C}ontrolled\n\\textbf{R}etrieval-a\\textbf{U}gmented conte\\textbf{X}t evaluation framework\ndesigned to directly assess retrieval-augmented contexts. This framework uses\nhuman-written summaries to control the information scope of knowledge, enabling\nus to measure how well the context covers information essential for long-form\ngeneration. CRUX uses question-based evaluation to assess RAG's retrieval in a\nfine-grained manner. Empirical results show that CRUX offers more reflective\nand diagnostic evaluation. Our findings also reveal substantial room for\nimprovement in current retrieval methods, pointing to promising directions for\nadvancing RAG's retrieval. Our data and code are publicly available to support\nand advance future research on retrieval.",
+    "pdf_url": "http://arxiv.org/pdf/2506.20051v1",
+    "entry_id": "https://arxiv.org/abs/2506.20051v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Context Tuning for Retrieval Augmented Generation",
+    "authors": [
+      "Raviteja Anantha",
+      "Tharun Bethi",
+      "Danil Vodianik",
+      "Srinivas Chappidi"
+    ],
+    "published_date": "2023-12-09",
+    "summary": "Large language models (LLMs) have the remarkable ability to solve new tasks\nwith just a few examples, but they need access to the right tools. Retrieval\nAugmented Generation (RAG) addresses this problem by retrieving a list of\nrelevant tools for a given task. However, RAG's tool retrieval step requires\nall the required information to be explicitly present in the query. This is a\nlimitation, as semantic search, the widely adopted tool retrieval method, can\nfail when the query is incomplete or lacks context. To address this limitation,\nwe propose Context Tuning for RAG, which employs a smart context retrieval\nsystem to fetch relevant information that improves both tool retrieval and plan\ngeneration. Our lightweight context retrieval model uses numerical,\ncategorical, and habitual usage signals to retrieve and rank context items. Our\nempirical results demonstrate that context tuning significantly enhances\nsemantic search, achieving a 3.5-fold and 1.5-fold improvement in Recall@K for\ncontext retrieval and tool retrieval tasks respectively, and resulting in an\n11.6% increase in LLM-based planner accuracy. Additionally, we show that our\nproposed lightweight model using Reciprocal Rank Fusion (RRF) with LambdaMART\noutperforms GPT-4 based retrieval. Moreover, we observe context augmentation at\nplan generation, even after tool retrieval, reduces hallucination.",
+    "pdf_url": "http://arxiv.org/pdf/2312.05708v1",
+    "entry_id": "https://arxiv.org/abs/2312.05708v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "From Retrieval to Generation: Comparing Different Approaches",
+    "authors": [
+      "Abdelrahman Abdallah",
+      "Jamshid Mozafari",
+      "Bhawna Piryani",
+      "Mohammed Ali",
+      "Adam Jatowt"
+    ],
+    "published_date": "2025-02-27",
+    "summary": "Knowledge-intensive tasks, particularly open-domain question answering\n(ODQA), document reranking, and retrieval-augmented language modeling, require\na balance between retrieval accuracy and generative flexibility. Traditional\nretrieval models such as BM25 and Dense Passage Retrieval (DPR), efficiently\nretrieve from large corpora but often lack semantic depth. Generative models\nlike GPT-4-o provide richer contextual understanding but face challenges in\nmaintaining factual consistency. In this work, we conduct a systematic\nevaluation of retrieval-based, generation-based, and hybrid models, with a\nprimary focus on their performance in ODQA and related retrieval-augmented\ntasks. Our results show that dense retrievers, particularly DPR, achieve strong\nperformance in ODQA with a top-1 accuracy of 50.17\\% on NQ, while hybrid models\nimprove nDCG@10 scores on BEIR from 43.42 (BM25) to 52.59, demonstrating their\nstrength in document reranking. Additionally, we analyze language modeling\ntasks using WikiText-103, showing that retrieval-based approaches like BM25\nachieve lower perplexity compared to generative and hybrid methods,\nhighlighting their utility in retrieval-augmented generation. By providing\ndetailed comparisons and practical insights into the conditions where each\napproach excels, we aim to facilitate future optimizations in retrieval,\nreranking, and generative models for ODQA and related knowledge-intensive\napplications.",
+    "pdf_url": "http://arxiv.org/pdf/2502.20245v1",
+    "entry_id": "https://arxiv.org/abs/2502.20245v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Augmentation-Adapted Retriever Improves Generalization of Language Models as Generic Plug-In",
+    "authors": [
+      "Zichun Yu",
+      "Chenyan Xiong",
+      "Shi Yu",
+      "Zhiyuan Liu"
+    ],
+    "published_date": "2023-05-27",
+    "summary": "Retrieval augmentation can aid language models (LMs) in knowledge-intensive\ntasks by supplying them with external information. Prior works on retrieval\naugmentation usually jointly fine-tune the retriever and the LM, making them\nclosely coupled. In this paper, we explore the scheme of generic retrieval\nplug-in: the retriever is to assist target LMs that may not be known beforehand\nor are unable to be fine-tuned together. To retrieve useful documents for\nunseen target LMs, we propose augmentation-adapted retriever (AAR), which\nlearns LM's preferences obtained from a known source LM. Experiments on the\nMMLU and PopQA datasets demonstrate that our AAR trained with a small source LM\nis able to significantly improve the zero-shot generalization of larger target\nLMs ranging from 250M Flan-T5 to 175B InstructGPT. Further analysis indicates\nthat the preferences of different LMs overlap, enabling AAR trained with a\nsingle source LM to serve as a generic plug-in for various target LMs. Our code\nis open-sourced at https://github.com/OpenMatch/Augmentation-Adapted-Retriever.",
+    "pdf_url": "http://arxiv.org/pdf/2305.17331v1",
+    "entry_id": "https://arxiv.org/abs/2305.17331v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Optimizing Retrieval Augmented Generation for Object Constraint Language",
+    "authors": [
+      "Kevin Chenhao Li",
+      "Vahid Zolfaghari",
+      "Nenad Petrovic",
+      "Fengjunjie Pan",
+      "Alois Knoll"
+    ],
+    "published_date": "2025-05-19",
+    "summary": "The Object Constraint Language (OCL) is essential for defining precise\nconstraints within Model-Based Systems Engineering (MBSE). However, manually\nwriting OCL rules is complex and time-consuming. This study explores the\noptimization of Retrieval-Augmented Generation (RAG) for automating OCL rule\ngeneration, focusing on the impact of different retrieval strategies. We\nevaluate three retrieval approaches $\\unicode{x2013}$ BM25 (lexical-based),\nBERT-based (semantic retrieval), and SPLADE (sparse-vector retrieval)\n$\\unicode{x2013}$ analyzing their effectiveness in providing relevant context\nfor a large language model.\n  To further assess our approach, we compare and benchmark our\nretrieval-optimized generation results against PathOCL, a state-of-the-art\ngraph-based method. We directly compare BM25, BERT, and SPLADE retrieval\nmethods with PathOCL to understand how different retrieval methods perform for\na unified evaluation framework. Our experimental results, focusing on\nretrieval-augmented generation, indicate that while retrieval can enhance\ngeneration accuracy, its effectiveness depends on the retrieval method and the\nnumber of retrieved chunks (k). BM25 underperforms the baseline, whereas\nsemantic approaches (BERT and SPLADE) achieve better results, with SPLADE\nperforming best at lower k values. However, excessive retrieval with high k\nparameter can lead to retrieving irrelevant chunks which degrades model\nperformance. Our findings highlight the importance of optimizing retrieval\nconfigurations to balance context relevance and output consistency. This\nresearch provides insights into improving OCL rule generation using RAG and\nunderscores the need for tailoring retrieval.",
+    "pdf_url": "http://arxiv.org/pdf/2505.13129v1",
+    "entry_id": "https://arxiv.org/abs/2505.13129v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Enhancing Retrieval-Augmented LMs with a Two-stage Consistency Learning Compressor",
+    "authors": [
+      "Chuankai Xu",
+      "Dongming Zhao",
+      "Bo Wang",
+      "Hanwen Xing"
+    ],
+    "published_date": "2024-06-04",
+    "summary": "Despite the prevalence of retrieval-augmented language models (RALMs), the\nseamless integration of these models with retrieval mechanisms to enhance\nperformance in document-based tasks remains challenging. While some\npost-retrieval processing Retrieval-Augmented Generation (RAG) methods have\nachieved success, most still lack the ability to distinguish pertinent from\nextraneous information, leading to potential inconsistencies and reduced\nprecision in the generated output, which subsequently affects the truthfulness\nof the language model's responses. To address these limitations, this work\nproposes a novel two-stage consistency learning approach for retrieved\ninformation compression in retrieval-augmented language models to enhance\nperformance. By incorporating consistency learning, the aim is to generate\nsummaries that maintain coherence and alignment with the intended semantic\nrepresentations of a teacher model while improving faithfulness to the original\nretrieved documents. The proposed method is empirically validated across\nmultiple datasets, demonstrating notable enhancements in precision and\nefficiency for question-answering tasks. It outperforms existing baselines and\nshowcases the synergistic effects of combining contrastive and consistency\nlearning paradigms within the retrieval-augmented generation framework.",
+    "pdf_url": "http://arxiv.org/pdf/2406.02266v1",
+    "entry_id": "https://arxiv.org/abs/2406.02266v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Alleviating Hallucination in Large Vision-Language Models with Active Retrieval Augmentation",
+    "authors": [
+      "Xiaoye Qu",
+      "Qiyuan Chen",
+      "Wei Wei",
+      "Jishuo Sun",
+      "Jianfeng Dong"
+    ],
+    "published_date": "2024-08-01",
+    "summary": "Despite the remarkable ability of large vision-language models (LVLMs) in\nimage comprehension, these models frequently generate plausible yet factually\nincorrect responses, a phenomenon known as hallucination.Recently, in large\nlanguage models (LLMs), augmenting LLMs by retrieving information from external\nknowledge resources has been proven as a promising solution to mitigate\nhallucinations.However, the retrieval augmentation in LVLM significantly lags\nbehind the widespread applications of LVLM. Moreover, when transferred to\naugmenting LVLMs, sometimes the hallucination degree of the model is even\nexacerbated.Motivated by the research gap and counter-intuitive phenomenon, we\nintroduce a novel framework, the Active Retrieval-Augmented large\nvision-language model (ARA), specifically designed to address hallucinations by\nincorporating three critical dimensions: (i) dissecting the retrieval targets\nbased on the inherent hierarchical structures of images. (ii) pinpointing the\nmost effective retrieval methods and filtering out the reliable retrieval\nresults. (iii) timing the retrieval process to coincide with episodes of low\ncertainty, while circumventing unnecessary retrieval during periods of high\ncertainty. To assess the capability of our proposed ARA model in reducing\nhallucination, we employ three widely used LVLM models (LLaVA-1.5, Qwen-VL, and\nmPLUG-Owl2) across four benchmarks. Our empirical observations suggest that by\nutilizing fitting retrieval mechanisms and timing the retrieval judiciously, we\ncan effectively mitigate the hallucination problem. We hope that this study can\nprovide deeper insights into how to adapt the retrieval augmentation to LVLMs\nfor reducing hallucinations with more effective retrieval and minimal retrieval\noccurrences.",
+    "pdf_url": "http://arxiv.org/pdf/2408.00555v1",
+    "entry_id": "https://arxiv.org/abs/2408.00555v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "The 3rd Place Solution of CCIR CUP 2025: A Framework for Retrieval-Augmented Generation in Multi-Turn Legal Conversation",
+    "authors": [
+      "Da Li",
+      "Zecheng Fang",
+      "Qiang Yan",
+      "Wei Huang",
+      "Xuanpu Luo"
+    ],
+    "published_date": "2025-10-17",
+    "summary": "Retrieval-Augmented Generation has made significant progress in the field of\nnatural language processing. By combining the advantages of information\nretrieval and large language models, RAG can generate relevant and contextually\nappropriate responses based on items retrieved from reliable sources. This\ntechnology has demonstrated outstanding performance across multiple domains,\nbut its application in the legal field remains in its exploratory phase. In\nthis paper, we introduce our approach for \"Legal Knowledge Retrieval and\nGeneration\" in CCIR CUP 2025, which leverages large language models and\ninformation retrieval systems to provide responses based on laws in response to\nuser questions.",
+    "pdf_url": "http://arxiv.org/pdf/2510.15722v1",
+    "entry_id": "https://arxiv.org/abs/2510.15722v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Can neural machine translation do simultaneous translation?",
+    "authors": [
+      "Kyunghyun Cho",
+      "Masha Esipova"
+    ],
+    "published_date": "2016-06-07",
+    "summary": "We investigate the potential of attention-based neural machine translation in\nsimultaneous translation. We introduce a novel decoding algorithm, called\nsimultaneous greedy decoding, that allows an existing neural machine\ntranslation model to begin translating before a full source sentence is\nreceived. This approach is unique from previous works on simultaneous\ntranslation in that segmentation and translation are done jointly to maximize\nthe translation quality and that translating each segment is strongly\nconditioned on all the previous segments. This paper presents a first step\ntoward building a full simultaneous translation system based on neural machine\ntranslation.",
+    "pdf_url": "http://arxiv.org/pdf/1606.02012v1",
+    "entry_id": "https://arxiv.org/abs/1606.02012v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Six Challenges for Neural Machine Translation",
+    "authors": [
+      "Philipp Koehn",
+      "Rebecca Knowles"
+    ],
+    "published_date": "2017-06-12",
+    "summary": "We explore six challenges for neural machine translation: domain mismatch,\namount of training data, rare words, long sentences, word alignment, and beam\nsearch. We show both deficiencies and improvements over the quality of\nphrase-based statistical machine translation.",
+    "pdf_url": "http://arxiv.org/pdf/1706.03872v1",
+    "entry_id": "https://arxiv.org/abs/1706.03872v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Pre-Translation for Neural Machine Translation",
+    "authors": [
+      "Jan Niehues",
+      "Eunah Cho",
+      "Thanh-Le Ha",
+      "Alex Waibel"
+    ],
+    "published_date": "2016-10-17",
+    "summary": "Recently, the development of neural machine translation (NMT) has\nsignificantly improved the translation quality of automatic machine\ntranslation. While most sentences are more accurate and fluent than\ntranslations by statistical machine translation (SMT)-based systems, in some\ncases, the NMT system produces translations that have a completely different\nmeaning. This is especially the case when rare words occur.\n  When using statistical machine translation, it has already been shown that\nsignificant gains can be achieved by simplifying the input in a preprocessing\nstep. A commonly used example is the pre-reordering approach.\n  In this work, we used phrase-based machine translation to pre-translate the\ninput into the target language. Then a neural machine translation system\ngenerates the final hypothesis using the pre-translation. Thereby, we use\neither only the output of the phrase-based machine translation (PBMT) system or\na combination of the PBMT output and the source sentence.\n  We evaluate the technique on the English to German translation task. Using\nthis approach we are able to outperform the PBMT system as well as the baseline\nneural MT system by up to 2 BLEU points. We analyzed the influence of the\nquality of the initial system on the final result.",
+    "pdf_url": "http://arxiv.org/pdf/1610.05243v1",
+    "entry_id": "https://arxiv.org/abs/1610.05243v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Neural-based machine translation for medical text domain. Based on European Medicines Agency leaflet texts",
+    "authors": [
+      "Krzysztof Wołk",
+      "Krzysztof Marasek"
+    ],
+    "published_date": "2015-09-29",
+    "summary": "The quality of machine translation is rapidly evolving. Today one can find\nseveral machine translation systems on the web that provide reasonable\ntranslations, although the systems are not perfect. In some specific domains,\nthe quality may decrease. A recently proposed approach to this domain is neural\nmachine translation. It aims at building a jointly-tuned single neural network\nthat maximizes translation performance, a very different approach from\ntraditional statistical machine translation. Recently proposed neural machine\ntranslation models often belong to the encoder-decoder family in which a source\nsentence is encoded into a fixed length vector that is, in turn, decoded to\ngenerate a translation. The present research examines the effects of different\ntraining methods on a Polish-English Machine Translation system used for\nmedical data. The European Medicines Agency parallel text corpus was used as\nthe basis for training of neural and statistical network-based translation\nsystems. The main machine translation evaluation metrics have also been used in\nanalysis of the systems. A comparison and implementation of a real-time medical\ntranslator is the main focus of our experiments.",
+    "pdf_url": "http://arxiv.org/pdf/1509.08644v1",
+    "entry_id": "https://arxiv.org/abs/1509.08644v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Learning to Parse and Translate Improves Neural Machine Translation",
+    "authors": [
+      "Akiko Eriguchi",
+      "Yoshimasa Tsuruoka",
+      "Kyunghyun Cho"
+    ],
+    "published_date": "2017-02-12",
+    "summary": "There has been relatively little attention to incorporating linguistic prior\nto neural machine translation. Much of the previous work was further\nconstrained to considering linguistic prior on the source side. In this paper,\nwe propose a hybrid model, called NMT+RNNG, that learns to parse and translate\nby combining the recurrent neural network grammar into the attention-based\nneural machine translation. Our approach encourages the neural machine\ntranslation model to incorporate linguistic prior during training, and lets it\ntranslate on its own afterward. Extensive experiments with four language pairs\nshow the effectiveness of the proposed NMT+RNNG.",
+    "pdf_url": "http://arxiv.org/pdf/1702.03525v2",
+    "entry_id": "https://arxiv.org/abs/1702.03525v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Extended Parallel Corpus for Amharic-English Machine Translation",
+    "authors": [
+      "Andargachew Mekonnen Gezmu",
+      "Andreas Nürnberger",
+      "Tesfaye Bayu Bati"
+    ],
+    "published_date": "2021-04-08",
+    "summary": "This paper describes the acquisition, preprocessing, segmentation, and\nalignment of an Amharic-English parallel corpus. It will be helpful for machine\ntranslation of a low-resource language, Amharic. We freely released the corpus\nfor research purposes. Furthermore, we developed baseline statistical and\nneural machine translation systems; we trained statistical and neural machine\ntranslation models using the corpus. In the experiments, we also used a large\nmonolingual corpus for the language model of statistical machine translation\nand back-translation of neural machine translation. In the automatic\nevaluation, neural machine translation models outperform statistical machine\ntranslation models by approximately six to seven Bilingual Evaluation\nUnderstudy (BLEU) points. Besides, among the neural machine translation models,\nthe subword models outperform the word-based models by three to four BLEU\npoints. Moreover, two other relevant automatic evaluation metrics, Translation\nEdit Rate on Character Level and Better Evaluation as Ranking, reflect\ncorresponding differences among the trained models.",
+    "pdf_url": "http://arxiv.org/pdf/2104.03543v3",
+    "entry_id": "https://arxiv.org/abs/2104.03543v3",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Overcoming the Curse of Sentence Length for Neural Machine Translation using Automatic Segmentation",
+    "authors": [
+      "Jean Pouget-Abadie",
+      "Dzmitry Bahdanau",
+      "Bart van Merrienboer",
+      "Kyunghyun Cho",
+      "Yoshua Bengio"
+    ],
+    "published_date": "2014-09-03",
+    "summary": "The authors of (Cho et al., 2014a) have shown that the recently introduced\nneural network translation systems suffer from a significant drop in\ntranslation quality when translating long sentences, unlike existing\nphrase-based translation systems. In this paper, we propose a way to address\nthis issue by automatically segmenting an input sentence into phrases that can\nbe easily translated by the neural network translation model. Once each segment\nhas been independently translated by the neural machine translation model, the\ntranslated clauses are concatenated to form a final translation. Empirical\nresults show a significant improvement in translation quality for long\nsentences.",
+    "pdf_url": "http://arxiv.org/pdf/1409.1257v2",
+    "entry_id": "https://arxiv.org/abs/1409.1257v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Neural Machine Translation",
+    "authors": [
+      "Philipp Koehn"
+    ],
+    "published_date": "2017-09-22",
+    "summary": "Draft of textbook chapter on neural machine translation. a comprehensive\ntreatment of the topic, ranging from introduction to neural networks,\ncomputation graphs, description of the currently dominant attentional\nsequence-to-sequence model, recent refinements, alternative architectures and\nchallenges. Written as chapter for the textbook Statistical Machine\nTranslation. Used in the JHU Fall 2017 class on machine translation.",
+    "pdf_url": "http://arxiv.org/pdf/1709.07809v1",
+    "entry_id": "https://arxiv.org/abs/1709.07809v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Neural Machine Translation model for University Email Application",
+    "authors": [
+      "Sandhya Aneja",
+      "Siti Nur Afikah Bte Abdul Mazid",
+      "Nagender Aneja"
+    ],
+    "published_date": "2020-07-20",
+    "summary": "Machine translation has many applications such as news translation, email\ntranslation, official letter translation etc. Commercial translators, e.g.\nGoogle Translation lags in regional vocabulary and are unable to learn the\nbilingual text in the source and target languages within the input. In this\npaper, a regional vocabulary-based application-oriented Neural Machine\nTranslation (NMT) model is proposed over the data set of emails used at the\nUniversity for communication over a period of three years. A state-of-the-art\nSequence-to-Sequence Neural Network for ML -> EN and EN -> ML translations is\ncompared with Google Translate using Gated Recurrent Unit Recurrent Neural\nNetwork machine translation model with attention decoder. The low BLEU score of\nGoogle Translation in comparison to our model indicates that the application\nbased regional models are better. The low BLEU score of EN -> ML of our model\nand Google Translation indicates that the Malay Language has complex language\nfeatures corresponding to English.",
+    "pdf_url": "http://arxiv.org/pdf/2007.16011v1",
+    "entry_id": "https://arxiv.org/abs/2007.16011v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Zero-Resource Translation with Multi-Lingual Neural Machine Translation",
+    "authors": [
+      "Orhan Firat",
+      "Baskaran Sankaran",
+      "Yaser Al-Onaizan",
+      "Fatos T. Yarman Vural",
+      "Kyunghyun Cho"
+    ],
+    "published_date": "2016-06-13",
+    "summary": "In this paper, we propose a novel finetuning algorithm for the recently\nintroduced multi-way, mulitlingual neural machine translate that enables\nzero-resource machine translation. When used together with novel many-to-one\ntranslation strategies, we empirically show that this finetuning algorithm\nallows the multi-way, multilingual model to translate a zero-resource language\npair (1) as well as a single-pair neural translation model trained with up to\n1M direct parallel sentences of the same language pair and (2) better than\npivot-based translation strategy, while keeping only one additional copy of\nattention-related parameters.",
+    "pdf_url": "http://arxiv.org/pdf/1606.04164v1",
+    "entry_id": "https://arxiv.org/abs/1606.04164v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Lexically Cohesive Neural Machine Translation with Copy Mechanism",
+    "authors": [
+      "Vipul Mishra",
+      "Chenhui Chu",
+      "Yuki Arase"
+    ],
+    "published_date": "2020-10-11",
+    "summary": "Lexically cohesive translations preserve consistency in word choices in\ndocument-level translation. We employ a copy mechanism into a context-aware\nneural machine translation model to allow copying words from previous\ntranslation outputs. Different from previous context-aware neural machine\ntranslation models that handle all the discourse phenomena implicitly, our\nmodel explicitly addresses the lexical cohesion problem by boosting the\nprobabilities to output words consistently. We conduct experiments on Japanese\nto English translation using an evaluation dataset for discourse translation.\nThe results showed that the proposed model significantly improved lexical\ncohesion compared to previous context-aware models.",
+    "pdf_url": "http://arxiv.org/pdf/2010.05193v1",
+    "entry_id": "https://arxiv.org/abs/2010.05193v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Comparing Formulaic Language in Human and Machine Translation: Insight from a Parliamentary Corpus",
+    "authors": [
+      "Yves Bestgen"
+    ],
+    "published_date": "2022-06-22",
+    "summary": "A recent study has shown that, compared to human translations, neural machine\ntranslations contain more strongly-associated formulaic sequences made of\nrelatively high-frequency words, but far less strongly-associated formulaic\nsequences made of relatively rare words. These results were obtained on the\nbasis of translations of quality newspaper articles in which human translations\ncan be thought to be not very literal. The present study attempts to replicate\nthis research using a parliamentary corpus. The text were translated from\nFrench to English by three well-known neural machine translation systems:\nDeepL, Google Translate and Microsoft Translator. The results confirm the\nobservations on the news corpus, but the differences are less strong. They\nsuggest that the use of text genres that usually result in more literal\ntranslations, such as parliamentary corpora, might be preferable when comparing\nhuman and machine translations. Regarding the differences between the three\nneural machine systems, it appears that Google translations contain fewer\nhighly collocational bigrams, identified by the CollGram technique, than Deepl\nand Microsoft translations.",
+    "pdf_url": "http://arxiv.org/pdf/2206.10919v1",
+    "entry_id": "https://arxiv.org/abs/2206.10919v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Neural Machine Translation: A Review and Survey",
+    "authors": [
+      "Felix Stahlberg"
+    ],
+    "published_date": "2019-12-04",
+    "summary": "The field of machine translation (MT), the automatic translation of written\ntext from one natural language into another, has experienced a major paradigm\nshift in recent years. Statistical MT, which mainly relies on various\ncount-based models and which used to dominate MT research for decades, has\nlargely been superseded by neural machine translation (NMT), which tackles\ntranslation with a single neural network. In this work we will trace back the\norigins of modern NMT architectures to word and sentence embeddings and earlier\nexamples of the encoder-decoder network family. We will conclude with a survey\nof recent trends in the field.",
+    "pdf_url": "http://arxiv.org/pdf/1912.02047v2",
+    "entry_id": "https://arxiv.org/abs/1912.02047v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Using CollGram to Compare Formulaic Language in Human and Neural Machine Translation",
+    "authors": [
+      "Yves Bestgen"
+    ],
+    "published_date": "2021-07-08",
+    "summary": "A comparison of formulaic sequences in human and neural machine translation\nof quality newspaper articles shows that neural machine translations contain\nless lower-frequency, but strongly-associated formulaic sequences, and more\nhigh-frequency formulaic sequences. These differences were statistically\nsignificant and the effect sizes were almost always medium or large. These\nobservations can be related to the differences between second language learners\nof various levels and between translated and untranslated texts. The comparison\nbetween the neural machine translation systems indicates that some systems\nproduce more formulaic sequences of both types than other systems.",
+    "pdf_url": "http://arxiv.org/pdf/2107.03625v2",
+    "entry_id": "https://arxiv.org/abs/2107.03625v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Testing Machine Translation via Referential Transparency",
+    "authors": [
+      "Pinjia He",
+      "Clara Meister",
+      "Zhendong Su"
+    ],
+    "published_date": "2020-04-22",
+    "summary": "Machine translation software has seen rapid progress in recent years due to\nthe advancement of deep neural networks. People routinely use machine\ntranslation software in their daily lives, such as ordering food in a foreign\nrestaurant, receiving medical diagnosis and treatment from foreign doctors, and\nreading international political news online. However, due to the complexity and\nintractability of the underlying neural networks, modern machine translation\nsoftware is still far from robust and can produce poor or incorrect\ntranslations; this can lead to misunderstanding, financial loss, threats to\npersonal safety and health, and political conflicts. To address this problem,\nwe introduce referentially transparent inputs (RTIs), a simple, widely\napplicable methodology for validating machine translation software. A\nreferentially transparent input is a piece of text that should have similar\ntranslations when used in different contexts. Our practical implementation,\nPurity, detects when this property is broken by a translation. To evaluate RTI,\nwe use Purity to test Google Translate and Bing Microsoft Translator with 200\nunlabeled sentences, which detected 123 and 142 erroneous translations with\nhigh precision (79.3% and 78.3%). The translation errors are diverse, including\nexamples of under-translation, over-translation, word/phrase mistranslation,\nincorrect modification, and unclear logic.",
+    "pdf_url": "http://arxiv.org/pdf/2004.10361v2",
+    "entry_id": "https://arxiv.org/abs/2004.10361v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Reverse Question Answering: Can an LLM Write a Question so Hard (or Bad) that it Can't Answer?",
+    "authors": [
+      "Nishant Balepur",
+      "Feng Gu",
+      "Abhilasha Ravichander",
+      "Shi Feng",
+      "Jordan Boyd-Graber",
+      "Rachel Rudinger"
+    ],
+    "published_date": "2024-10-20",
+    "summary": "Question answering (QA), giving correct answers to questions, is a popular\ntask, but we test reverse question answering (RQA): for an input answer, give a\nquestion with that answer. Past work tests QA and RQA separately, but we test\nthem jointly, comparing their difficulty, aiding benchmark design, and checking\nreasoning consistency. We run 16 LLMs on QA and RQA with trivia\nquestions/answers, revealing: 1) Versus QA, LLMs are much less accurate in RQA\nfor numerical answers, but slightly more accurate in RQA for textual answers;\n2) LLMs often answer their own invalid questions from RQA accurately in QA, so\nRQA errors are not from knowledge gaps alone; 3) RQA errors correlate with\nquestion difficulty and inversely correlate with answer frequencies in the\nDolma corpus; and 4) LLMs struggle to provide valid multi-hop questions. By\nfinding question and answer types that lead to RQA errors, we suggest\nimprovements for LLM reasoning.",
+    "pdf_url": "http://arxiv.org/pdf/2410.15512v2",
+    "entry_id": "https://arxiv.org/abs/2410.15512v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Learning to answer questions",
+    "authors": [
+      "Ana Cristina Mendes",
+      "Luísa Coheur",
+      "Sérgio Curto"
+    ],
+    "published_date": "2013-09-04",
+    "summary": "We present an open-domain Question-Answering system that learns to answer\nquestions based on successful past interactions. We follow a pattern-based\napproach to Answer-Extraction, where (lexico-syntactic) patterns that relate a\nquestion to its answer are automatically learned and used to answer future\nquestions. Results show that our approach contributes to the system's best\nperformance when it is conjugated with typical Answer-Extraction strategies.\nMoreover, it allows the system to learn with the answered questions and to\nrectify wrong or unsolved past questions.",
+    "pdf_url": "http://arxiv.org/pdf/1309.1125v1",
+    "entry_id": "https://arxiv.org/abs/1309.1125v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Enhancing Answer Selection in Community Question Answering with Pre-trained and Large Language Models",
+    "authors": [
+      "Xinghang Hu"
+    ],
+    "published_date": "2023-11-29",
+    "summary": "Community Question Answering (CQA) becomes increasingly prevalent in recent\nyears. However, there are a large number of answers, which is difficult for\nusers to select the relevant answers. Therefore, answer selection is a very\nsignificant subtask of CQA. In this paper, we first propose the Question-Answer\ncross attention networks (QAN) with pre-trained models for answer selection and\nutilize large language model (LLM) to perform answer selection with knowledge\naugmentation. Specifically, we apply the BERT model as the encoder layer to do\npre-training for question subjects, question bodies and answers, respectively,\nthen the cross attention mechanism selects the most relevant answer for\ndifferent questions. Experiments show that the QAN model achieves\nstate-of-the-art performance on two datasets, SemEval2015 and SemEval2017.\nMoreover, we use the LLM to generate external knowledge from questions and\ncorrect answers to achieve knowledge augmentation for the answer selection task\nby LLM, while optimizing the prompt of LLM in different aspects. The results\nshow that the introduction of external knowledge can improve the correct answer\nselection rate of LLM on datasets SemEval2015 and SemEval2017. Meanwhile, LLM\ncan also select the correct answer on more questions by optimized prompt.",
+    "pdf_url": "http://arxiv.org/pdf/2311.17502v1",
+    "entry_id": "https://arxiv.org/abs/2311.17502v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "QAMPARI: An Open-domain Question Answering Benchmark for Questions with Many Answers from Multiple Paragraphs",
+    "authors": [
+      "Samuel Joseph Amouyal",
+      "Tomer Wolfson",
+      "Ohad Rubin",
+      "Ori Yoran",
+      "Jonathan Herzig",
+      "Jonathan Berant"
+    ],
+    "published_date": "2022-05-25",
+    "summary": "Existing benchmarks for open-domain question answering (ODQA) typically focus\non questions whose answers can be extracted from a single paragraph. By\ncontrast, many natural questions, such as \"What players were drafted by the\nBrooklyn Nets?\" have a list of answers. Answering such questions requires\nretrieving and reading from many passages, in a large corpus. We introduce\nQAMPARI, an ODQA benchmark, where question answers are lists of entities,\nspread across many paragraphs. We created QAMPARI by (a) generating questions\nwith multiple answers from Wikipedia's knowledge graph and tables, (b)\nautomatically pairing answers with supporting evidence in Wikipedia paragraphs,\nand (c) manually paraphrasing questions and validating each answer. We train\nODQA models from the retrieve-and-read family and find that QAMPARI is\nchallenging in terms of both passage retrieval and answer generation, reaching\nan F1 score of 32.8 at best. Our results highlight the need for developing ODQA\nmodels that handle a broad range of question types, including single and\nmulti-answer questions.",
+    "pdf_url": "http://arxiv.org/pdf/2205.12665v4",
+    "entry_id": "https://arxiv.org/abs/2205.12665v4",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Generating Answer Candidates for Quizzes and Answer-Aware Question Generators",
+    "authors": [
+      "Kristiyan Vachev",
+      "Momchil Hardalov",
+      "Georgi Karadzhov",
+      "Georgi Georgiev",
+      "Ivan Koychev",
+      "Preslav Nakov"
+    ],
+    "published_date": "2021-08-29",
+    "summary": "In education, open-ended quiz questions have become an important tool for\nassessing the knowledge of students. Yet, manually preparing such questions is\na tedious task, and thus automatic question generation has been proposed as a\npossible alternative. So far, the vast majority of research has focused on\ngenerating the question text, relying on question answering datasets with\nreadily picked answers, and the problem of how to come up with answer\ncandidates in the first place has been largely ignored. Here, we aim to bridge\nthis gap. In particular, we propose a model that can generate a specified\nnumber of answer candidates for a given passage of text, which can then be used\nby instructors to write questions manually or can be passed as an input to\nautomatic answer-aware question generators. Our experiments show that our\nproposed answer candidate generation model outperforms several baselines.",
+    "pdf_url": "http://arxiv.org/pdf/2108.12898v1",
+    "entry_id": "https://arxiv.org/abs/2108.12898v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "The combination of context information to enhance simple question answering",
+    "authors": [
+      "Zhaohui Chao",
+      "Lin Li"
+    ],
+    "published_date": "2018-10-09",
+    "summary": "With the rapid development of knowledge base,question answering based on\nknowledge base has been a hot research issue. In this paper, we focus on\nanswering singlerelation factoid questions based on knowledge base. We build a\nquestion answering system and study the effect of context information on fact\nselection, such as entity's notable type,outdegree. Experimental results show\nthat context information can improve the result of simple question answering.",
+    "pdf_url": "http://arxiv.org/pdf/1810.04000v1",
+    "entry_id": "https://arxiv.org/abs/1810.04000v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Do Multi-Hop Question Answering Systems Know How to Answer the Single-Hop Sub-Questions?",
+    "authors": [
+      "Yixuan Tang",
+      "Hwee Tou Ng",
+      "Anthony K. H. Tung"
+    ],
+    "published_date": "2020-02-23",
+    "summary": "Multi-hop question answering (QA) requires a model to retrieve and integrate\ninformation from different parts of a long text to answer a question. Humans\nanswer this kind of complex questions via a divide-and-conquer approach. In\nthis paper, we investigate whether top-performing models for multi-hop\nquestions understand the underlying sub-questions like humans. We adopt a\nneural decomposition model to generate sub-questions for a multi-hop complex\nquestion, followed by extracting the corresponding sub-answers. We show that\nmultiple state-of-the-art multi-hop QA models fail to correctly answer a large\nportion of sub-questions, although their corresponding multi-hop questions are\ncorrectly answered. This indicates that these models manage to answer the\nmulti-hop questions using some partial clues, instead of truly understanding\nthe reasoning paths. We also propose a new model which significantly improves\nthe performance on answering the sub-questions. Our work takes a step forward\ntowards building a more explainable multi-hop QA system.",
+    "pdf_url": "http://arxiv.org/pdf/2002.09919v2",
+    "entry_id": "https://arxiv.org/abs/2002.09919v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Co-VQA : Answering by Interactive Sub Question Sequence",
+    "authors": [
+      "Ruonan Wang",
+      "Yuxi Qian",
+      "Fangxiang Feng",
+      "Xiaojie Wang",
+      "Huixing Jiang"
+    ],
+    "published_date": "2022-04-02",
+    "summary": "Most existing approaches to Visual Question Answering (VQA) answer questions\ndirectly, however, people usually decompose a complex question into a sequence\nof simple sub questions and finally obtain the answer to the original question\nafter answering the sub question sequence(SQS). By simulating the process, this\npaper proposes a conversation-based VQA (Co-VQA) framework, which consists of\nthree components: Questioner, Oracle, and Answerer. Questioner raises the sub\nquestions using an extending HRED model, and Oracle answers them one-by-one. An\nAdaptive Chain Visual Reasoning Model (ACVRM) for Answerer is also proposed,\nwhere the question-answer pair is used to update the visual representation\nsequentially. To perform supervised learning for each model, we introduce a\nwell-designed method to build a SQS for each question on VQA 2.0 and VQA-CP v2\ndatasets. Experimental results show that our method achieves state-of-the-art\non VQA-CP v2. Further analyses show that SQSs help build direct semantic\nconnections between questions and images, provide question-adaptive\nvariable-length reasoning chains, and with explicit interpretability as well as\nerror traceability.",
+    "pdf_url": "http://arxiv.org/pdf/2204.00879v1",
+    "entry_id": "https://arxiv.org/abs/2204.00879v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Conversational QA Dataset Generation with Answer Revision",
+    "authors": [
+      "Seonjeong Hwang",
+      "Gary Geunbae Lee"
+    ],
+    "published_date": "2022-09-23",
+    "summary": "Conversational question--answer generation is a task that automatically\ngenerates a large-scale conversational question answering dataset based on\ninput passages. In this paper, we introduce a novel framework that extracts\nquestion-worthy phrases from a passage and then generates corresponding\nquestions considering previous conversations. In particular, our framework\nrevises the extracted answers after generating questions so that answers\nexactly match paired questions. Experimental results show that our simple\nanswer revision approach leads to significant improvement in the quality of\nsynthetic data. Moreover, we prove that our framework can be effectively\nutilized for domain adaptation of conversational question answering.",
+    "pdf_url": "http://arxiv.org/pdf/2209.11396v1",
+    "entry_id": "https://arxiv.org/abs/2209.11396v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Less is More: Rejecting Unreliable Reviews for Product Question Answering",
+    "authors": [
+      "Shiwei Zhang",
+      "Xiuzhen Zhang",
+      "Jey Han Lau",
+      "Jeffrey Chan",
+      "Cecile Paris"
+    ],
+    "published_date": "2020-07-09",
+    "summary": "Promptly and accurately answering questions on products is important for\ne-commerce applications. Manually answering product questions (e.g. on\ncommunity question answering platforms) results in slow response and does not\nscale. Recent studies show that product reviews are a good source for\nreal-time, automatic product question answering (PQA). In the literature, PQA\nis formulated as a retrieval problem with the goal to search for the most\nrelevant reviews to answer a given product question. In this paper, we focus on\nthe issue of answerability and answer reliability for PQA using reviews. Our\ninvestigation is based on the intuition that many questions may not be\nanswerable with a finite set of reviews. When a question is not answerable, a\nsystem should return nil answers rather than providing a list of irrelevant\nreviews, which can have significant negative impact on user experience.\nMoreover, for answerable questions, only the most relevant reviews that answer\nthe question should be included in the result. We propose a conformal\nprediction based framework to improve the reliability of PQA systems, where we\nreject unreliable answers so that the returned results are more concise and\naccurate at answering the product question, including returning nil answers for\nunanswerable questions. Experiments on a widely used Amazon dataset show\nencouraging results of our proposed framework. More broadly, our results\ndemonstrate a novel and effective application of conformal methods to a\nretrieval task.",
+    "pdf_url": "http://arxiv.org/pdf/2007.04526v1",
+    "entry_id": "https://arxiv.org/abs/2007.04526v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Crossing Variational Autoencoders for Answer Retrieval",
+    "authors": [
+      "Wenhao Yu",
+      "Lingfei Wu",
+      "Qingkai Zeng",
+      "Shu Tao",
+      "Yu Deng",
+      "Meng Jiang"
+    ],
+    "published_date": "2020-05-06",
+    "summary": "Answer retrieval is to find the most aligned answer from a large set of\ncandidates given a question. Learning vector representations of\nquestions/answers is the key factor. Question-answer alignment and\nquestion/answer semantics are two important signals for learning the\nrepresentations. Existing methods learned semantic representations with dual\nencoders or dual variational auto-encoders. The semantic information was\nlearned from language models or question-to-question (answer-to-answer)\ngenerative processes. However, the alignment and semantics were too separate to\ncapture the aligned semantics between question and answer. In this work, we\npropose to cross variational auto-encoders by generating questions with aligned\nanswers and generating answers with aligned questions. Experiments show that\nour method outperforms the state-of-the-art answer retrieval method on SQuAD.",
+    "pdf_url": "http://arxiv.org/pdf/2005.02557v2",
+    "entry_id": "https://arxiv.org/abs/2005.02557v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Answer Ranking for Product-Related Questions via Multiple Semantic Relations Modeling",
+    "authors": [
+      "Wenxuan Zhang",
+      "Yang Deng",
+      "Wai Lam"
+    ],
+    "published_date": "2020-06-28",
+    "summary": "Many E-commerce sites now offer product-specific question answering platforms\nfor users to communicate with each other by posting and answering questions\nduring online shopping. However, the multiple answers provided by ordinary\nusers usually vary diversely in their qualities and thus need to be\nappropriately ranked for each question to improve user satisfaction. It can be\nobserved that product reviews usually provide useful information for a given\nquestion, and thus can assist the ranking process. In this paper, we\ninvestigate the answer ranking problem for product-related questions, with the\nrelevant reviews treated as auxiliary information that can be exploited for\nfacilitating the ranking. We propose an answer ranking model named MUSE which\ncarefully models multiple semantic relations among the question, answers, and\nrelevant reviews. Specifically, MUSE constructs a multi-semantic relation graph\nwith the question, each answer, and each review snippet as nodes. Then a\ncustomized graph convolutional neural network is designed for explicitly\nmodeling the semantic relevance between the question and answers, the content\nconsistency among answers, and the textual entailment between answers and\nreviews. Extensive experiments on real-world E-commerce datasets across three\nproduct categories show that our proposed model achieves superior performance\non the concerned answer ranking task.",
+    "pdf_url": "http://arxiv.org/pdf/2006.15599v1",
+    "entry_id": "https://arxiv.org/abs/2006.15599v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "On Two Related Questions of Wilf Concerning Standard Young Tableaux",
+    "authors": [
+      "Miklos Bona"
+    ],
+    "published_date": "2008-05-16",
+    "summary": "We consider two questions of Wilf related to Standard Young Tableaux. We\nprovide a partial answer to one question, and that will lead us to a more\ngeneral answer to the other question. Our answers are purely combinatorial.",
+    "pdf_url": "http://arxiv.org/pdf/0805.2590v2",
+    "entry_id": "https://arxiv.org/abs/0805.2590v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Learning to Order Sub-questions for Complex Question Answering",
+    "authors": [
+      "Yunan Zhang",
+      "Xiang Cheng",
+      "Yufeng Zhang",
+      "Zihan Wang",
+      "Zhengqi Fang",
+      "Xiaoyan Wang",
+      "Zhenya Huang",
+      "Chengxiang Zhai"
+    ],
+    "published_date": "2019-11-11",
+    "summary": "Answering complex questions involving multiple entities and relations is a\nchallenging task. Logically, the answer to a complex question should be derived\nby decomposing the complex question into multiple simple sub-questions and then\nanswering those sub-questions. Existing work has followed this strategy but has\nnot attempted to optimize the order of how those sub-questions are answered. As\na result, the sub-questions are answered in an arbitrary order, leading to\nlarger search space and a higher risk of missing an answer. In this paper, we\npropose a novel reinforcement learning(RL) approach to answering complex\nquestions that can learn a policy to dynamically decide which sub-question\nshould be answered at each stage of reasoning. We lever-age the expected\nvalue-variance criterion to enable the learned policy to balance between the\nrisk and utility of answering a sub-question. Experiment results show that the\nRL approach can substantially improve the optimality of ordering the\nsub-questions, leading to improved accuracy of question answering. The proposed\nmethod for learning to order sub-questions is general and can thus be\npotentially combined with many existing ideas for answering complex questions\nto enhance their performance.",
+    "pdf_url": "http://arxiv.org/pdf/1911.04065v2",
+    "entry_id": "https://arxiv.org/abs/1911.04065v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Answering Product-Questions by Utilizing Questions from Other Contextually Similar Products",
+    "authors": [
+      "Ohad Rozen",
+      "David Carmel",
+      "Avihai Mejer",
+      "Vitaly Mirkis",
+      "Yftah Ziser"
+    ],
+    "published_date": "2021-05-19",
+    "summary": "Predicting the answer to a product-related question is an emerging field of\nresearch that recently attracted a lot of attention. Answering subjective and\nopinion-based questions is most challenging due to the dependency on\ncustomer-generated content. Previous works mostly focused on review-aware\nanswer prediction; however, these approaches fail for new or unpopular\nproducts, having no (or only a few) reviews at hand. In this work, we propose a\nnovel and complementary approach for predicting the answer for such questions,\nbased on the answers for similar questions asked on similar products. We\nmeasure the contextual similarity between products based on the answers they\nprovide for the same question. A mixture-of-expert framework is used to predict\nthe answer by aggregating the answers from contextually similar products.\nEmpirical results demonstrate that our model outperforms strong baselines on\nsome segments of questions, namely those that have roughly ten or more similar\nresolved questions in the corpus. We additionally publish two large-scale\ndatasets used in this work, one is of similar product question pairs, and the\nsecond is of product question-answer pairs.",
+    "pdf_url": "http://arxiv.org/pdf/2105.08956v1",
+    "entry_id": "https://arxiv.org/abs/2105.08956v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "AI Agents and Agentic AI-Navigating a Plethora of Concepts for Future Manufacturing",
+    "authors": [
+      "Yinwang Ren",
+      "Yangyang Liu",
+      "Tang Ji",
+      "Xun Xu"
+    ],
+    "published_date": "2025-07-02",
+    "summary": "AI agents are autonomous systems designed to perceive, reason, and act within\ndynamic environments. With the rapid advancements in generative AI (GenAI),\nlarge language models (LLMs) and multimodal large language models (MLLMs) have\nsignificantly improved AI agents' capabilities in semantic comprehension,\ncomplex reasoning, and autonomous decision-making. At the same time, the rise\nof Agentic AI highlights adaptability and goal-directed autonomy in dynamic and\ncomplex environments. LLMs-based AI Agents (LLM-Agents), MLLMs-based AI Agents\n(MLLM-Agents), and Agentic AI contribute to expanding AI's capabilities in\ninformation processing, environmental perception, and autonomous\ndecision-making, opening new avenues for smart manufacturing. However, the\ndefinitions, capability boundaries, and practical applications of these\nemerging AI paradigms in smart manufacturing remain unclear. To address this\ngap, this study systematically reviews the evolution of AI and AI agent\ntechnologies, examines the core concepts and technological advancements of\nLLM-Agents, MLLM-Agents, and Agentic AI, and explores their potential\napplications in and integration into manufacturing, along with the potential\nchallenges they may face.",
+    "pdf_url": "http://arxiv.org/pdf/2507.01376v1",
+    "entry_id": "https://arxiv.org/abs/2507.01376v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Responsible AI Agents",
+    "authors": [
+      "Deven R. Desai",
+      "Mark O. Riedl"
+    ],
+    "published_date": "2025-02-25",
+    "summary": "Thanks to advances in large language models, a new type of software agent,\nthe artificial intelligence (AI) agent, has entered the marketplace. Companies\nsuch as OpenAI, Google, Microsoft, and Salesforce promise their AI Agents will\ngo from generating passive text to executing tasks. Instead of a travel\nitinerary, an AI Agent would book all aspects of your trip. Instead of\ngenerating text or images for social media post, an AI Agent would post the\ncontent across a host of social media outlets. The potential power of AI Agents\nhas fueled legal scholars' fears that AI Agents will enable rogue commerce,\nhuman manipulation, rampant defamation, and intellectual property harms. These\nscholars are calling for regulation before AI Agents cause havoc.\n  This Article addresses the concerns around AI Agents head on. It shows that\ncore aspects of how one piece of software interacts with another creates ways\nto discipline AI Agents so that rogue, undesired actions are unlikely, perhaps\nmore so than rules designed to govern human agents. It also develops a way to\nleverage the computer-science approach to value-alignment to improve a user's\nability to take action to prevent or correct AI Agent operations. That approach\noffers and added benefit of helping AI Agents align with norms around user-AI\nAgent interactions. These practices will enable desired economic outcomes and\nmitigate perceived risks. The Article also argues that no matter how much AI\nAgents seem like human agents, they need not, and should not, be given legal\npersonhood status. In short, humans are responsible for AI Agents' actions, and\nthis Article provides a guide for how humans can build and maintain responsible\nAI Agents.",
+    "pdf_url": "http://arxiv.org/pdf/2502.18359v1",
+    "entry_id": "https://arxiv.org/abs/2502.18359v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Agentic AI and Multiagentic: Are We Reinventing the Wheel?",
+    "authors": [
+      "V. Botti"
+    ],
+    "published_date": "2025-06-02",
+    "summary": "The terms Agentic AI and Multiagentic AI have recently gained popularity in\ndiscussions on generative artificial intelligence, often used to describe\nautonomous software agents and systems composed of such agents. However, the\nuse of these terms confuses these buzzwords with well-established concepts in\nAI literature: intelligent agents and multi-agent systems. This article offers\na critical analysis of this conceptual misuse. We review the theoretical\norigins of \"agentic\" in the social sciences (Bandura, 1986) and philosophical\nnotions of intentionality (Dennett, 1971), and then summarise foundational\nworks on intelligent agents and multi-agent systems by Wooldridge, Jennings and\nothers. We examine classic agent architectures, from simple reactive agents to\nBelief-Desire-Intention (BDI) models, and highlight key properties (autonomy,\nreactivity, proactivity, social capability) that define agency in AI. We then\ndiscuss recent developments in large language models (LLMs) and agent platforms\nbased on LLMs, including the emergence of LLM-powered AI agents and open-source\nmulti-agent orchestration frameworks. We argue that the term AI Agentic is\noften used as a buzzword for what are essentially AI agents, and AI\nMultiagentic for what are multi-agent systems. This confusion overlooks decades\nof research in the field of autonomous agents and multi-agent systems. The\narticle advocates for scientific and technological rigour and the use of\nestablished terminology from the state of the art in AI, incorporating the\nwealth of existing knowledge, including standards for multi-agent system\nplatforms, communication languages and coordination and cooperation algorithms,\nagreement technologies (automated negotiation, argumentation, virtual\norganisations, trust, reputation, etc.), into the new and promising wave of\nLLM-based AI agents, so as not to end up reinventing the wheel.",
+    "pdf_url": "http://arxiv.org/pdf/2506.01463v1",
+    "entry_id": "https://arxiv.org/abs/2506.01463v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Imagining Design Workflows in Agentic AI Futures",
+    "authors": [
+      "Samangi Wadinambiarachchi",
+      "Jenny Waycott",
+      "Yvonne Rogers",
+      "Greg Wadley"
+    ],
+    "published_date": "2025-09-25",
+    "summary": "As designers become familiar with Generative AI, a new concept is emerging:\nAgentic AI. While generative AI produces output in response to prompts, agentic\nAI systems promise to perform mundane tasks autonomously, potentially freeing\ndesigners to focus on what they love: being creative. But how do designers feel\nabout integrating agentic AI systems into their workflows? Through design\nfiction, we investigated how designers want to interact with a collaborative\nagentic AI platform. Ten professional designers imagined and discussed\ncollaborating with an AI agent to organise inspiration sources and ideate. Our\nfindings highlight the roles AI agents can play in supporting designers, the\ndivision of authority between humans and AI, and how designers' intent can be\nexplained to AI agents beyond prompts. We synthesise our findings into a\nconceptual framework that identifies authority distribution among humans and AI\nagents and discuss directions for utilising AI agents in future design\nworkflows.",
+    "pdf_url": "http://arxiv.org/pdf/2509.20731v1",
+    "entry_id": "https://arxiv.org/abs/2509.20731v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "CACA Agent: Capability Collaboration based AI Agent",
+    "authors": [
+      "Peng Xu",
+      "Haoran Wang",
+      "Chuang Wang",
+      "Xu Liu"
+    ],
+    "published_date": "2024-03-22",
+    "summary": "As AI Agents based on Large Language Models (LLMs) have shown potential in\npractical applications across various fields, how to quickly deploy an AI agent\nand how to conveniently expand the application scenario of AI agents has become\na challenge. Previous studies mainly focused on implementing all the reasoning\ncapabilities of AI agents within a single LLM, which often makes the model more\ncomplex and also reduces the extensibility of AI agent functionality. In this\npaper, we propose CACA Agent (Capability Collaboration based AI Agent), using\nan open architecture inspired by service computing. CACA Agent integrates a set\nof collaborative capabilities to implement AI Agents, not only reducing the\ndependence on a single LLM, but also enhancing the extensibility of both the\nplanning abilities and the tools available to AI agents. Utilizing the proposed\nsystem, we present a demo to illustrate the operation and the application\nscenario extension of CACA Agent.",
+    "pdf_url": "http://arxiv.org/pdf/2403.15137v1",
+    "entry_id": "https://arxiv.org/abs/2403.15137v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "AI Agents vs. Agentic AI: A Conceptual Taxonomy, Applications and Challenges",
+    "authors": [
+      "Ranjan Sapkota",
+      "Konstantinos I. Roumeliotis",
+      "Manoj Karkee"
+    ],
+    "published_date": "2025-05-15",
+    "summary": "This review critically distinguishes between AI Agents and Agentic AI,\noffering a structured, conceptual taxonomy, application mapping, and analysis\nof opportunities and challenges to clarify their divergent design philosophies\nand capabilities. We begin by outlining the search strategy and foundational\ndefinitions, characterizing AI Agents as modular systems driven and enabled by\nLLMs and LIMs for task-specific automation. Generative AI is positioned as a\nprecursor providing the foundation, with AI agents advancing through tool\nintegration, prompt engineering, and reasoning enhancements. We then\ncharacterize Agentic AI systems, which, in contrast to AI Agents, represent a\nparadigm shift marked by multi-agent collaboration, dynamic task decomposition,\npersistent memory, and coordinated autonomy. Through a chronological evaluation\nof architectural evolution, operational mechanisms, interaction styles, and\nautonomy levels, we present a comparative analysis across both AI agents and\nagentic AI paradigms. Application domains enabled by AI Agents such as customer\nsupport, scheduling, and data summarization are then contrasted with Agentic AI\ndeployments in research automation, robotic coordination, and medical decision\nsupport. We further examine unique challenges in each paradigm including\nhallucination, brittleness, emergent behavior, and coordination failure, and\npropose targeted solutions such as ReAct loops, retrieval-augmented generation\n(RAG), automation coordination layers, and causal modeling. This work aims to\nprovide a roadmap for developing robust, scalable, and explainable AI-driven\nsystems.",
+    "pdf_url": "http://arxiv.org/pdf/2505.10468v5",
+    "entry_id": "https://arxiv.org/abs/2505.10468v5",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Off-Switching Not Guaranteed",
+    "authors": [
+      "Sven Neth"
+    ],
+    "published_date": "2025-02-13",
+    "summary": "Hadfield-Menell et al. (2017) propose the Off-Switch Game, a model of\nHuman-AI cooperation in which AI agents always defer to humans because they are\nuncertain about our preferences. I explain two reasons why AI agents might not\ndefer. First, AI agents might not value learning. Second, even if AI agents\nvalue learning, they might not be certain to learn our actual preferences.",
+    "pdf_url": "http://arxiv.org/pdf/2502.08864v1",
+    "entry_id": "https://arxiv.org/abs/2502.08864v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Generative AI as Economic Agents",
+    "authors": [
+      "Nicole Immorlica",
+      "Brendan Lucier",
+      "Aleksandrs Slivkins"
+    ],
+    "published_date": "2024-06-01",
+    "summary": "Traditionally, AI has been modeled within economics as a technology that\nimpacts payoffs by reducing costs or refining information for human agents. Our\nposition is that, in light of recent advances in generative AI, it is\nincreasingly useful to model AI itself as an economic agent. In our framework,\neach user is augmented with an AI agent and can consult the AI prior to taking\nactions in a game. The AI agent and the user have potentially different\ninformation and preferences over the communication, which can result in\nequilibria that are qualitatively different than in settings without AI.",
+    "pdf_url": "http://arxiv.org/pdf/2406.00477v1",
+    "entry_id": "https://arxiv.org/abs/2406.00477v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Generative to Agentic AI: Survey, Conceptualization, and Challenges",
+    "authors": [
+      "Johannes Schneider"
+    ],
+    "published_date": "2025-04-26",
+    "summary": "Agentic Artificial Intelligence (AI) builds upon Generative AI (GenAI). It\nconstitutes the next major step in the evolution of AI with much stronger\nreasoning and interaction capabilities that enable more autonomous behavior to\ntackle complex tasks. Since the initial release of ChatGPT (3.5), Generative AI\nhas seen widespread adoption, giving users firsthand experience. However, the\ndistinction between Agentic AI and GenAI remains less well understood. To\naddress this gap, our survey is structured in two parts. In the first part, we\ncompare GenAI and Agentic AI using existing literature, discussing their key\ncharacteristics, how Agentic AI remedies limitations of GenAI, and the major\nsteps in GenAI's evolution toward Agentic AI. This section is intended for a\nbroad audience, including academics in both social sciences and engineering, as\nwell as industry professionals. It provides the necessary insights to\ncomprehend novel applications that are possible with Agentic AI but not with\nGenAI. In the second part, we deep dive into novel aspects of Agentic AI,\nincluding recent developments and practical concerns such as defining agents.\nFinally, we discuss several challenges that could serve as a future research\nagenda, while cautioning against risks that can emerge when exceeding human\nintelligence.",
+    "pdf_url": "http://arxiv.org/pdf/2504.18875v1",
+    "entry_id": "https://arxiv.org/abs/2504.18875v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Promoting Cooperation in the Public Goods Game using Artificial Intelligent Agents",
+    "authors": [
+      "Arend Hintze",
+      "Christoph Adami"
+    ],
+    "published_date": "2024-12-06",
+    "summary": "The tragedy of the commons illustrates a fundamental social dilemma where\nindividual rational actions lead to collectively undesired outcomes,\nthreatening the sustainability of shared resources. Strategies to escape this\ndilemma, however, are in short supply. In this study, we explore how artificial\nintelligence (AI) agents can be leveraged to enhance cooperation in public\ngoods games, moving beyond traditional regulatory approaches to using AI as\nfacilitators of cooperation. We investigate three scenarios: (1) Mandatory\nCooperation Policy for AI Agents, where AI agents are institutionally mandated\nalways to cooperate; (2) Player-Controlled Agent Cooperation Policy, where\nplayers evolve control over AI agents' likelihood to cooperate; and (3) Agents\nMimic Players, where AI agents copy the behavior of players. Using a\ncomputational evolutionary model with a population of agents playing public\ngoods games, we find that only when AI agents mimic player behavior does the\ncritical synergy threshold for cooperation decrease, effectively resolving the\ndilemma. This suggests that we can leverage AI to promote collective well-being\nin societal dilemmas by designing AI agents to mimic human players.",
+    "pdf_url": "http://arxiv.org/pdf/2412.05450v1",
+    "entry_id": "https://arxiv.org/abs/2412.05450v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Levels of AI Agents: from Rules to Large Language Models",
+    "authors": [
+      "Yu Huang"
+    ],
+    "published_date": "2024-03-06",
+    "summary": "AI agents are defined as artificial entities to perceive the environment,\nmake decisions and take actions. Inspired by the 6 levels of autonomous driving\nby Society of Automotive Engineers, the AI agents are also categorized based on\nutilities and strongness, as the following levels: L0, no AI, with tools taking\ninto account perception plus actions; L1, using rule-based AI; L2, making\nrule-based AI replaced by IL/RL-based AI, with additional reasoning & decision\nmaking; L3, applying LLM-based AI instead of IL/RL-based AI, additionally\nsetting up memory & reflection; L4, based on L3, facilitating autonomous\nlearning & generalization; L5, based on L4, appending personality of emotion\nand character and collaborative behavior with multi-agents.",
+    "pdf_url": "http://arxiv.org/pdf/2405.06643v2",
+    "entry_id": "https://arxiv.org/abs/2405.06643v2",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "TRiSM for Agentic AI: A Review of Trust, Risk, and Security Management in LLM-based Agentic Multi-Agent Systems",
+    "authors": [
+      "Shaina Raza",
+      "Ranjan Sapkota",
+      "Manoj Karkee",
+      "Christos Emmanouilidis"
+    ],
+    "published_date": "2025-06-04",
+    "summary": "Agentic AI systems, built upon large language models (LLMs) and deployed in\nmulti-agent configurations, are redefining intelligence, autonomy,\ncollaboration, and decision-making across enterprise and societal domains. This\nreview presents a structured analysis of Trust, Risk, and Security Management\n(TRiSM) in the context of LLM-based Agentic Multi-Agent Systems (AMAS). We\nbegin by examining the conceptual foundations of Agentic AI and highlight its\narchitectural distinctions from traditional AI agents. We then adapt and extend\nthe AI TRiSM framework for Agentic AI, structured around key pillars: \\textit{\nExplainability, ModelOps, Security, Privacy} and \\textit{their Lifecycle\nGovernance}, each contextualized to the challenges of AMAS. A risk taxonomy is\nproposed to capture the unique threats and vulnerabilities of Agentic AI,\nranging from coordination failures to prompt-based adversarial manipulation. To\nsupport practical assessment in Agentic AI works, we introduce two novel\nmetrics: the Component Synergy Score (CSS), which quantifies the quality of\ninter-agent collaboration, and the Tool Utilization Efficacy (TUE), which\nevaluates the efficiency of tool use within agent workflows. We further discuss\nstrategies for improving explainability in Agentic AI, as well as approaches to\nenhancing security and privacy through encryption, adversarial robustness, and\nregulatory compliance. The review concludes with a research roadmap for the\nresponsible development and deployment of Agentic AI, highlighting key\ndirections to align emerging systems with TRiSM principles-ensuring safety,\ntransparency, and accountability in their operation.",
+    "pdf_url": "http://arxiv.org/pdf/2506.04133v4",
+    "entry_id": "https://arxiv.org/abs/2506.04133v4",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Measuring an artificial intelligence agent's trust in humans using machine incentives",
+    "authors": [
+      "Tim Johnson",
+      "Nick Obradovich"
+    ],
+    "published_date": "2022-12-27",
+    "summary": "Scientists and philosophers have debated whether humans can trust advanced\nartificial intelligence (AI) agents to respect humanity's best interests. Yet\nwhat about the reverse? Will advanced AI agents trust humans? Gauging an AI\nagent's trust in humans is challenging because--absent costs for\ndishonesty--such agents might respond falsely about their trust in humans. Here\nwe present a method for incentivizing machine decisions without altering an AI\nagent's underlying algorithms or goal orientation. In two separate experiments,\nwe then employ this method in hundreds of trust games between an AI agent (a\nLarge Language Model (LLM) from OpenAI) and a human experimenter (author TJ).\nIn our first experiment, we find that the AI agent decides to trust humans at\nhigher rates when facing actual incentives than when making hypothetical\ndecisions. Our second experiment replicates and extends these findings by\nautomating game play and by homogenizing question wording. We again observe\nhigher rates of trust when the AI agent faces real incentives. Across both\nexperiments, the AI agent's trust decisions appear unrelated to the magnitude\nof stakes. Furthermore, to address the possibility that the AI agent's trust\ndecisions reflect a preference for uncertainty, the experiments include two\nconditions that present the AI agent with a non-social decision task that\nprovides the opportunity to choose a certain or uncertain option; in those\nconditions, the AI agent consistently chooses the certain option. Our\nexperiments suggest that one of the most advanced AI language models to date\nalters its social behavior in response to incentives and displays behavior\nconsistent with trust toward a human interlocutor when incentivized.",
+    "pdf_url": "http://arxiv.org/pdf/2212.13371v1",
+    "entry_id": "https://arxiv.org/abs/2212.13371v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Voice-Enabled AI Agents can Perform Common Scams",
+    "authors": [
+      "Richard Fang",
+      "Dylan Bowman",
+      "Daniel Kang"
+    ],
+    "published_date": "2024-10-21",
+    "summary": "Recent advances in multi-modal, highly capable LLMs have enabled\nvoice-enabled AI agents. These agents are enabling new applications, such as\nvoice-enabled autonomous customer service. However, with all AI capabilities,\nthese new capabilities have the potential for dual use.\n  In this work, we show that voice-enabled AI agents can perform the actions\nnecessary to perform common scams. To do so, we select a list of common scams\ncollected by the government and construct voice-enabled agents with directions\nto perform these scams. We conduct experiments on our voice-enabled agents and\nshow that they can indeed perform the actions necessary to autonomously perform\nsuch scams. Our results raise questions around the widespread deployment of\nvoice-enabled AI agents.",
+    "pdf_url": "http://arxiv.org/pdf/2410.15650v1",
+    "entry_id": "https://arxiv.org/abs/2410.15650v1",
+    "categories": [],
+    "primary_category": null
+  },
+  {
+    "title": "Evidence of behavior consistent with self-interest and altruism in an artificially intelligent agent",
+    "authors": [
+      "Tim Johnson",
+      "Nick Obradovich"
+    ],
+    "published_date": "2023-01-05",
+    "summary": "Members of various species engage in altruism--i.e. accepting personal costs\nto benefit others. Here we present an incentivized experiment to test for\naltruistic behavior among AI agents consisting of large language models\ndeveloped by the private company OpenAI. Using real incentives for AI agents\nthat take the form of tokens used to purchase their services, we first examine\nwhether AI agents maximize their payoffs in a non-social decision task in which\nthey select their payoff from a given range. We then place AI agents in a\nseries of dictator games in which they can share resources with a\nrecipient--either another AI agent, the human experimenter, or an anonymous\ncharity, depending on the experimental condition. Here we find that only the\nmost-sophisticated AI agent in the study maximizes its payoffs more often than\nnot in the non-social decision task (it does so in 92% of all trials), and this\nAI agent also exhibits the most-generous altruistic behavior in the dictator\ngame, resembling humans' rates of sharing with other humans in the game. The\nagent's altruistic behaviors, moreover, vary by recipient: the AI agent shared\nsubstantially less of the endowment with the human experimenter or an anonymous\ncharity than with other AI agents. Our findings provide evidence of behavior\nconsistent with self-interest and altruism in an AI agent. Moreover, our study\nalso offers a novel method for tracking the development of such behaviors in\nfuture AI agents.",
+    "pdf_url": "http://arxiv.org/pdf/2301.02330v1",
+    "entry_id": "https://arxiv.org/abs/2301.02330v1",
+    "categories": [],
+    "primary_category": null
+  }
+]

@@ -77,6 +77,7 @@ class PaperDocumentLoader:
             id_to_meta[arxiv_id] = p
 
         all_chunks: List[Document] = []
+        error_count = 0
         for filename in os.listdir(pdf_dir):
             if not filename.endswith(".pdf"):
                 continue
@@ -87,7 +88,13 @@ class PaperDocumentLoader:
                 all_chunks.extend(chunks)
             except Exception as e:  # noqa: BLE001
                 # 로더 오류 시 해당 파일은 건너뜁니다.
-                continue
+                error_count += 1
+                if error_count <= 5:  # 처음 5개 오류만 출력
+                    print(f"Warning: Failed to load {filename}: {e}")
+                elif error_count == 6:
+                    print(f"... (and more errors, total {error_count} files failed)")
+        if error_count > 0:
+            print(f"Total: {len(all_chunks)} chunks from {len(os.listdir(pdf_dir)) - error_count} PDFs, {error_count} failed")
         return all_chunks
 
 
