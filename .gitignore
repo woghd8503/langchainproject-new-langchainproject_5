@@ -159,3 +159,10 @@ docs/*.md
 
 # Git 추적되도록 예외 처리
 !experiments/**/*.log
+
+# 데이터 파일 (일반적으로 커밋하지 않음)
+data/raw/pdfs/
+data/rdbms/*.db
+data/vectordb/
+!data/raw/arxiv_papers_metadata.json
+!data/processed/paper_id_mapping.json
