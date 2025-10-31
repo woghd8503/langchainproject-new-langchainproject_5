@@ -9,7 +9,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from src.data.document_loader import PaperDocumentLoader
@@ -20,16 +20,27 @@ def main() -> int:
     
     # 설정
     pdf_dir = ROOT / "data/raw/pdfs"
-    metadata_path = ROOT / "data/raw/arxiv_papers_metadata.json"
+    
+    # 메타데이터 파일 경로 확인 (여러 가능한 경로)
+    possible_metadata_paths = [
+        ROOT / "data/raw/json/arxiv_papers_metadata.json",
+        ROOT / "data/raw/arxiv_papers_metadata.json",
+    ]
+    
+    metadata_path = None
+    for path in possible_metadata_paths:
+        if Path(path).exists():
+            metadata_path = Path(path)
+            break
     
     # 파일 존재 확인
     if not pdf_dir.exists():
         print(f"❌ PDF 디렉토리가 없습니다: {pdf_dir}")
         return 1
     
-    if not metadata_path.exists():
-        print(f"❌ 메타데이터 파일이 없습니다: {metadata_path}")
-        print("먼저 scripts/collect_arxiv_papers.py를 실행하세요.")
+    if not metadata_path:
+        print(f"❌ 메타데이터 파일이 없습니다. 확인한 경로: {possible_metadata_paths}")
+        print("먼저 scripts/data/collect_arxiv_papers.py를 실행하세요.")
         return 1
     
     # Document 로더 초기화

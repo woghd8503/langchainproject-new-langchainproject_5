@@ -20,7 +20,7 @@ def run_command(script_name: str, description: str) -> bool:
     print(f"{description}")
     print("=" * 60)
     
-    script_path = ROOT / "scripts" / script_name
+    script_path = ROOT / "scripts" / "data" / script_name
     
     try:
         result = subprocess.run(

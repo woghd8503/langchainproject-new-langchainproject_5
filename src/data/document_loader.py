@@ -14,6 +14,9 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
+# 프로젝트 루트 경로
+ROOT = Path(__file__).resolve().parents[2]
+
 
 class PaperDocumentLoader:
     """논문 PDF를 LangChain Document로 변환하고 분할합니다."""
@@ -48,7 +51,24 @@ class PaperDocumentLoader:
         """디렉토리의 모든 PDF를 로드하고 분할합니다."""
 
         pdf_dir = Path(pdf_dir)
-        with Path(metadata_json_path).open("r", encoding="utf-8") as f:
+        
+        # 여러 가능한 경로 확인
+        possible_paths = [
+            Path(metadata_json_path),
+            ROOT / "data/raw/json/arxiv_papers_metadata.json",
+            ROOT / "data/raw/arxiv_papers_metadata.json",
+        ]
+        
+        metadata_path = None
+        for path in possible_paths:
+            if Path(path).exists():
+                metadata_path = Path(path)
+                break
+        
+        if not metadata_path:
+            raise FileNotFoundError(f"Metadata JSON not found. Checked: {possible_paths}")
+        
+        with metadata_path.open("r", encoding="utf-8") as f:
             papers_metadata = json.load(f)
 
         id_to_meta: Dict[str, Dict] = {}

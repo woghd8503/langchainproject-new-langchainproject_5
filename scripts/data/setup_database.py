@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS papers (
     category TEXT,
     citation_count INT,
     abstract TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS glossary (
@@ -36,10 +37,11 @@ CREATE TABLE IF NOT EXISTS glossary (
     easy_explanation TEXT,
     hard_explanation TEXT,
     category TEXT,
-    difficulty_level INT,
+    difficulty_level VARCHAR(20),
     related_terms TEXT,
     examples TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_papers_title ON papers USING gin (to_tsvector('simple', title));
@@ -48,6 +50,7 @@ CREATE INDEX IF NOT EXISTS idx_papers_title ON papers USING gin (to_tsvector('si
 DDL_ALTER_PAPERS_COLUMNS = """
 ALTER TABLE papers ADD COLUMN IF NOT EXISTS category TEXT;
 ALTER TABLE papers ADD COLUMN IF NOT EXISTS publish_date DATE;
+ALTER TABLE papers ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE papers ADD COLUMN IF NOT EXISTS citation_count INT;
 """
 
@@ -100,9 +103,20 @@ def insert_paper_metadata(conn, cur) -> Dict[str, int]:
     Returns:
         arxiv_id → paper_id 매핑 딕셔너리
     """
-    meta_path = ROOT / "data/raw/arxiv_papers_metadata.json"
-    if not meta_path.exists():
-        print(f"SKIP: {meta_path} not found")
+    # 여러 가능한 경로 확인
+    possible_paths = [
+        ROOT / "data/raw/json/arxiv_papers_metadata.json",
+        ROOT / "data/raw/arxiv_papers_metadata.json",
+    ]
+    
+    meta_path = None
+    for path in possible_paths:
+        if Path(path).exists():
+            meta_path = Path(path)
+            break
+    
+    if not meta_path:
+        print(f"SKIP: Metadata JSON not found. Checked: {possible_paths}")
         return {}
     
     with open(meta_path, "r", encoding="utf-8") as f:
@@ -159,7 +173,7 @@ def save_paper_id_mapping(conn, mapping: Dict[str, int] = None):
     
     if mapping is None:
         # 기존 방식: DB에서 조회
-        meta_path = ROOT / "data/raw/arxiv_papers_metadata.json"
+        meta_path = ROOT / "data/raw/json/arxiv_papers_metadata.json"
         if not meta_path.exists():
             print(f"SKIP: {meta_path} not found")
             return
