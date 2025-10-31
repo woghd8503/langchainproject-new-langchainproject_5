@@ -171,9 +171,9 @@ class ExperimentManager:
 
         # 쿼리 레코드 생성
         query_record = f"""-- 실행 시간: {timestamp}
--- 도구: {tool}
--- 설명: {description}
-"""
+                            -- 도구: {tool}
+                            -- 설명: {description}
+                        """
         if execution_time_ms:
             query_record += f"-- 실행 소요: {execution_time_ms}ms\n"
 
