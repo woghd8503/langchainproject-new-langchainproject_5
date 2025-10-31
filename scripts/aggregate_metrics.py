@@ -60,13 +60,26 @@ def aggregate_rag_metrics(date: str) -> Dict:
         return {}
 
     # -------------- 집계 계산 -------------- #
-    # Retrieval 지표 집계
-    recall_values = [m.get('retrieval_metrics', {}).get('recall_at_5', 0) for m in metrics_list]
-    precision_values = [m.get('retrieval_metrics', {}).get('precision_at_5', 0) for m in metrics_list]
+    # Retrieval 지표 집계 (flat 및 nested 구조 모두 지원)
+    recall_values = []
+    precision_values = []
+    faithfulness_values = []
+    relevancy_values = []
 
-    # Generation 지표 집계
-    faithfulness_values = [m.get('generation_metrics', {}).get('faithfulness', 0) for m in metrics_list]
-    relevancy_values = [m.get('generation_metrics', {}).get('answer_relevancy', 0) for m in metrics_list]
+    for m in metrics_list:
+        # flat 구조 우선 확인, 없으면 nested 구조 확인
+        recall_values.append(
+            m.get('recall_at_5') or m.get('retrieval_metrics', {}).get('recall_at_5', 0)
+        )
+        precision_values.append(
+            m.get('precision_at_5') or m.get('retrieval_metrics', {}).get('precision_at_5', 0)
+        )
+        faithfulness_values.append(
+            m.get('faithfulness') or m.get('generation_metrics', {}).get('faithfulness', 0)
+        )
+        relevancy_values.append(
+            m.get('answer_relevancy') or m.get('generation_metrics', {}).get('answer_relevancy', 0)
+        )
 
     return {
         'total_sessions': len(metrics_list),           # 총 세션 수
@@ -133,18 +146,41 @@ def aggregate_agent_accuracy(date: str) -> Dict:
         return {}
 
     # -------------- 집계 계산 -------------- #
-    # 도구 선택 정확도 집계
-    correct_count = sum(1 for a in accuracy_list if a.get('routing_decision', {}).get('correct', False))
-    total_count = len(accuracy_list)
+    # 도구 선택 정확도 집계 (flat 및 nested 구조 모두 지원)
+    routing_accuracy_values = []
+    correct_decisions = 0
+    incorrect_decisions = 0
+    confidence_values = []
 
-    # 신뢰도 집계
-    confidence_values = [a.get('routing_decision', {}).get('confidence', 0) for a in accuracy_list]
+    for a in accuracy_list:
+        # flat 구조 우선 확인
+        if 'routing_accuracy' in a:
+            routing_accuracy_values.append(a.get('routing_accuracy', 0))
+        if 'correct_decisions' in a:
+            correct_decisions += a.get('correct_decisions', 0)
+        if 'incorrect_decisions' in a:
+            incorrect_decisions += a.get('incorrect_decisions', 0)
+        if 'average_confidence' in a:
+            confidence_values.append(a.get('average_confidence', 0))
+
+        # nested 구조 확인
+        if 'routing_decision' in a:
+            rd = a.get('routing_decision', {})
+            if rd.get('correct', False):
+                correct_decisions += 1
+            else:
+                incorrect_decisions += 1
+            confidence_values.append(rd.get('confidence', 0))
+
+    total_decisions = correct_decisions + incorrect_decisions
+    total_count = len(accuracy_list)
 
     return {
         'total_sessions': total_count,                 # 총 세션 수
-        'routing_accuracy': correct_count / total_count if total_count > 0 else 0,    # 도구 선택 정확도
-        'correct_count': correct_count,                # 정확한 선택 수
-        'incorrect_count': total_count - correct_count,    # 잘못된 선택 수
+        'total_decisions': total_decisions,            # 총 결정 수
+        'routing_accuracy': mean(routing_accuracy_values) if routing_accuracy_values else (correct_decisions / total_decisions if total_decisions > 0 else 0),
+        'correct_decisions': correct_decisions,        # 정확한 선택 수
+        'incorrect_decisions': incorrect_decisions,    # 잘못된 선택 수
         'average_confidence': mean(confidence_values) if confidence_values else 0     # 평균 신뢰도
     }
 
@@ -185,13 +221,26 @@ def aggregate_latency(date: str) -> Dict:
         return {}
 
     # -------------- 집계 계산 -------------- #
-    # 전체 응답 시간 집계
-    total_times = [l.get('total_latency', {}).get('total_time_ms', 0) for l in latency_list]
+    # 전체 응답 시간 집계 (flat 및 nested 구조 모두 지원)
+    total_times = []
+    routing_times = []
+    retrieval_times = []
+    generation_times = []
 
-    # 단계별 응답 시간 집계
-    routing_times = [l.get('breakdown', {}).get('routing_time_ms', 0) for l in latency_list]
-    retrieval_times = [l.get('breakdown', {}).get('retrieval_time_ms', 0) for l in latency_list]
-    generation_times = [l.get('breakdown', {}).get('generation_time_ms', 0) for l in latency_list]
+    for l in latency_list:
+        # flat 구조 우선 확인, 없으면 nested 구조 확인
+        total_times.append(
+            l.get('total_time_ms') or l.get('total_latency', {}).get('total_time_ms', 0)
+        )
+        routing_times.append(
+            l.get('routing_time_ms') or l.get('breakdown', {}).get('routing_time_ms', 0)
+        )
+        retrieval_times.append(
+            l.get('retrieval_time_ms') or l.get('breakdown', {}).get('retrieval_time_ms', 0)
+        )
+        generation_times.append(
+            l.get('generation_time_ms') or l.get('breakdown', {}).get('generation_time_ms', 0)
+        )
 
     return {
         'total_sessions': len(latency_list),           # 총 세션 수
@@ -253,12 +302,22 @@ def aggregate_cost(date: str) -> Dict:
         return {}
 
     # -------------- 집계 계산 -------------- #
-    # 토큰 사용량 집계
-    total_tokens = [c.get('llm_usage', {}).get('total_tokens', 0) for c in cost_list]
+    # 토큰 사용량 집계 (flat 및 nested 구조 모두 지원)
+    total_tokens = []
+    cost_usd = []
+    cost_krw = []
 
-    # 비용 집계
-    cost_usd = [c.get('cost_breakdown_usd', {}).get('total_cost', 0) for c in cost_list]
-    cost_krw = [c.get('cost_breakdown_krw', {}).get('total_cost', 0) for c in cost_list]
+    for c in cost_list:
+        # flat 구조 우선 확인, 없으면 nested 구조 확인
+        total_tokens.append(
+            c.get('total_tokens') or c.get('llm_usage', {}).get('total_tokens', 0)
+        )
+        cost_usd.append(
+            c.get('cost_usd') or c.get('cost_breakdown_usd', {}).get('total_cost', 0)
+        )
+        cost_krw.append(
+            c.get('cost_krw') or c.get('cost_breakdown_krw', {}).get('total_cost', 0)
+        )
 
     return {
         'total_sessions': len(cost_list),              # 총 세션 수
