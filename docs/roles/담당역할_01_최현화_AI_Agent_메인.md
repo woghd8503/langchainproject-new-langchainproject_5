@@ -85,20 +85,12 @@
 ```python
 # src/agent/nodes.py
 
-import os
-from datetime import datetime
 from typing import TypedDict
 from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage
-from src.utils.logger import Logger
 
-# Logger 초기화
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "agent_general"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-logger = Logger(log_path=f"{log_dir}/experiment.log")
+# ExperimentManager는 main에서 전달받아 사용
+# 이 예제는 단순화를 위해 직접 로그 작성 방식으로 표현
 
 class AgentState(TypedDict):
     question: str
@@ -106,15 +98,20 @@ class AgentState(TypedDict):
     tool_choice: str
     final_answer: str
 
-def general_answer_node(state: AgentState):
+def general_answer_node(state: AgentState, exp_manager=None):
     """
     일반 답변 노드: LLM의 자체 지식으로 직접 답변
+
+    Args:
+        state: Agent 상태
+        exp_manager: ExperimentManager 인스턴스 (선택 사항)
     """
     question = state["question"]
     difficulty = state.get("difficulty", "easy")
 
-    logger.write(f"일반 답변 노드 실행: {question}")
-    logger.write(f"난이도: {difficulty}")
+    if exp_manager:
+        exp_manager.logger.write(f"일반 답변 노드 실행: {question}")
+        exp_manager.logger.write(f"난이도: {difficulty}")
 
     # 난이도에 따른 SystemMessage 설정
     if difficulty == "easy":
@@ -136,7 +133,8 @@ def general_answer_node(state: AgentState):
     messages = [system_msg, HumanMessage(content=question)]
     response = llm.invoke(messages)
 
-    logger.write(f"LLM 응답: {response.content}")
+    if exp_manager:
+        exp_manager.logger.write(f"LLM 응답: {response.content}")
 
     # 최종 답변 저장
     state["final_answer"] = response.content
@@ -197,38 +195,34 @@ def general_answer_node(state: AgentState):
 ```python
 # src/tools/summarize.py
 
-import os
-from datetime import datetime
 from langchain.tools import tool
 from langchain_postgres.vectorstores import PGVector
 from langchain_openai import ChatOpenAI
 from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 import psycopg2
-from src.utils.logger import Logger
 
-# Logger 초기화
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "agent_summarize"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-logger = Logger(log_path=f"{log_dir}/experiment.log")
+# ExperimentManager는 main에서 전달받아 사용
 
 @tool
-def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
+def summarize_paper(paper_title: str, difficulty: str = "easy", exp_manager=None) -> str:
     """
     특정 논문을 요약합니다. 난이도에 따라 초심자용/전문가용 요약을 제공합니다.
 
     Args:
         paper_title: 논문 제목
         difficulty: 'easy' (초심자) 또는 'hard' (전문가)
+        exp_manager: ExperimentManager 인스턴스 (선택 사항)
 
     Returns:
         논문 요약 내용
     """
-    logger.write(f"논문 요약 시작: {paper_title}")
-    logger.write(f"난이도: {difficulty}")
+    # 도구별 Logger 생성
+    tool_logger = exp_manager.get_tool_logger('summary_paper') if exp_manager else None
+
+    if tool_logger:
+        tool_logger.write(f"논문 요약 시작: {paper_title}")
+        tool_logger.write(f"난이도: {difficulty}")
 
     # 1. PostgreSQL에서 논문 메타데이터 조회
     conn = psycopg2.connect("postgresql://user:password@localhost/papers")
@@ -241,11 +235,13 @@ def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
     paper_meta = cursor.fetchone()
 
     if not paper_meta:
-        logger.write(f"논문을 찾을 수 없음: {paper_title}")
+        if tool_logger:
+            tool_logger.write(f"논문을 찾을 수 없음: {paper_title}")
         return f"'{paper_title}' 논문을 찾을 수 없습니다."
 
     paper_id = paper_meta[0]
-    logger.write(f"논문 ID: {paper_id}")
+    if tool_logger:
+        tool_logger.write(f"논문 ID: {paper_id}")
 
     # 2. Vector DB에서 논문 전체 내용 조회
     vectorstore = PGVector(
@@ -259,7 +255,8 @@ def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
         filter={"paper_id": paper_id}
     )
 
-    logger.write(f"검색된 청크 수: {len(paper_chunks)}")
+    if tool_logger:
+        tool_logger.write(f"검색된 청크 수: {len(paper_chunks)}")
 
     # 3. 난이도별 프롬프트
     if difficulty == "easy":
@@ -291,10 +288,14 @@ def summarize_paper(paper_title: str, difficulty: str = "easy") -> str:
     llm = ChatOpenAI(model="gpt-4", temperature=0)
     chain = load_summarize_chain(llm, chain_type="stuff", prompt=PROMPT)
 
-    logger.write("요약 체인 실행 중...")
+    if tool_logger:
+        tool_logger.write("요약 체인 실행 중...")
+
     summary = chain.run(paper_chunks)
 
-    logger.write(f"요약 완료: {len(summary)} 글자")
+    if tool_logger:
+        tool_logger.write(f"요약 완료: {len(summary)} 글자")
+        tool_logger.close()
 
     return summary
 ```
@@ -460,20 +461,11 @@ sequenceDiagram
 ```python
 # src/agent/graph.py
 
-import os
-from datetime import datetime
 from langgraph.graph import StateGraph, END
 from typing import TypedDict
 from langchain_openai import ChatOpenAI
-from src.utils.logger import Logger
 
-# Logger 초기화
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "agent_router"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-logger = Logger(log_path=f"{log_dir}/experiment.log")
+# ExperimentManager는 main에서 전달받아 사용
 
 class AgentState(TypedDict):
     question: str
@@ -482,13 +474,18 @@ class AgentState(TypedDict):
     tool_result: str
     final_answer: str
 
-def router_node(state: AgentState):
+def router_node(state: AgentState, exp_manager=None):
     """
     질문을 분석하여 어떤 도구를 사용할지 결정
+
+    Args:
+        state: Agent 상태
+        exp_manager: ExperimentManager 인스턴스 (선택 사항)
     """
     question = state["question"]
 
-    logger.write(f"라우터 노드 실행: {question}")
+    if exp_manager:
+        exp_manager.logger.write(f"라우터 노드 실행: {question}")
 
     # LLM에게 라우팅 결정 요청
     routing_prompt = f"""
@@ -510,7 +507,8 @@ def router_node(state: AgentState):
     llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
     tool_choice = llm.invoke(routing_prompt).content.strip()
 
-    logger.write(f"라우팅 결정: {tool_choice}")
+    if exp_manager:
+        exp_manager.logger.write(f"라우팅 결정: {tool_choice}")
 
     state["tool_choice"] = tool_choice
     return state
@@ -519,9 +517,15 @@ def route_to_tool(state: AgentState):
     """라우팅 결정에 따라 다음 노드 선택"""
     return state["tool_choice"]
 
-def create_agent_graph():
-    """LangGraph Agent 그래프 생성"""
-    logger.write("Agent 그래프 생성 시작")
+def create_agent_graph(exp_manager=None):
+    """
+    LangGraph Agent 그래프 생성
+
+    Args:
+        exp_manager: ExperimentManager 인스턴스 (선택 사항)
+    """
+    if exp_manager:
+        exp_manager.logger.write("Agent 그래프 생성 시작")
 
     workflow = StateGraph(AgentState)
 
@@ -558,7 +562,8 @@ def create_agent_graph():
     # 그래프 컴파일
     agent_executor = workflow.compile()
 
-    logger.write("Agent 그래프 컴파일 완료")
+    if exp_manager:
+        exp_manager.logger.write("Agent 그래프 컴파일 완료")
 
     return agent_executor
 ```
@@ -611,34 +616,29 @@ def create_agent_graph():
 # src/llm/client.py
 
 import os
-from datetime import datetime
 from langchain_openai import ChatOpenAI
 from langchain_upstage import ChatUpstage
 from tenacity import retry, stop_after_attempt, wait_exponential
 from langchain.callbacks import get_openai_callback
-from src.utils.logger import Logger
 
-# Logger 초기화
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "agent_llm"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-logger = Logger(log_path=f"{log_dir}/experiment.log")
+# ExperimentManager는 main에서 전달받아 사용
 
 class LLMClient:
     """다중 LLM 클라이언트 클래스"""
 
-    def __init__(self, provider="openai", model="gpt-3.5-turbo", temperature=0.7):
+    def __init__(self, provider="openai", model="gpt-3.5-turbo", temperature=0.7, logger=None):
         """
         Args:
             provider: "openai" 또는 "solar"
             model: 모델 이름
             temperature: 창의성 수준 (0-1)
+            logger: Logger 인스턴스 (선택 사항)
         """
         self.provider = provider
+        self.logger = logger
 
-        logger.write(f"LLM 초기화: provider={provider}, model={model}")
+        if self.logger:
+            self.logger.write(f"LLM 초기화: provider={provider}, model={model}")
 
         if provider == "openai":
             self.llm = ChatOpenAI(
@@ -661,7 +661,8 @@ class LLMClient:
         에러 핸들링 및 재시도
         최대 3회 재시도, 지수 백오프 (2초 → 4초 → 8초)
         """
-        logger.write("LLM 호출 시작 (재시도 가능)")
+        if self.logger:
+            self.logger.write("LLM 호출 시작 (재시도 가능)")
         return self.llm.invoke(messages)
 
     def invoke_with_tracking(self, messages):
@@ -669,22 +670,31 @@ class LLMClient:
         if self.provider == "openai":
             with get_openai_callback() as cb:
                 response = self.llm.invoke(messages)
-                logger.write(f"Tokens Used: {cb.total_tokens}")
-                logger.write(f"Total Cost: ${cb.total_cost:.4f}")
+                if self.logger:
+                    self.logger.write(f"Tokens Used: {cb.total_tokens}")
+                    self.logger.write(f"Total Cost: ${cb.total_cost:.4f}")
                 return response
         else:
             return self.llm.invoke(messages)
 
     async def astream(self, messages):
         """스트리밍 응답 처리"""
-        logger.write("스트리밍 응답 시작")
+        if self.logger:
+            self.logger.write("스트리밍 응답 시작")
         async for chunk in self.llm.astream(messages):
             yield chunk
 
 
-def get_llm_for_task(task_type):
-    """작업 유형별 최적 LLM 선택"""
-    logger.write(f"작업 유형별 LLM 선택: {task_type}")
+def get_llm_for_task(task_type, logger=None):
+    """
+    작업 유형별 최적 LLM 선택
+
+    Args:
+        task_type: 작업 유형
+        logger: Logger 인스턴스 (선택 사항)
+    """
+    if logger:
+        logger.write(f"작업 유형별 LLM 선택: {task_type}")
 
     if task_type == "routing":
         return LLMClient(provider="solar", model="solar-1-mini-chat", temperature=0)
@@ -803,98 +813,109 @@ if __name__ == "__main__":
 
 ## 로깅 및 실험 추적 관리
 
-### 로깅 시스템 사용
+### ExperimentManager 사용
 
-**중요**: 모든 출력은 Logger 클래스를 사용해야 합니다.
+**중요**: 모든 챗봇 실행은 ExperimentManager를 사용하여 자동으로 기록합니다.
 
-**파일 경로**: `src/utils/logger.py`
+**파일 경로**: `src/utils/experiment_manager.py`
+
+**주요 기능**:
+- Session ID 자동 부여 (session_001, 002, ...)
+- 7개 서브 폴더 자동 생성 (tools, database, prompts, ui, outputs, evaluation, debug)
+- metadata.json 기반 자동 추적
+- with 문 지원 (자동 초기화 및 종료)
 
 **사용 방법**:
-1. 실험 폴더 및 Logger 생성
+
+1. **기본 사용 (with 문)**
    ```python
-   today = datetime.now().strftime("%Y%m%d")
-   time_now = datetime.now().strftime("%H%M%S")
-   experiment_name = "agent_main"  # agent_xxx, rag_xxx, feature_xxx
-   log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-   os.makedirs(log_dir, exist_ok=True)
-   logger = Logger(log_path=f"{log_dir}/experiment.log")
+   from src.utils.experiment_manager import ExperimentManager
+
+   # with 문으로 자동 초기화 및 종료
+   with ExperimentManager() as exp:
+       # 자동으로 다음 작업 수행:
+       # 1. experiments/20251031/20251031_103015_session_001/ 생성
+       # 2. Session ID 자동 부여 (session_001, 002...)
+       # 3. chatbot.log 파일 생성
+       # 4. 7개 서브 폴더 생성
+       # 5. metadata.json 초기화
+       # 6. Logger 초기화
+
+       # 메인 로그 기록
+       exp.logger.write("Agent 실행 시작")
+       exp.logger.write(f"질문: {question}")
+
+       # 메타데이터 업데이트
+       exp.update_metadata(
+           user_query=question,
+           difficulty="easy"
+       )
+
+       # with 블록이 끝나면 자동으로 Logger 종료
    ```
 
-2. 로그 기록
-   - `logger.write()` 사용 (print() 대신)
-   - 예: `logger.write(f"라우팅 결정: {tool_choice}")`
+2. **도구별 Logger 사용**
+   ```python
+   with ExperimentManager() as exp:
+       # 도구별 Logger 생성
+       tool_logger = exp.get_tool_logger('rag_paper')
+       tool_logger.write("논문 검색 시작")
+       tool_logger.write("검색 완료: 5개 논문 발견")
+       tool_logger.close()
+   ```
 
-3. 실험 종료
-   - `logger.close()` 필수 호출
+3. **평가 지표 저장**
+   ```python
+   with ExperimentManager() as exp:
+       # RAG 평가 지표
+       exp.save_rag_metrics({
+           "recall_at_5": 0.8,
+           "faithfulness": 0.95
+       })
+
+       # Agent 정확도
+       exp.save_agent_accuracy({
+           "predicted_tool": "rag_paper",
+           "correct": True
+       })
+
+       # 비용 분석
+       exp.save_cost_analysis({
+           "total_cost_krw": 30.51
+       })
+   ```
 
 ### 실험 폴더 구조
 
-**규칙**: PRD 문서 06_실험_추적_관리.md 참조
+**자동 생성 구조**: `experiments/날짜/날짜_시간_session_XXX/`
 
 ```
 experiments/
-├── {날짜}/
-│   ├── {날짜}_{시간}_{실험명}/
-│   │   ├── experiment.log         # 실험 로그
-│   │   ├── config.yaml            # 설정 파일
-│   │   └── results.json           # 결과 파일
+└── 20251031/                                # 날짜 (YYYYMMDD)
+    └── 20251031_103015_session_001/         # 시간_session_ID
+        ├── metadata.json                    # ⭐ 전체 실험 메타데이터
+        ├── chatbot.log                      # 메인 실행 로그
+        ├── config.yaml                      # 전체 설정
+        ├── tools/                           # 도구 실행 로그
+        ├── database/                        # DB 관련 기록
+        ├── prompts/                         # 프롬프트 기록
+        ├── ui/                              # UI 관련 기록
+        ├── outputs/                         # 결과물
+        └── evaluation/                      # 평가 지표
 ```
 
 **필수 파일**:
-- `experiment.log`: logger.write() 출력
-- `config.yaml`: LLM 설정, 난이도, 모델 정보
-- `results.json`: 최종 답변, 도구 선택, 응답 시간
+- `metadata.json`: Session ID, 시작/종료 시간, 난이도, 도구, 응답 시간 등
+- `chatbot.log`: exp.logger.write() 출력
+- `config.yaml`: LLM 설정, 모델 정보
+- `evaluation/`: RAG 평가, Agent 정확도, 응답 시간, 비용 분석
 
-### 예제 코드
+### 참고 문서
 
-```python
-import os
-from datetime import datetime
-from src.utils.logger import Logger
-import yaml
-import json
-
-# 실험 폴더 생성
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "agent_main"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-
-# Logger 초기화
-logger = Logger(log_path=f"{log_dir}/experiment.log")
-
-# Config 저장
-config = {
-    "llm_provider": "openai",
-    "model": "gpt-4",
-    "temperature": 0.7,
-    "difficulty": "easy"
-}
-
-with open(f"{log_dir}/config.yaml", "w") as f:
-    yaml.dump(config, f)
-
-# 실행 로그
-logger.write("Agent 실행 시작")
-logger.write(f"질문: {question}")
-logger.write(f"선택된 도구: {tool_choice}")
-
-# Results 저장
-results = {
-    "question": question,
-    "tool_choice": tool_choice,
-    "final_answer": final_answer,
-    "response_time_ms": 1250,
-    "timestamp": datetime.now().isoformat()
-}
-
-with open(f"{log_dir}/results.json", "w", encoding="utf-8") as f:
-    json.dump(results, f, indent=2, ensure_ascii=False)
-
-# Logger 종료
-logger.close()
-```
+- [05_로깅_시스템.md](../PRD/05_로깅_시스템.md) - ExperimentManager 상세 사용법
+- [06_실험_추적_관리.md](../PRD/06_실험_추적_관리.md) - 실험 폴더 구조 및 Session ID 규칙
+- [실험_폴더_구조_최종안.md](../references/실험_폴더_구조_최종안.md) - 전체 폴더 구조 및 ExperimentManager 전체 코드
+- [담당역할_01-1_최현화_실험_관리_시스템.md](../roles/담당역할_01-1_최현화_실험_관리_시스템.md) - 실험 관리 시스템 구현 가이드
 
 ---
 
@@ -982,13 +1003,21 @@ logger.close()
 ### 필수 참고 문서
 1. [01_프로젝트_개요.md](../PRD/01_프로젝트_개요.md) - 프로젝트 전체 개요 및 목표
 2. [02_프로젝트_구조.md](../PRD/02_프로젝트_구조.md) - 폴더 구조 및 모듈 배치
-3. [05_로깅_시스템.md](../PRD/05_로깅_시스템.md) ⭐ - Logger 클래스 사용법 및 규칙
-4. [06_실험_추적_관리.md](../PRD/06_실험_추적_관리.md) ⭐ - 실험 폴더 구조 및 명명 규칙
-5. [10_기술_요구사항.md](../PRD/10_기술_요구사항.md) - 기술 스택 및 라이브러리
-6. [12_AI_Agent_설계.md](../PRD/12_AI_Agent_설계.md) - LangGraph 구조 및 도구 정의
-7. [14_LLM_설정.md](../PRD/14_LLM_설정.md) - LLM 선택 전략 및 에러 핸들링
+3. [05_로깅_시스템.md](../PRD/05_로깅_시스템.md) ⭐⭐⭐ - ExperimentManager 사용법 및 로깅 규칙
+4. [06_실험_추적_관리.md](../PRD/06_실험_추적_관리.md) ⭐⭐⭐ - 실험 폴더 구조 및 Session ID 자동 부여 규칙
+5. [09_평가_기준.md](../PRD/09_평가_기준.md) ⭐⭐ - RAG 평가, Agent 정확도, 응답 시간, 비용 분석
+6. [10_기술_요구사항.md](../PRD/10_기술_요구사항.md) - 기술 스택 및 라이브러리
+7. [12_AI_Agent_설계.md](../PRD/12_AI_Agent_설계.md) - LangGraph 구조 및 도구 정의
+8. [14_LLM_설정.md](../PRD/14_LLM_설정.md) - LLM 선택 전략 및 에러 핸들링
 
-### 참고 문서
+### 참고 역할 문서
+- [담당역할_01-1_최현화_실험_관리_시스템.md](담당역할_01-1_최현화_실험_관리_시스템.md) ⭐⭐⭐ - ExperimentManager 구현 가이드
+- [담당역할_01-2_최현화_로깅_모니터링.md](담당역할_01-2_최현화_로깅_모니터링.md) ⭐⭐ - Logger 및 실험 관리 시스템
+
+### 참고 레퍼런스 문서
+- [실험_폴더_구조_최종안.md](../references/실험_폴더_구조_최종안.md) ⭐⭐⭐ - 전체 폴더 구조 및 ExperimentManager 전체 코드
+
+### 기타 참고 문서
 - [03_브랜치_전략.md](../PRD/03_브랜치_전략.md) - Feature 브랜치 전략
 - [04_일정_관리.md](../PRD/04_일정_관리.md) - 개발 일정 및 마일스톤
 - [11_데이터베이스_설계.md](../PRD/11_데이터베이스_설계.md) - DB 스키마 (요약 도구에서 사용)
