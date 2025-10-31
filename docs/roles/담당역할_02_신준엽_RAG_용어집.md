@@ -215,20 +215,12 @@ graph LR
 ```python
 # src/rag/retriever.py
 
-import os
-from datetime import datetime
-from src.utils.logger import Logger
 from langchain_postgres.vectorstores import PGVector
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.retrievers import MultiQueryRetriever
 
-# Logger 초기화
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "rag_retriever"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-logger = Logger(log_path=f"{log_dir}/experiment.log")
+# ExperimentManager는 main에서 전달받아 사용
+# logger는 exp_manager.logger 또는 exp_manager.tool_logger 사용
 
 class RAGRetriever:
     """논문 검색을 위한 RAG Retriever"""
@@ -320,28 +312,21 @@ class RAGRetriever:
 
 # src/tools/rag_search.py
 
-import os
-from datetime import datetime
-from src.utils.logger import Logger
 from langchain.tools import tool
 import psycopg2
 
-# Logger 초기화
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "rag_search"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-logger = Logger(log_path=f"{log_dir}/experiment.log")
+# ExperimentManager는 main에서 전달받아 사용
+# 도구 실행 로그는 exp_manager.tool_logger 사용
 
 @tool
-def search_paper_database(query: str, year_filter: int = None) -> str:
+def search_paper_database(query: str, year_filter: int = None, exp_manager=None) -> str:
     """
     논문 데이터베이스에서 관련 논문을 검색합니다.
 
     Args:
         query: 검색할 질문 또는 키워드
         year_filter: 선택적 년도 필터 (예: 2020 이상)
+        exp_manager: ExperimentManager 인스턴스 (선택적)
 
     Returns:
         관련 논문 내용 및 메타데이터
@@ -385,7 +370,8 @@ def search_paper_database(query: str, year_filter: int = None) -> str:
     cursor.close()
     conn.close()
 
-    logger.write(f"검색 결과: {len(results)}개 논문 발견")
+    if exp_manager:
+        exp_manager.tool_logger.write(f"검색 결과: {len(results)}개 논문 발견")
     return format_search_results(results)
 
 
@@ -537,19 +523,11 @@ def format_search_results(results):
 ```python
 # src/rag/glossary_retriever.py
 
-import os
-from datetime import datetime
-from src.utils.logger import Logger
 from langchain_postgres.vectorstores import PGVector
 from langchain_openai import OpenAIEmbeddings
 
-# Logger 초기화
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "rag_glossary"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-logger = Logger(log_path=f"{log_dir}/experiment.log")
+# ExperimentManager는 main에서 전달받아 사용
+# logger는 exp_manager.logger 또는 exp_manager.tool_logger 사용
 
 class GlossaryRetriever:
     """용어집 검색을 위한 Retriever"""
@@ -581,28 +559,21 @@ class GlossaryRetriever:
 
 # src/tools/glossary.py
 
-import os
-from datetime import datetime
-from src.utils.logger import Logger
 from langchain.tools import tool
 import psycopg2
 
-# Logger 초기화
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "rag_glossary_tool"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-logger = Logger(log_path=f"{log_dir}/experiment.log")
+# ExperimentManager는 main에서 전달받아 사용
+# 도구 실행 로그는 exp_manager.tool_logger 사용
 
 @tool
-def search_glossary(term: str, difficulty: str = "easy") -> str:
+def search_glossary(term: str, difficulty: str = "easy", exp_manager=None) -> str:
     """
     논문 용어집에서 전문 용어를 검색하여 설명합니다.
 
     Args:
         term: 검색할 용어
         difficulty: 'easy' (초심자) 또는 'hard' (전문가)
+        exp_manager: ExperimentManager 인스턴스 (선택적)
 
     Returns:
         용어 정의 및 설명
@@ -629,7 +600,8 @@ def search_glossary(term: str, difficulty: str = "easy") -> str:
         formatted += f"**정의**: {definition}\n\n"
         formatted += f"**설명**: {explanation}\n"
 
-        logger.write(f"PostgreSQL에서 용어 발견: {term_name}")
+        if exp_manager:
+            exp_manager.tool_logger.write(f"PostgreSQL에서 용어 발견: {term_name}")
         cursor.close()
         conn.close()
         return formatted
@@ -639,16 +611,18 @@ def search_glossary(term: str, difficulty: str = "easy") -> str:
     docs = glossary_retriever.search(term)
 
     if docs:
-        logger.write(f"Vector DB에서 유사 용어 발견: {term}")
+        if exp_manager:
+            exp_manager.tool_logger.write(f"Vector DB에서 유사 용어 발견: {term}")
         cursor.close()
         conn.close()
         return f"## {term} (유사 용어)\n\n{docs[0].page_content}"
 
     # 3. Vector DB에도 없으면 논문 본문에서 검색
     from src.tools.rag_search import search_paper_database
-    result = search_paper_database(f"{term} 정의")
+    result = search_paper_database(f"{term} 정의", exp_manager=exp_manager)
 
-    logger.write(f"논문 본문에서 용어 검색: {term}")
+    if exp_manager:
+        exp_manager.tool_logger.write(f"논문 본문에서 용어 검색: {term}")
     cursor.close()
     conn.close()
     return result
@@ -656,26 +630,19 @@ def search_glossary(term: str, difficulty: str = "easy") -> str:
 
 # src/rag/context_enhancer.py
 
-import os
-from datetime import datetime
-from src.utils.logger import Logger
 import psycopg2
 
-# Logger 초기화
-today = datetime.now().strftime("%Y%m%d")
-time_now = datetime.now().strftime("%H%M%S")
-experiment_name = "rag_context"
-log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-os.makedirs(log_dir, exist_ok=True)
-logger = Logger(log_path=f"{log_dir}/experiment.log")
+# ExperimentManager는 main에서 전달받아 사용
+# logger는 exp_manager.logger 또는 exp_manager.tool_logger 사용
 
-def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
+def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy", exp_manager=None):
     """
     사용자 질문에서 전문 용어를 추출하여 프롬프트에 추가
 
     Args:
         user_query: 사용자 질문
         difficulty: 난이도
+        exp_manager: ExperimentManager 인스턴스 (선택적)
 
     Returns:
         용어 정의 컨텍스트 문자열
@@ -699,7 +666,8 @@ def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
         for term, definition, easy_exp in terms_found:
             glossary_context += f"- **{term}**: {easy_exp}\n"
 
-        logger.write(f"질문에서 {len(terms_found)}개 용어 추출")
+        if exp_manager:
+            exp_manager.logger.write(f"질문에서 {len(terms_found)}개 용어 추출")
         cursor.close()
         conn.close()
         return glossary_context
@@ -852,41 +820,68 @@ def extract_and_add_glossary_context(user_query: str, difficulty: str = "easy"):
 
 ## 로깅 및 실험 추적 관리
 
-### 로깅 시스템 사용
+### ExperimentManager 사용
 
-**중요**: 모든 출력은 Logger 클래스를 사용해야 합니다.
+**중요**: 모든 챗봇 실행 세션은 ExperimentManager 클래스를 사용해야 합니다.
 
-**파일 경로**: `src/utils/logger.py`
+**파일 경로**: `src/utils/experiment_manager.py`
 
 **사용 방법**:
-1. Logger 인스턴스 생성
-   - 실험 폴더 생성 및 Logger 초기화
+1. ExperimentManager 인스턴스 생성 (with 문 사용)
+   - Session ID 자동 부여 및 폴더 구조 자동 생성
    ```python
-   import os
-   from datetime import datetime
-   from src.utils.logger import Logger
+   from src.utils.experiment_manager import ExperimentManager
 
-   # 실험 폴더 생성
-   today = datetime.now().strftime("%Y%m%d")
-   time_now = datetime.now().strftime("%H%M%S")
-   experiment_name = "rag_search"  # 또는 "rag_glossary" 등
-   log_dir = f"experiments/{today}/{today}_{time_now}_{experiment_name}"
-   os.makedirs(log_dir, exist_ok=True)
+   # ExperimentManager 초기화 (with 문)
+   with ExperimentManager() as exp:
+       # 자동으로 다음 작업 수행:
+       # 1. experiments/20251031/20251031_103015_session_001/ 생성
+       # 2. Session ID 자동 부여 (session_001, 002...)
+       # 3. chatbot.log 파일 생성
+       # 4. 7개 서브 폴더 생성 (tools/, database/, prompts/, ui/, outputs/, evaluation/, debug/)
+       # 5. metadata.json 초기화
+       # 6. Logger 초기화
 
-   # Logger 초기화
-   logger = Logger(log_path=f"{log_dir}/experiment.log")
+       # 챗봇 실행 로그 작성
+       exp.logger.write("챗봇 실행 시작")
+
+       # 도구 실행 로그 작성
+       exp.tool_logger.write("RAG 검색 도구 실행")
+
+       # 실험 종료 (자동으로 logger.close() 호출)
    ```
 
-2. 로그 기록
-   - `logger.write()` 사용 (print() 대신)
-   - 예: `logger.write(f"검색 결과: {len(docs)}개")`
+2. 세션 폴더 구조
+   ```
+   experiments/
+   └── 20251031/
+       ├── 20251031_103015_session_001/
+       │   ├── chatbot.log          # 챗봇 실행 로그
+       │   ├── metadata.json        # 세션 메타데이터
+       │   ├── tools/               # 도구 실행 로그
+       │   │   └── tool_execution.log
+       │   ├── database/            # DB 쿼리 로그
+       │   ├── prompts/             # 프롬프트 저장
+       │   ├── ui/                  # UI 스크린샷
+       │   ├── outputs/             # 최종 답변 저장
+       │   ├── evaluation/          # 평가 지표
+       │   └── debug/               # 디버그 로그
+       └── 20251031_103520_session_002/
+           └── ...
+   ```
 
-3. 실험 종료
-   - `logger.close()` 필수 호출
+3. Logger vs Tool Logger
+   - `exp.logger`: 챗봇 실행 로그 (`chatbot.log`)
+   - `exp.tool_logger`: 도구 실행 로그 (`tools/tool_execution.log`)
+
+4. 추가 기능
+   - 프롬프트 저장: `exp.save_prompt(prompt, step)`
+   - 최종 답변 저장: `exp.save_output(output, step)`
+   - 평가 지표 저장: `exp.save_rag_metrics(recall, precision, faithfulness)`
 
 ### 실험 폴더 구조
 
-PRD 문서 06_실험_추적_관리.md 참조
+상세 내용은 [실험_폴더_구조.md](../rules/실험_폴더_구조.md) 참조
 
 ---
 
@@ -898,7 +893,7 @@ PRD 문서 06_실험_추적_관리.md 참조
 1. [01_프로젝트_개요.md](../PRD/01_프로젝트_개요.md) - 프로젝트 전체 개요
 2. [02_프로젝트_구조.md](../PRD/02_프로젝트_구조.md) - 폴더 구조
 3. [05_로깅_시스템.md](../PRD/05_로깅_시스템.md) ⭐ - Logger 사용법
-4. [06_실험_추적_관리.md](../PRD/06_실험_추적_관리.md) ⭐ - 실험 폴더 구조
+4. [06_실험_추적_관리.md](../PRD/06_실험_추적_관리.md) ⭐ - ExperimentManager 및 Session 폴더 구조
 5. [10_기술_요구사항.md](../PRD/10_기술_요구사항.md) - 기술 스택
 6. [11_데이터베이스_설계.md](../PRD/11_데이터베이스_설계.md) - DB 스키마 (papers, glossary 테이블)
 7. [13_RAG_시스템_설계.md](../PRD/13_RAG_시스템_설계.md) - RAG 파이프라인 및 Retriever 설정
@@ -906,6 +901,9 @@ PRD 문서 06_실험_추적_관리.md 참조
 ### 참고 문서
 - [03_브랜치_전략.md](../PRD/03_브랜치_전략.md) - Feature 브랜치
 - [04_일정_관리.md](../PRD/04_일정_관리.md) - 개발 일정
+- [담당역할_01-1_최현화_실험_관리_시스템.md](담당역할_01-1_최현화_실험_관리_시스템.md) - ExperimentManager 클래스 상세 구현
+- [담당역할_01-2_최현화_로깅_모니터링.md](담당역할_01-2_최현화_로깅_모니터링.md) - 로깅 및 모니터링 시스템
+- [실험_폴더_구조.md](../rules/실험_폴더_구조.md) - 실험 폴더 구조 최종안
 
 ---
 
