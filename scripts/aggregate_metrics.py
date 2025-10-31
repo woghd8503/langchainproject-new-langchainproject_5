@@ -360,16 +360,16 @@ def main():
         description='실험 평가 지표 집계',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-사용 예시:
-  # 특정 날짜의 평가 지표 집계 (JSON 출력)
-  python scripts/aggregate_metrics.py --date 20251031 --output results.json
+                사용 예시:
+                # 특정 날짜의 평가 지표 집계 (JSON 출력)
+                python scripts/aggregate_metrics.py --date 20251031 --output results.json
 
-  # 특정 날짜의 평가 지표 집계 (CSV 출력)
-  python scripts/aggregate_metrics.py --date 20251031 --output results.csv
+                # 특정 날짜의 평가 지표 집계 (CSV 출력)
+                python scripts/aggregate_metrics.py --date 20251031 --output results.csv
 
-  # 모든 메트릭 집계
-  python scripts/aggregate_metrics.py --date 20251031 --output results.json
-        """
+                # 모든 메트릭 집계
+                python scripts/aggregate_metrics.py --date 20251031 --output results.json
+                """
     )
 
     # 필수 인자 추가

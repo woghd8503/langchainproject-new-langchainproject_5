@@ -155,25 +155,25 @@ def main():
         description='metadata.json 기반 실험 검색',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-사용 예시:
-  # 난이도별 검색
-  python scripts/find_experiments.py --difficulty easy
+                사용 예시:
+                # 난이도별 검색
+                python scripts/find_experiments.py --difficulty easy
 
-  # 도구별 검색
-  python scripts/find_experiments.py --tool rag_paper
+                # 도구별 검색
+                python scripts/find_experiments.py --tool rag_paper
 
-  # 날짜별 검색
-  python scripts/find_experiments.py --date 20251031
+                # 날짜별 검색
+                python scripts/find_experiments.py --date 20251031
 
-  # 응답 시간 기준 검색 (빠른 실험만)
-  python scripts/find_experiments.py --max-time 3000
+                # 응답 시간 기준 검색 (빠른 실험만)
+                python scripts/find_experiments.py --max-time 3000
 
-  # 복합 조건 검색
-  python scripts/find_experiments.py --difficulty easy --tool rag_paper --min-time 2000 --max-time 5000
+                # 복합 조건 검색
+                python scripts/find_experiments.py --difficulty easy --tool rag_paper --min-time 2000 --max-time 5000
 
-  # 상세 정보 출력
-  python scripts/find_experiments.py --difficulty easy --verbose
-        """
+                # 상세 정보 출력
+                python scripts/find_experiments.py --difficulty easy --verbose
+                """
     )
 
     # 필터 옵션 추가
