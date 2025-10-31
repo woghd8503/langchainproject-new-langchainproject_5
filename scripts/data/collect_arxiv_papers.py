@@ -102,21 +102,21 @@ class ArxivPaperCollector:
                     continue
 
                 try:
-                # PDF URL로 직접 다운로드
-                import urllib.request
-                
-                pdf_url = dto.pdf_url or f"https://arxiv.org/pdf/{dto.arxiv_id}.pdf"
-                
-                # 재시도 로직
-                max_retries = 3
-                for attempt in range(max_retries):
-                    try:
-                        urllib.request.urlretrieve(pdf_url, pdf_filename)
-                        break
-                    except Exception as retry_e:  # noqa: BLE001
-                        if attempt == max_retries - 1:
-                            raise retry_e
-                        time.sleep(1)
+                    # PDF URL로 직접 다운로드
+                    import urllib.request
+                    
+                    pdf_url = dto.pdf_url or f"https://arxiv.org/pdf/{dto.arxiv_id}.pdf"
+                    
+                    # 재시도 로직
+                    max_retries = 3
+                    for attempt in range(max_retries):
+                        try:
+                            urllib.request.urlretrieve(pdf_url, pdf_filename)
+                            break
+                        except Exception as retry_e:  # noqa: BLE001
+                            if attempt == max_retries - 1:
+                                raise retry_e
+                            time.sleep(1)
                     
                     downloaded_count += 1
                     if self.exp_manager:
