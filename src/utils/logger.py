@@ -2,7 +2,15 @@
 
 import sys                                       # 시스템 관련 기능 모듈
 from datetime import datetime                    # 현재 시간 가져오기 모듈
-from tqdm import tqdm                            # 진행률 표시 모듈
+from pathlib import Path                         # 경로 처리 모듈
+from typing import Optional                      # 타입 힌팅 모듈
+
+# tqdm은 선택적 의존성
+try:
+    from tqdm import tqdm                        # 진행률 표시 모듈
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
 
 # ---------------------- Logger 클래스 정의 ---------------------- #
 class Logger:                                    # Logger 클래스 정의
@@ -12,17 +20,25 @@ class Logger:                                    # Logger 클래스 정의
     """
     # 초기화 함수 정의
     def __init__(self, log_path: str, print_also: bool = True):
-        self.log_path = log_path                 # 로그 파일 경로 저장
+        self.log_path = Path(log_path)           # 로그 파일 경로 저장 (pathlib.Path 사용)
         self.print_also = print_also             # 콘솔 출력 여부 저장
+
+        # 로그 폴더 자동 생성
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+
         # 원본 표준 출력을 저장해 둡니다.
         self.original_stdout = sys.stdout        # 원본 표준 출력 저장
         self.original_stderr = sys.stderr        # 원본 표준 에러 저장
-        # 로그 파일을 열고, 라인 버퍼링을 사용합니다.
-        self.log_file = open(log_path, 'a', encoding='utf-8', buffering=1)  # 로그 파일 열기
+
+        # 로그 파일을 열고, UTF-8 인코딩을 사용합니다.
+        self.log_file = open(self.log_path, 'a', encoding='utf-8')  # 로그 파일 열기
+
+        # tqdm 진행률 추적 변수
+        self._tqdm_last_percent = {}             # {desc: last_percent} - 작업별 마지막 기록 진행률
 
     
     # 로그 기록 함수 정의
-    def write(self, message: str, print_also: bool = True, print_error: bool = False):
+    def write(self, message: str, print_also: Optional[bool] = None, print_error: bool = False):
         """
         로그 메시지를 파일에 기록하고,
         print_also=True일 경우 콘솔에도 출력합니다.
@@ -36,9 +52,11 @@ class Logger:                                    # Logger 클래스 정의
         line = f"{timestamp} | {message}\n"      # 타임스탬프와 메시지 결합
         
         self.log_file.write(line)                # 로그 파일에 기록
-        
-        # 콘솔 출력 옵션이 활성화된 경우
-        if self.print_also and print_also:
+        self.log_file.flush()                    # 버퍼 즉시 플러시 (데이터 손실 방지)
+
+        # 콘솔 출력 옵션 처리 (None이면 기본값 사용)
+        should_print = print_also if print_also is not None else self.print_also
+        if should_print:
             # 에러 메시지인 경우
             if print_error:
                 # 재귀 호출을 피하기 위해 원본 표준 출력을 사용합니다.
@@ -71,18 +89,74 @@ class Logger:                                    # Logger 클래스 정의
         """
         표준 출력(stdout)과 표준 에러(stderr)를 원상 복구합니다.
         """
-        self.write(">> 로그 리디렉션 중료.", print_also=True)  # 리다이렉션 중지 로그
+        self.write(">> 로그 리디렉션 종료", print_also=True)  # 리다이렉션 중지 로그
         sys.stdout = self.original_stdout        # 표준 출력 원상 복구
         sys.stderr = self.original_stderr        # 표준 에러 원상 복구
     
     
-    # tqdm 리다이렉션 함수 정의
-    def tqdm_redirect(self):
-        """tqdm.write를 이 로거 인스턴스로 리다이렉션합니다."""
-        # tqdm 호환 래퍼 함수 정의
-        def tqdm_write_wrapper(s, file=None, end="\n", nolock=False):
-            self.write(s)                        # 메시지를 로거로 전달
-        tqdm.write = tqdm_write_wrapper          # tqdm 출력을 래퍼 함수로 리다이렉션
+    # tqdm 진행률 표시 함수 정의
+    def tqdm(self, iterable=None, total=None, desc=None, **kwargs):
+        """
+        진행률 표시 - 10%마다만 로그 기록
+
+        Args:
+            iterable: 반복 가능한 객체
+            total: 전체 항목 수 (iterable이 None일 때 필수)
+            desc: 진행률 설명
+            **kwargs: tqdm의 기타 파라미터
+
+        사용법:
+            for item in logger.tqdm(items, desc="데이터 처리"):
+                # work
+        """
+        if not TQDM_AVAILABLE:
+            self.write("tqdm이 설치되지 않았습니다. 기본 반복을 사용합니다.", print_error=True)
+            # tqdm 없이 기본 반복 - 10%마다 진행률 로그
+            if iterable:
+                total = total or (len(iterable) if hasattr(iterable, '__len__') else None)
+                for i, item in enumerate(iterable, 1):
+                    if total and i % max(1, total // 10) == 0:
+                        percent = (i / total * 100)
+                        self.write(f"{desc or 'Progress'}: {percent:.0f}% ({i}/{total})")
+                    yield item
+                if total:
+                    self.write(f"{desc or 'Progress'}: 100% ({total}/{total}) - 완료")
+            return
+
+        # tqdm 사용 - 콘솔에는 진행률 바 표시, 로그에는 10%마다만 기록
+        desc = desc or "Progress"
+        last_percent = self._tqdm_last_percent.get(desc, -10)
+        total = total or (len(iterable) if iterable and hasattr(iterable, '__len__') else None)
+
+        try:
+            # tqdm 진행률 바 생성 (콘솔에 표시)
+            from tqdm import tqdm as tqdm_orig
+            pbar = tqdm_orig(iterable=iterable, total=total, desc=desc, **kwargs)
+
+            for item in pbar:
+                # 10% 단위로만 로그 기록
+                if total:
+                    percent = (pbar.n / total * 100)
+                    if percent - last_percent >= 10:
+                        self.write(f"{desc}: {percent:.0f}% ({pbar.n}/{total})")
+                        last_percent = percent
+                        self._tqdm_last_percent[desc] = last_percent
+                yield item
+
+            # 완료 로그
+            if total:
+                self.write(f"{desc}: 100% ({total}/{total}) - 완료")
+
+            # 완료 후 추적 변수 초기화
+            self._tqdm_last_percent.pop(desc, None)
+
+        except Exception as e:
+            # 에러 발생 시 마지막 진행률 기록
+            if total and 'pbar' in locals():
+                current_percent = (pbar.n / total * 100)
+                self.write(f"{desc}: 에러 발생 (마지막 진행률: {current_percent:.0f}% - {pbar.n}/{total})", print_error=True)
+            self._tqdm_last_percent.pop(desc, None)
+            raise
 
     
     # 로거 종료 함수 정의
@@ -90,4 +164,27 @@ class Logger:                                    # Logger 클래스 정의
         """
         로그 파일을 닫습니다.
         """
-        self.log_file.close() # 로그 파일 닫기
+        # 중복 close 방지
+        if hasattr(self, 'log_file') and self.log_file and not self.log_file.closed:
+            self.log_file.close()                # 로그 파일 닫기
+
+    # 소멸자 정의
+    def __del__(self):
+        """
+        소멸자 - 파일 자동 닫기
+        """
+        self.close()
+
+    # with 문 지원
+    def __enter__(self):
+        """
+        with 문 지원
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        with 문 종료 시 자동 close
+        """
+        self.close()
+        return False
