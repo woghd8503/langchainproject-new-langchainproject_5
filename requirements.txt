@@ -1,11 +1,41 @@
-# ==================== 필수 패키지 ==================== #
+# Streamlit
+streamlit>=1.29.0
 
-# ------------------------- YAML 파일 처리 ------------------------- #
-PyYAML==6.0.1                          # YAML 파일 읽기/쓰기
+# LangChain 관련
+langchain>=0.1.0
+langchain-community>=0.0.20
+langchain-core>=0.1.0
+langchain-openai>=0.1.0
+langchain-groq>=0.1.0
+langchain-text-splitters>=0.0.1
 
-# ------------------------- 진행률 표시 (선택) ------------------------- #
-tqdm==4.66.1                           # 진행률 바 표시
+# 임베딩 & 벡터DB
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+langchain-huggingface>=0.0.1  # HuggingFaceEmbeddings 마이그레이션용
 
-# ------------------------- 테스트 ------------------------- #
-pytest==7.4.3                          # 단위 테스트 프레임워크
-pytest-cov==4.1.0                      # 테스트 커버리지
+# 검색 도구
+duckduckgo-search>=3.9.0
+ddgs>=9.6.0
+tavily-python>=0.5.0
+arxiv>=2.0.0
+
+# .env 파일 관리
+python-dotenv>=1.0.0
+
+# PDF 파서 (arXiv 로더용)
+pymupdf>=1.24.0
+pypdf>=4.0.0
+
+# PostgreSQL & ORM & 마이그레이션
+SQLAlchemy>=2.0.0
+alembic>=1.12.0
+psycopg2-binary>=2.9.9
+langchain-postgres>=0.0.12
+
+# 유틸
+tenacity>=8.2.0
+PyYAML>=6.0.0
+
+# 테스트
+pytest>=7.4.0

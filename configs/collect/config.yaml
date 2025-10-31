@@ -1,0 +1,7 @@
+queries:
+  - text: "LLM"
+    max_results: 10
+  - text: "RAG"
+    max_results: 5
+
+
